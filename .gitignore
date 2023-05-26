@@ -398,5 +398,8 @@ FodyWeavers.xsd
 *.sln.iml
 
 
-# Visual Studio
-.vs
+# Visual Studio.
+
+.vs/*
+
+IshakBuildTool/obj/*
