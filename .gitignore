@@ -1,0 +1,44 @@
+# Compiled object files
+*.sln
+*.csproj
+*.dll
+*.exe
+*.pdb
+
+# NuGet packages
+packages/
+
+# Build output
+/bin/
+/obj/
+
+# Visual Studio files
+.vs/
+.vscode/
+
+# User-specific files
+*.user
+*.user.props
+*.suo
+*.cache
+*.csproj.user
+*.sln.docstates
+
+# Test Results
+TestResults/
+
+# Resharper files
+_ReSharper*/
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+build/
+bld/
+
+# Misc
+[Tt]humbs.db
+[Tt]est[Rr]esult*/
+[Bb]in/
+[Oo]bj/
