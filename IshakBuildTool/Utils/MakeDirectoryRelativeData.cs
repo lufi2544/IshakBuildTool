@@ -23,6 +23,7 @@ namespace IshakBuildTool.Utils
         {
             path = absolutePath;
 
+            directories = new List<DirectoryData>();
             DivideInDirectories();
         }
 
@@ -34,6 +35,11 @@ namespace IshakBuildTool.Utils
                 char actualChar = path[idx];
                 if (actualChar == '/')
                 {
+                    if (idx == path.Length - 1)
+                    {
+                        actualDirectoryStr += actualChar;
+                    }
+
                     directories.Add(new DirectoryData(actualDirectoryStr));
                     actualDirectoryStr = string.Empty;
                 }
@@ -44,13 +50,26 @@ namespace IshakBuildTool.Utils
             }
         }
 
-        public string ConstructPathFromDirectoryIdx(int idx)
+        public string ConstructPathFromDirectoryIdx(int fromIdx)
         {
-            string finalBuiltPath = string.Empty;
+            StringBuilder finalPathBuilder = new StringBuilder();
 
-            DirectoryData dirData = directories[idx];
+            for (int idx = fromIdx; idx < directories.Count; ++idx)
+            {
+                DirectoryData dirData = directories[idx];
 
-            return finalBuiltPath;
+                if (idx == directories.Count - 1)
+                {
+                    finalPathBuilder.Append("{0}", dirData.name);
+
+                }else if (idx > 0)
+                {                    
+                    finalPathBuilder.Append("{0}/", dirData.name);
+                }
+                                 
+            }
+
+            return finalPathBuilder.ToString();
         }
 
         public List<DirectoryData> directories { get; set; }

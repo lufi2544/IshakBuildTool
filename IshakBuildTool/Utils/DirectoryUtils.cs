@@ -27,28 +27,59 @@ namespace IshakBuildTool.Utils
             MakeDirectoryRelativeData otherDirRelativeData = new MakeDirectoryRelativeData(otherDir);
             MakeDirectoryRelativeData relativeDirData = new MakeDirectoryRelativeData(makeRelativeToThisDir.path);
 
-            StringBuilder finalRelativatedPath = new StringBuilder();
             int flaggedIdx = -1;
             for(int idx = 0; idx < relativeDirData.directories.Count; ++idx)
             {
-                if (!relativeDirData.directories[idx].Equals(otherDirRelativeData.directories[idx]))
+                if (!relativeDirData.directories[idx].name.Equals(otherDirRelativeData.directories[idx].name))
                 {
-                    flaggedIdx= idx;
-                }
+                    if (idx == 0)
+                    {
+                        break;
+                    }
 
-                if (flaggedIdx != -1)
-                {
-                    finalRelativatedPath.Append("{0}")
-                }
+                    // Construct path from the flagged idx - 1 because this is whre the directories start to differ.
+                    // Adds the ../ that correspond to the folders count needed for reaching that folder.                                                           
+                    //
+                    //-> Refered Dir:         C/Engine/Binaries/Game/Space/Source...
+                    //                        0    1      2      3     4     5
+                    //                                 flagged
+                    //
+                    //->RelativeToThis:      C/Engine/Build/Game
+                    //                        0   1     2     3  
+                    //
+                    // Final Relative Path: ../../Binaries/Game/Space/Source... 
+
+                    flaggedIdx = idx - 1;
+                    break;
+                }                                                    
             }
+            
 
-            // C/Binaries/Game/Source/Public
-            // C/Binaries/Game/Engine
+            // Checked if we got some DirReference that was not equal
+            StringBuilder finalRelativatedPath = new StringBuilder();            
+            if (flaggedIdx != -1)
+            {
 
-            // ../../Engine
 
-            // If they are not equal at all, we just return the absolute path.
-            return referenceDir.path;            
+                int pointsNum = relativeDirData.directories.Count - flaggedIdx;
+                string partialPath = otherDirRelativeData.ConstructPathFromDirectoryIdx(flaggedIdx - 1);
+
+                StringBuilder pointsStringB = new StringBuilder();
+                for (int pointsIdx = 0; pointsIdx < pointsNum; ++pointsIdx)
+                {
+                    pointsStringB.Append("../");
+                }
+
+                finalRelativatedPath.Append(pointsStringB.ToString() + partialPath);
+
+            }
+            else
+            {
+                // Nothing equal, so we return the absolute path.
+                finalRelativatedPath.Append(referenceDir.path);
+            }
+          
+            return finalRelativatedPath.ToString();
         }
         // TODO make relative to the project .sln 
        public static string GetPublicOrPrivateDirectoryPathFromDirectory(DirectoryReference dir)

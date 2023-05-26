@@ -15,6 +15,10 @@ namespace IshakBuildTool
             Console.WriteLine(initMessage);
 
             GenerateProjectFilesHandler.GenerateProjectFiles(testArgs);
+
+            string path = DirectoryUtils.MakeRelativeTo(new DirectoryReference("C/"), new DirectoryReference("A/"));
+
+            Console.WriteLine(path);
         }
 
     }
