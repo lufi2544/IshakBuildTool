@@ -1,0 +1,15 @@
+C:\Users\lufi2\Desktop\IshakEngine\BuildTool\IshakBuildTool\IshakBuildTool\bin\Debug\net6.0\IshakBuildTool.exe
+C:\Users\lufi2\Desktop\IshakEngine\BuildTool\IshakBuildTool\IshakBuildTool\bin\Debug\net6.0\IshakBuildTool.deps.json
+C:\Users\lufi2\Desktop\IshakEngine\BuildTool\IshakBuildTool\IshakBuildTool\bin\Debug\net6.0\IshakBuildTool.runtimeconfig.json
+C:\Users\lufi2\Desktop\IshakEngine\BuildTool\IshakBuildTool\IshakBuildTool\bin\Debug\net6.0\IshakBuildTool.dll
+C:\Users\lufi2\Desktop\IshakEngine\BuildTool\IshakBuildTool\IshakBuildTool\bin\Debug\net6.0\IshakBuildTool.pdb
+C:\Users\lufi2\Desktop\IshakEngine\BuildTool\IshakBuildTool\IshakBuildTool\obj\Debug\net6.0\IshakBuildTool.csproj.AssemblyReference.cache
+C:\Users\lufi2\Desktop\IshakEngine\BuildTool\IshakBuildTool\IshakBuildTool\obj\Debug\net6.0\IshakBuildTool.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\lufi2\Desktop\IshakEngine\BuildTool\IshakBuildTool\IshakBuildTool\obj\Debug\net6.0\IshakBuildTool.AssemblyInfoInputs.cache
+C:\Users\lufi2\Desktop\IshakEngine\BuildTool\IshakBuildTool\IshakBuildTool\obj\Debug\net6.0\IshakBuildTool.AssemblyInfo.cs
+C:\Users\lufi2\Desktop\IshakEngine\BuildTool\IshakBuildTool\IshakBuildTool\obj\Debug\net6.0\IshakBuildTool.csproj.CoreCompileInputs.cache
+C:\Users\lufi2\Desktop\IshakEngine\BuildTool\IshakBuildTool\IshakBuildTool\obj\Debug\net6.0\IshakBuildTool.dll
+C:\Users\lufi2\Desktop\IshakEngine\BuildTool\IshakBuildTool\IshakBuildTool\obj\Debug\net6.0\refint\IshakBuildTool.dll
+C:\Users\lufi2\Desktop\IshakEngine\BuildTool\IshakBuildTool\IshakBuildTool\obj\Debug\net6.0\IshakBuildTool.pdb
+C:\Users\lufi2\Desktop\IshakEngine\BuildTool\IshakBuildTool\IshakBuildTool\obj\Debug\net6.0\IshakBuildTool.genruntimeconfig.cache
+C:\Users\lufi2\Desktop\IshakEngine\BuildTool\IshakBuildTool\IshakBuildTool\obj\Debug\net6.0\ref\IshakBuildTool.dll
