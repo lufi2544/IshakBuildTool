@@ -399,7 +399,7 @@ FodyWeavers.xsd
 
 
 # Visual Studio.
-
 .vs/*
 
+#Ishak Build Tool.
 IshakBuildTool/obj/*

@@ -17,10 +17,10 @@ namespace IshakBuildTool.ProjectFile
             subSolutionFiles = new List<SolutionFile>();
         }
 
-        public ProjectDirectory(string directoryParam)
+        public ProjectDirectory(string directoryPath)
         {            
-            DirectoryPath = directoryParam;
-            DirectoryName = Path.GetFileName(directoryParam);                        
+            DirectoryPath = directoryPath;
+            DirectoryName = Path.GetFileName(directoryPath);                        
             subSolutionFiles = new List<SolutionFile>();
         }
 

@@ -1,4 +1,5 @@
 ﻿using IshakBuildTool.ProjectFile;
+using IshakBuildTool.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,9 +16,16 @@ namespace IshakBuildTool.ProjecFile
             projectName = soutionNameParam;
             solutionProjectName = soutionNameParam + ".vcxproj";
             path = pathParam + solutionProjectName;
+
+            // We fill the source files here directly
+
+
         }
 
-        
+        void CreateSolutionFiles()
+        {
+            
+        }      
       
        public string solutionProjectName { get; set; }
        public string projectName { get; set; }             

@@ -10,6 +10,6 @@ namespace IshakBuildTool.Build
     {
         public static string VSSolutionHash = "{2150E333-8FDC-42A3-9474-1A3956D46DE8}";
         public static string VSProjectExtension = ".vcxproj";
-        public static string DefaultIntermediateFolder = "Intermediate\\ProjectFiles\\";
+        public static string DefaultIntermediateFolder = "Intermediate\\ProjectFiles\\";                      
     }
 }

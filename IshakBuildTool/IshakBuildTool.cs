@@ -11,14 +11,14 @@ namespace IshakBuildTool
         static void Main(string[] args)
         {
             var testArgs = TestEnviroment.TestFolderPath;            
-            var initMessage = String.Format("Starting IshakBuildTool for path: {0} ", testArgs);
+            var initMessage = String.Format(
+                "Starting IshakBuildTool for path: {0} ",
+                testArgs);
+
             Console.WriteLine(initMessage);
 
-            GenerateProjectFilesHandler.GenerateProjectFiles(testArgs);
-
-            string path = DirectoryUtils.MakeRelativeTo(new DirectoryReference("C/"), new DirectoryReference("A/"));
-
-            Console.WriteLine(path);
+            GenerateProjectFilesHandler.GenerateProjectFiles(testArgs);            
+            
         }
 
     }

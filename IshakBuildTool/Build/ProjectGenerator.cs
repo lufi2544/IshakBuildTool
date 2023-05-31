@@ -183,24 +183,40 @@ namespace IshakBuildTool.Build
             // TODO make the include paths Set( in this case the Source file for the engine )
 
             string sharedIncludeDirectories = GetIncludePathSet();
-            engineSolutionFileString.AppendLine("    <IncludePath>$(IncludePath);{0}</IncludePath>");
-            
+            engineSolutionFileString.AppendLine("    <IncludePath>$(IncludePath);{0}</IncludePath>", sharedIncludeDirectories);
+            engineSolutionFileString.AppendLine("    <NMakeForcedIncludes>$(NMakeForcedIncludes)</NMakeForcedIncludes>");
+            engineSolutionFileString.AppendLine("    <NMakeAssemblySearchPath>$(NMakeAssemblySearchPath)</NMakeAssemblySearchPath>");
+            engineSolutionFileString.AppendLine("    <AdditionalOptions>{0}</AdditionalOptions>", GetCppVersion(ECppVersion.Cpp17));
+            engineSolutionFileString.AppendLine("  </PropertyGroup>");
 
+        }
 
+        string GetCppVersion(ECppVersion version)
+        {
+            switch (version)
+            {
+                case ECppVersion.Cpp17:
+                    return "/std:c++17";
+
+                case ECppVersion.Cpp20:
+                    return "/std:c++20";
+            }
+
+            return string.Empty;
         }
 
         string GetIncludePathSet()
         {
-            StringBuilder includePathsStrBuilder = new StringBuilder();
-            // Get the Directory Paths For including in the project
-            // .
-            // 
-
-            // Absolute path for including in the Include Category
+            StringBuilder includePathsStrBuilder = new StringBuilder();                      
           
+            // As modules are added to the engine, we would have to change the way we scann the files and store them
+            // but for now this should be fine.
             foreach (FileReference sourceFile in engineSolutionFile.sourceFiles)
-            {
+            {                
+                // For now we just support source files under the Private Directory.
                 string directory = DirectoryUtils.GetPublicOrPrivateDirectoryPathFromDirectory(sourceFile.GetDirectory());
+
+                directory = DirectoryUtils.MakeRelativeTo(new DirectoryReference(directory), new DirectoryReference(engineSolutionFile.path));
 
                 if (!includePathsStrBuilder.ToString().Contains(directory))
                 {                    
