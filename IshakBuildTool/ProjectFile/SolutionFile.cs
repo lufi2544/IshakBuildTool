@@ -2,6 +2,7 @@
 using IshakBuildTool.Utils;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,7 +25,12 @@ namespace IshakBuildTool.ProjecFile
 
         void CreateSolutionFiles()
         {
-            
+            sourceFiles = FileScanner.FindFilesInDirectoryWithFilter(
+                new ProjectDirectory(path),
+                EFileScannerFilterMode.EInclusive,
+                null,
+                EFileScannerFilterMode.EInclusive,
+                null);
         }      
       
        public string solutionProjectName { get; set; }

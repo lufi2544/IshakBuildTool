@@ -102,28 +102,21 @@ namespace IshakBuildTool.Utils
             return FindFilesInDirectoryWithFilter(
                 directory,
                 EFileScannerFilterMode.EInclusive,
-                new List<string> { "Source" },
-                EFileScannerFilterMode.EInclusive,
-                new List<string> { ".h", ".cpp" });
+                null,
+                EFileScannerFilterMode.EExclusive,
+                null);
+            
         }
 
         static public List<FileReference> FindFilesInDirectoryWithFilter(
             ProjectDirectory projectDirectory,
-            EFileScannerFilterMode filterMode,
-            List<string> folderFilter,
-            EFileScannerFilterMode filesFilterMode,
+            EFileScannerFilterMode? filterMode,
+            List<string>? folderFilter,
+            EFileScannerFilterMode? filesFilterMode,
             List<string>? fileExtensionsToFilter,
              bool bRecursive = true)
         {
-
-
-
-
-            if (fileExtensionsToFilter == null)
-            {
-                fileExtensionsToFilter= new List<string>(DefaultExcludeFileSuffixes);
-            }
-
+   
             if (bRecursive)
             {
                 return FindFilesInDirectoryRecursiveWithFilter(projectDirectory, filterMode, folderFilter, filesFilterMode, fileExtensionsToFilter);
@@ -134,10 +127,10 @@ namespace IshakBuildTool.Utils
 
         static private List<FileReference> FindFilesInDirectoryRecursiveWithFilter(
             ProjectDirectory folderToExplore,
-            EFileScannerFilterMode filterMode,
-            List<string> folderFilter,
-            EFileScannerFilterMode filesFilterMode,
-            List<string> fileExtensionsToFilter)
+            EFileScannerFilterMode? filterMode,
+            List<string>? folderFilter,
+            EFileScannerFilterMode? filesFilterMode,
+            List<string>? fileExtensionsToFilter)
         {
             List<FileReference> foundFiles = FindFilesInDirectoryWithExtensionsFilter(folderToExplore, filesFilterMode, fileExtensionsToFilter);
             List<string> foundDirectories = Directory.GetDirectories(folderToExplore.DirectoryPath).ToList();
@@ -169,8 +162,14 @@ namespace IshakBuildTool.Utils
             return foundFiles;
         }
 
-        static private List<string> FilterDirectories(List<string> directoriesToFilter, EFileScannerFilterMode filterMode, List<string> filterDirectories)
+        static private List<string> FilterDirectories(List<string> directoriesToFilter, EFileScannerFilterMode? filterMode, List<string>? filterDirectories)
         {
+            // No filter will be applied, so we just return all the directories.
+            if (filterDirectories == null)
+            {
+                return directoriesToFilter;
+            }
+
             List<string> filteredDirectories = new List<string>();
                     
             foreach (string directoryPath in directoriesToFilter)
@@ -203,8 +202,8 @@ namespace IshakBuildTool.Utils
 
         static private List<FileReference> FindFilesInDirectoryWithExtensionsFilter(
             ProjectDirectory folderToExplore,
-            EFileScannerFilterMode filterMode,
-            List<string> filesExtensionToFilter)
+            EFileScannerFilterMode? filterMode,
+            List<string>? filesExtensionToFilter)
         {
             List<FileReference> foundFilesReferences = new List<FileReference>();
             List<string> foundFiles = Directory.GetFiles(folderToExplore.DirectoryPath).ToList();
@@ -219,12 +218,12 @@ namespace IshakBuildTool.Utils
             return foundFilesReferences;
         }
 
-        static private List<FileReference> FilterFiles(List<FileReference> filesToFilter, EFileScannerFilterMode filterMode, List<string> filesExtensionsFilter)
+        static private List<FileReference> FilterFiles(List<FileReference> filesToFilter, EFileScannerFilterMode? filterMode, List<string>? filesExtensionsFilter)
         {
             return FilterFilesFromFilterMode(filesToFilter, filterMode, filesExtensionsFilter);
         }
 
-        static private List<FileReference> FilterFilesFromFilterMode(List<FileReference> filesToFilter, EFileScannerFilterMode filterMode, List<string> filesExtensionFilter)
+        static private List<FileReference> FilterFilesFromFilterMode(List<FileReference> filesToFilter, EFileScannerFilterMode? filterMode, List<string>? filesExtensionFilter)
         {
             List<FileReference> filteredFiles = new List<FileReference>();
             foreach (FileReference file in filesToFilter)
@@ -243,11 +242,21 @@ namespace IshakBuildTool.Utils
             return filteredFiles;
         }
         
-        private static bool FilterSingleFile(FileReference fileToFilter, EFileScannerFilterMode filterMode, List<string> filterExtensions)
-        {            
+        private static bool FilterSingleFile(FileReference fileToFilter, EFileScannerFilterMode? filterMode, List<string>? filterExtensions)
+        {
+            // If not filter is passed in, then we just fill it with the default extensionsfiles.
+            if (filterExtensions == null)
+            {
+                filterExtensions = new List<string>(DefaultExcludeFileSuffixes);                
+            }
+
+            if (filterMode == null)
+            {
+                filterMode = EFileScannerFilterMode.EExclusive;
+            }
+
             foreach (String fileExtension in filterExtensions)
             {
-                bool bIncludeCondition = false;
                 String fileStr = new String(Path.GetFileName(fileToFilter.path));
 
                 if (fileStr.Contains(fileExtension))
@@ -268,8 +277,13 @@ namespace IshakBuildTool.Utils
         }
 
         // For now by default we just filter the folder in an inclusive way.
-        private static bool FilterSingleDirectory(FileReference directoryToFilter, List<string> filterDirectories)
+        private static bool FilterSingleDirectory(FileReference directoryToFilter, List<string>? filterDirectories)
         {
+            if (filterDirectories == null)
+            {
+                return false;
+            }
+
             String directoryToFilterStr = directoryToFilter.path;            
             foreach (String filterDirectory in filterDirectories)
             {                                                
