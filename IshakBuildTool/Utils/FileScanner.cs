@@ -117,6 +117,8 @@ namespace IshakBuildTool.Utils
         {
 
 
+
+
             if (fileExtensionsToFilter == null)
             {
                 fileExtensionsToFilter= new List<string>(DefaultExcludeFileSuffixes);
