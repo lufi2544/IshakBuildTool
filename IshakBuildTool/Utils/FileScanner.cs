@@ -99,21 +99,15 @@ namespace IshakBuildTool.Utils
 
         static public List<FileReference> FindSourceFiles(ProjectDirectory directory)
         {
-            return FindFilesInDirectoryWithFilter(
-                directory,
-                EFileScannerFilterMode.EInclusive,
-                null,
-                EFileScannerFilterMode.EExclusive,
-                null);
-            
+            return FindFilesInDirectoryWithFilter(directory);                           
         }
 
         static public List<FileReference> FindFilesInDirectoryWithFilter(
             ProjectDirectory projectDirectory,
-            EFileScannerFilterMode? filterMode,
-            List<string>? folderFilter,
-            EFileScannerFilterMode? filesFilterMode,
-            List<string>? fileExtensionsToFilter,
+            EFileScannerFilterMode? filterMode = null,
+            List<string>? folderFilter = null,
+            EFileScannerFilterMode? filesFilterMode = null,
+            List<string>? fileExtensionsToFilter = null,
              bool bRecursive = true)
         {
    
@@ -227,11 +221,7 @@ namespace IshakBuildTool.Utils
         {
             List<FileReference> filteredFiles = new List<FileReference>();
             foreach (FileReference file in filesToFilter)
-            {
-                if (filterMode == EFileScannerFilterMode.EInclusive)
-                {
-
-                }
+            {                
                 bool bFileHasExtension = FilterSingleFile(file, filterMode, filesExtensionFilter);
                 if (bFileHasExtension)
                 {

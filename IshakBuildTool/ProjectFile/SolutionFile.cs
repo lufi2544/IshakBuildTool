@@ -19,18 +19,13 @@ namespace IshakBuildTool.ProjecFile
             path = pathParam + solutionProjectName;
 
             // We fill the source files here directly
-
+            CreateSolutionFiles();
 
         }
 
         void CreateSolutionFiles()
         {
-            sourceFiles = FileScanner.FindFilesInDirectoryWithFilter(
-                new ProjectDirectory(path),
-                EFileScannerFilterMode.EInclusive,
-                null,
-                EFileScannerFilterMode.EInclusive,
-                null);
+            sourceFiles = FileScanner.FindSourceFiles(new ProjectDirectory(path));
         }      
       
        public string solutionProjectName { get; set; }
