@@ -116,6 +116,7 @@ namespace IshakBuildTool.Utils
              bool bRecursive = true)
         {
 
+
             if (fileExtensionsToFilter == null)
             {
                 fileExtensionsToFilter= new List<string>(DefaultExcludeFileSuffixes);
