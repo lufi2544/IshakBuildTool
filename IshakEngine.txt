@@ -1,0 +1,193 @@
+Ishak Engine UBT 1176
+
+{ 
+	ProjectFileGenerator.cs
+		-> 2359
+		-> 888( gets the modules and generate the source files for all of them to include later in the project ).
+		-> 1066( parse the source files from the discovered modules ).
+}
+
+
+// Unreal Build Tool //
+
+This is how unreal engine handles the files generation for the engine and the games, in our specific case we are just gonna 
+add engine files for now, when the moment comes and we have games, we are gonna proceed with that.
+
+	-> Searches the generators for the current platform.
+	-> Generates Project files for the specific platform.
+	-> Configures the generation.
+	-> Find game projects.
+	-> Discovers all the .Target.cs and store them into an array.
+	-> Discovers all the modules ( Source folder search )
+
+
+		// Creation
+
+		- Basically here when creating a module, after searching for all the Build.cs files, the PrivateFiles and PublicFiles are set.
+		
+			By default they are added in a way of:
+			- Public - Searching for "Public", "Classes" Directory within the module.
+			- Private - Searching for "Private" dir wihin.
+			/.. it does more stuff like searching of "Internal" dir.
+
+			- Modules are created, it has all the modules it depends on, because it was looked into when created in the build.cs.
+			So for every module we have the PublicModuleDependencies( shared along the different libraries ), PrivateModuleDependencies( TO Explore ).
+			Then we create a BuildEnviroment which contains a List of Directories and Modules, being the directories the Directory of the module,
+			and when compiling a file, we recursively look in the Current directory making a check for any of the Directory-Module List, advancing
+			to the Parent Dir if not found. If found, then we just concatenate all the Module Public and Private Dependency directories and its modules' recursively.
+		
+
+	-> For every module searches the project and adds it to the source files of that project.
+	-> Root folder is added the SubFolder with the Engine Category and the Engine as a ChildProject.
+	-> Root folder is added the Games as SubFolder 
+	-> Writes all the files into the project.
+
+
+	-> Generates the .sln file with the RootFolder info.
+
+
+
+
+// Ishak Engine Build Tool Flow
+
+-> Create the project files( Engine...)
+	-> In this case we should assign the GUID upon creation and add pass the intermediate folder, etc.
+	
+-> Scan Source Files and Add to project files.
+	-> File Scanner.
+		-> Finish the Filter. 
+			- Find a way to wrap the parameters for the file scanner filters.
+
+-> Adds the necessary files to the correspondant project .vcxproj.( Scans the Source Folder and adds the files ).
+	-> Write the vcxproj with the obtained data from the source files.
+
+	NTH-> Different configurations can be supported using XML files--- 
+	-UnrealTargetConfiguration
+
+	-> Write global props for the different configurations( standard c++ language,  )
+	-> Write the include file paths(relative).
+H---		-> Try to make it relative to the .sln.
+			-> test the relative path system.
+			-> refactor and divide into functions.
+			-> explore the input files for when compiling for a single .cpp file.
+			-> explore the shared files, when they are created, etc.
+
+-> Bind Intellisense Data.
+			-> Basically we have to find a way to bind all the directories where the compiler has to 
+				search for header files when compiling the .cpp files.			
+
+	-> Write all the directories to the filter soulution explorer as filters(folders).(ClInclude)
+
+
+-> Creates the Root Folder for the Project with the game structure.
+
+
+-> Write the .sln project with that info.
+	-> Create the GUID for the folders and the projects
+
+-> Refactor.
+
+
+
+// Generator System//
+
+System that generates the visual studio project files for the game engine and the game that is going to be developed.
+
+Generate the project files for the engine so we can develop the source code.
+	-> Configure the .sln project for the solution in visual studio so the files are generated correclty.
+	
+		-> Development: 
+
+			-> crete the .sln with the IshakEngine.
+
+				-> Explore the vs project GUID for the .sln format.( IshakEngine ), for a game, would be the IshakEngine and the game.
+				-> Explore the project file generator VCProject.cs to generate a project file if needed.( parent classes )
+				-> VCProject.cs
+					-> Refactor.	
+						-> Follow the UBT folder structure( RootFolder,etc ).( { ProjectFileGenerator.cs 2359 } )
+							Intelisense data is so slow LOL
+							-> Scan the Source files and add the reference to the ProjectFile object.					
+
+							-> Make the RootFolder, add the child projects( Engine, Games... ).
+							-> Make the GUID for every project.		
+
+
+				-> Create the VS Projects( IshakEngine ).
+				-> Scan the 			
+
+			-> configure different configurations.
+			-> binding correctly the new added files.
+
+			-> making a system to check if it is neccessary to rebuild on regenerating.
+			-> test by adding different files.
+
+
+
+- Separate the engine in modules.( Unreal Engine ).
+
+- Add a custom extension for the engine ( like .ishproject ) and add a bat script that triggers the BuildTool.
+
+
+
+// Build System//
+
+The build system will be in charge of compiling the engine along with solving dependencies, managing the executables, libraries, etc.
+
+
+1.Define the structure of your build system: You will need to define the structure of your build system,
+ including how you want your code to be compiled and linked. This will involve creating a set of build rules,
+ defining the inputs and outputs of the build process, and specifying any dependencies between the different components 
+of your code.
+
+2.Write a tool to generate the necessary build files: Once you have defined the structure of your build system,
+ you will need to write a tool that generates the necessary build files. 
+This tool should be able to take your source code files, headers, libraries,
+ and other dependencies and generate the necessary makefiles, build scripts,
+ or other configuration files needed to build your code.
+
+3.Write a custom build tool: You will also need to write a custom build tool that performs the actual compilation and
+ linking of your code. This tool should take the inputs and outputs of your build system and use them to generate the
+ final executable or library.
+
+4.Integrate the tools into your workflow: Once you have created the build system and the tools, 
+you will need to integrate them into your workflow. This may involve creating scripts or batch files
+ to automate the build process, or integrating the tools directly into your development environment or IDE.
+
+5.Test and iterate: Finally, you will need to test your build system and tools to ensure that they
+ work as expected. You may need to iterate on the system and the tools to address any issues or 
+bugs that arise during testing.
+
+
+
+We would scan in the changed files for the dependent files on this already changed file and compile them again.
+	create.
+	
+	-To avoid scanning through all source files in the engine, we should be able to track which files have been changed since the last build,
+	so for doing that we can use the Windows API ReadDirectoryChangesW to see that.
+	
+	- Once we know which files have been changed, then we can continue for the scanning of the dependencies( Dependency system ).
+	
+	- Then once we know the dependencies we compile all the associated files.
+
+-> Dependency System.
+
+
+Determines the order in which the engine must be compiled and linked. Changing one file will only trigger the ones associated with 
+that changed file.
+
+File scanning, checksumming, or parsing compiler output
+
+
+	-> File scanning:
+
+	
+	
+
+
+
+
+	
+
+
+
+////  /////
