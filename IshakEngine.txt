@@ -1,3 +1,6 @@
+
+----- HERE -----
+
 Ishak Engine UBT 1176
 
 { 
@@ -35,6 +38,15 @@ add engine files for now, when the moment comes and we have games, we are gonna 
 			Then we create a BuildEnviroment which contains a List of Directories and Modules, being the directories the Directory of the module,
 			and when compiling a file, we recursively look in the Current directory making a check for any of the Directory-Module List, advancing
 			to the Parent Dir if not found. If found, then we just concatenate all the Module Public and Private Dependency directories and its modules' recursively.
+
+
+			-> Create the Assembly for the modules, so when we want to create a Module, we extract the Module Builder from the assembly file
+			   and create it.
+
+
+
+----- HERE ----- Take a look at how are the dir added, why the some of the files are raw, not just the Private and Public( I think it is because 
+the module Directory is added anyways.  ) 
 		
 
 	-> For every module searches the project and adds it to the source files of that project.

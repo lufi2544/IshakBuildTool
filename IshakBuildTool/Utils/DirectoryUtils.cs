@@ -11,6 +11,24 @@ namespace IshakBuildTool.Utils
     internal class DirectoryUtils
     {
 
+        public static string GetParentDirectoryPathFromDirectory(string dirPath)
+        {
+            if (dirPath.Equals(string.Empty))
+            {
+                return dirPath;
+            }
+
+            MakeDirectoryRelativeData dirRelativeData = new MakeDirectoryRelativeData(dirPath);
+          
+            // We have to make sure that we have more than 1 directory for getting the parentDir
+            if (dirRelativeData.directories.Count > 1)
+            {
+                return dirRelativeData.ConstructPathFromDirectoryIdx(dirRelativeData.directories.Count - 1);
+            }
+
+            return string.Empty;
+        }
+
         public static string MakeRelativeTo(DirectoryReference referenceDir, DirectoryReference makeRelativeToThisDir)
         {
             // See how much one is equal to the other.
@@ -21,11 +39,11 @@ namespace IshakBuildTool.Utils
             // 2 from the one that is not equal, we reach to the actual makerelativeDir, count the folders
             // and that would be the amount of ../
 
-            string otherDir = referenceDir.path;
-            string relativeToDir = makeRelativeToThisDir.path;
+            string otherDir = referenceDir.Path;
+            string relativeToDir = makeRelativeToThisDir.Path;
 
             MakeDirectoryRelativeData otherDirRelativeData = new MakeDirectoryRelativeData(otherDir);
-            MakeDirectoryRelativeData relativeDirData = new MakeDirectoryRelativeData(makeRelativeToThisDir.path);
+            MakeDirectoryRelativeData relativeDirData = new MakeDirectoryRelativeData(makeRelativeToThisDir.Path);
 
             int flaggedIdx = -1;
             for(int idx = 0; idx < relativeDirData.directories.Count; ++idx)
@@ -76,7 +94,7 @@ namespace IshakBuildTool.Utils
             else
             {
                 // Nothing equal, so we return the absolute path.
-                finalRelativatedPath.Append(referenceDir.path);
+                finalRelativatedPath.Append(referenceDir.Path);
             }
           
             return finalRelativatedPath.ToString();
@@ -93,9 +111,9 @@ namespace IshakBuildTool.Utils
             int strIdx = 0;
             StringBuilder directoryStr = new StringBuilder();
 
-            for (int idx = 0; idx < dir.path.Length; ++idx)
+            for (int idx = 0; idx < dir.Path.Length; ++idx)
             {                
-                char actualLetter = dir.path.ElementAt(idx);               
+                char actualLetter = dir.Path.ElementAt(idx);               
                 char privateStrLetter = privateStr.ElementAt(strIdx);
                 if (privateStrLetter == actualLetter)
                 {                    
@@ -120,7 +138,7 @@ namespace IshakBuildTool.Utils
                     }
                 }
 
-                directoryStr.Append(dir.path[idx]);
+                directoryStr.Append(dir.Path[idx]);
 
                 if (bScanningPublic)
                 {

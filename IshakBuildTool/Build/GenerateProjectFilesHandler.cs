@@ -12,8 +12,14 @@ namespace IshakBuildTool.Build
      
         public static void GenerateProjectFiles(string CommandLineArguments)
         {
+
+            // First we have to 
+            CreateModules();
+
             // For now we just use the Visual studio project file generator
             VSProjectGenerator tGenerator = new VSProjectGenerator();
+
+
 
             // Create the .vcxproj for the engine and adds its source files to it.
             tGenerator.CreateEngineSolutionFile(CommandLineArguments);
@@ -30,6 +36,11 @@ namespace IshakBuildTool.Build
         private static void CreateProjects(VSProjectGenerator ProjectGenerator)
         {
             
+        }
+
+        private static void CreateModules()
+        {
+
         }
     }
 }

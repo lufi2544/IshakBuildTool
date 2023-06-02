@@ -97,13 +97,13 @@ namespace IshakBuildTool.Utils
 
         // FILTERED File Scanner//
 
-        static public List<FileReference> FindSourceFiles(ProjectDirectory directory)
+        static public List<FileReference> FindSourceFiles(string directory)
         {
             return FindFilesInDirectoryWithFilter(directory);                           
         }
 
         static public List<FileReference> FindFilesInDirectoryWithFilter(
-            ProjectDirectory projectDirectory,
+            string projectDirectory,
             EFileScannerFilterMode? filterMode = null,
             List<string>? folderFilter = null,
             EFileScannerFilterMode? filesFilterMode = null,
@@ -120,14 +120,14 @@ namespace IshakBuildTool.Utils
         }
 
         static private List<FileReference> FindFilesInDirectoryRecursiveWithFilter(
-            ProjectDirectory folderToExplore,
+            string folderToExplore,
             EFileScannerFilterMode? filterMode,
             List<string>? folderFilter,
             EFileScannerFilterMode? filesFilterMode,
             List<string>? fileExtensionsToFilter)
         {
             List<FileReference> foundFiles = FindFilesInDirectoryWithExtensionsFilter(folderToExplore, filesFilterMode, fileExtensionsToFilter);
-            List<string> foundDirectories = Directory.GetDirectories(folderToExplore.DirectoryPath).ToList();
+            List<string> foundDirectories = Directory.GetDirectories(folderToExplore).ToList();
 
             var foundFilteredDirectories = FilterDirectories(foundDirectories, filterMode, folderFilter);
         
@@ -143,7 +143,7 @@ namespace IshakBuildTool.Utils
             {
                 var mergedFiles = subFolderFiles.Concat(
                     FindFilesInDirectoryRecursiveWithFilter(
-                        new ProjectDirectory(directoryPath),
+                        directoryPath,
                         filterMode,
                         folderFilter,
                         filesFilterMode,
@@ -195,12 +195,12 @@ namespace IshakBuildTool.Utils
         }
 
         static private List<FileReference> FindFilesInDirectoryWithExtensionsFilter(
-            ProjectDirectory folderToExplore,
+            string folderToExplore,
             EFileScannerFilterMode? filterMode,
             List<string>? filesExtensionToFilter)
         {
             List<FileReference> foundFilesReferences = new List<FileReference>();
-            List<string> foundFiles = Directory.GetFiles(folderToExplore.DirectoryPath).ToList();
+            List<string> foundFiles = Directory.GetFiles(folderToExplore).ToList();
 
             foreach (string file in foundFiles)
             {

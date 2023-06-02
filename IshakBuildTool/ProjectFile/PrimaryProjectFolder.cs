@@ -14,14 +14,14 @@ namespace IshakBuildTool.ProjectFile
         {
             DirectoryName = folderNameParam;
             DirectoryPath= directoryParam;
-            subSolutionFiles = new List<SolutionFile>();
+            subSolutionFiles = new List<ProjectFile>();
         }
 
         public ProjectDirectory(string directoryPath)
         {            
             DirectoryPath = directoryPath;
             DirectoryName = Path.GetFileName(directoryPath);                        
-            subSolutionFiles = new List<SolutionFile>();
+            subSolutionFiles = new List<ProjectFile>();
         }
 
         public string DirectoryPath { get; set; }
@@ -30,7 +30,7 @@ namespace IshakBuildTool.ProjectFile
                 
         List<string> SubFolders { get; set;}
 
-        public List<SolutionFile> subSolutionFiles { get; set; }
+        public List<ProjectFile> subSolutionFiles { get; set; }
 
         /** Files inside the Folder.  ex: .h, .cpp, .cs*/
         List<string> Files { get;}

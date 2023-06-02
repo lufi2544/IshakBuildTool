@@ -62,11 +62,12 @@ namespace IshakBuildTool.Utils
                 {
                     finalPathBuilder.Append("{0}", dirData.name);
 
-                }else if (idx > 0)
-                {                    
+                }
+                else if (idx > 0)
+                {
                     finalPathBuilder.Append("{0}/", dirData.name);
                 }
-                                 
+
             }
 
             return finalPathBuilder.ToString();
