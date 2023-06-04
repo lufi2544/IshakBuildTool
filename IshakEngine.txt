@@ -43,11 +43,8 @@ add engine files for now, when the moment comes and we have games, we are gonna 
 			-> Create the Assembly for the modules, so when we want to create a Module, we extract the Module Builder from the assembly file
 			   and create it.
 
-
-
------ HERE ----- Take a look at how are the dir added, why the some of the files are raw, not just the Private and Public( I think it is because 
-the module Directory is added anyways.  ) 
-		
+			-> ModuleAssemblyManager
+				-> Creates the Assembly object which is compiled from the modules info SourceFiles.
 
 	-> For every module searches the project and adds it to the source files of that project.
 	-> Root folder is added the SubFolder with the Engine Category and the Engine as a ChildProject.

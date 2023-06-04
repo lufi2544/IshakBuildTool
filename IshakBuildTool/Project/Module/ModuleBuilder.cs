@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
+
+using IshakBuildTool.Project.Module;
 
 namespace IshakBuildTool.Project.Module
 {
@@ -10,10 +8,9 @@ namespace IshakBuildTool.Project.Module
     public abstract class ModuleBuilder
     {
         
-
-
         /** Variables that have to be defined in the constructor of the Builder. */
         public string[] PublicModuleDependencies { get; set; }
         public string[] PrivateModuleDependencies { get; set;}
     }
 }
+

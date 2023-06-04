@@ -247,7 +247,7 @@ namespace IshakBuildTool.Utils
 
             foreach (String fileExtension in filterExtensions)
             {
-                String fileStr = new String(Path.GetFileName(fileToFilter.path));
+                String fileStr = new String(Path.GetFileName(fileToFilter.FullPath));
 
                 if (fileStr.Contains(fileExtension))
                 {
@@ -274,7 +274,7 @@ namespace IshakBuildTool.Utils
                 return false;
             }
 
-            String directoryToFilterStr = directoryToFilter.path;            
+            String directoryToFilterStr = directoryToFilter.FullPath;            
             foreach (String filterDirectory in filterDirectories)
             {                                                
                 if (directoryToFilterStr.Contains(filterDirectory))

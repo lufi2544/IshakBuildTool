@@ -10,14 +10,48 @@ namespace IshakBuildTool.ProjectFile
     {
         public FileReference(string PathParm)
         {
-            path = PathParm;
+            FullPath = PathParm;
         }
              
         public DirectoryReference GetDirectory()
         {
-            return new DirectoryReference(Path.GetDirectoryName(path));
+            return new DirectoryReference(Path.GetDirectoryName(FullPath));
         }
 
-        public string path { get; set; }
+        public string GetPathWithoutFileExtension()
+        {
+            string noFileExtensionPath = string.Empty;
+            for (int charIdx = 0; charIdx <  FullPath.Length; ++charIdx)
+            {
+                char actualChar = FullPath[charIdx];
+                if (actualChar == '.')
+                {
+                    return noFileExtensionPath;
+                }
+
+                noFileExtensionPath += actualChar;
+            }
+
+            if (noFileExtensionPath == string.Empty)
+            {
+               // TODO Exception throw exception if the file ref does not have a file with a file extension.
+            }
+
+            return FullPath;
+        }
+
+        public static FileStream Open(FileReference fileRef, FileMode fileMode)
+        {
+            return File.Open(fileRef.FullPath, fileMode);
+        }
+
+        public FileReference ChangeExtensionCopy(string newExtension)
+        {
+            string changedExtensionFile = Path.ChangeExtension(FullPath, newExtension);
+            return new FileReference(changedExtensionFile);
+        }
+
+
+        public string FullPath { get; set; }
     }
 }

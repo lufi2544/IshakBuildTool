@@ -218,7 +218,7 @@ namespace IshakBuildTool.Build
         }
         void WriteVCCompileTypeForStandardFile(EVCFileType vcCompileType, FileReference file)
         {
-            engineProjectFileString.AppendLine("    <{0} Include=\"{1}\"/>", vcCompileType.ToString(), file.path);
+            engineProjectFileString.AppendLine("    <{0} Include=\"{1}\"/>", vcCompileType.ToString(), file.FullPath);
         }
 
         void WriteVCCompileTypeSourceFile(FileReference file)
@@ -246,11 +246,11 @@ namespace IshakBuildTool.Build
 
         EVCFileType GetVCFileTypeForFile(FileReference file)
         {
-            if (file.path.Contains(".h"))
+            if (file.FullPath.Contains(".h"))
             {
                 return EVCFileType.ClInclude;
 
-            }else if (file.path.Contains(".cpp"))
+            }else if (file.FullPath.Contains(".cpp"))
             {
                 return EVCFileType.ClCompile;
             }

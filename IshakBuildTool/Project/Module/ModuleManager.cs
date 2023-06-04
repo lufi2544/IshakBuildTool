@@ -49,7 +49,7 @@ namespace IshakBuildTool.Project.Module
             {
                  foreach (FileReference moduleFile in foundModules)
                  {
-                    ModuleBuilder? moduleBuilder = GetModuleBuilderFromModuleFile(moduleFile.path);
+                    ModuleBuilder? moduleBuilder = GetModuleBuilderFromModuleFile(moduleFile.FullPath);
                     if (moduleBuilder != null)
                     {
 
