@@ -11,6 +11,16 @@ namespace IshakBuildTool.Utils
     internal class DirectoryUtils
     {
 
+
+        public static void TryCreateDirectory(string dirPath)
+        {
+            DirectoryInfo dirInfo = new DirectoryInfo(dirPath);
+
+            if (!dirInfo.Exists)
+            {
+                dirInfo.Create();
+            }
+        }
         public static string GetParentDirectoryPathFromDirectory(string dirPath)
         {
             if (dirPath.Equals(string.Empty))

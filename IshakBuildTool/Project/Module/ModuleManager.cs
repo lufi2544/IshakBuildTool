@@ -26,30 +26,34 @@ namespace IshakBuildTool.Project.Module
     /** Class in charge of creating the Modules.  */
     internal class ModuleManager
     {
-
-        ModuleManager() 
-        { 
-
+        
+        public ModuleManager() 
+        {            
         }
 
-        public void DiscoverModules(string startingPath)
-        {
+        /** Discovers and Creates all the modules. */
+        public void DiscoverAndCreateModules(string engineRootDirPath, DirectoryReference engineIntermediatePath)
+        {           
             List<string> moduleFilter = new List<string>();
             moduleFilter.Add("Module.cs");
 
             List<FileReference> foundModules = 
                 FileScanner.FindFilesInDirectoryWithFilter(
-                    startingPath, 
+                    engineRootDirPath, 
                     null,
                     null,
                     EFileScannerFilterMode.EInclusive,
                     moduleFilter);
 
+            TryCreateAssemblyManager(engineIntermediatePath, foundModules);
+
+
+            // TODO Function creates the modules.
             if (foundModules.Count > 0)
             {
                  foreach (FileReference moduleFile in foundModules)
                  {
-                    ModuleBuilder? moduleBuilder = GetModuleBuilderFromModuleFile(moduleFile.FullPath);
+                    ModuleBuilder? moduleBuilder = GetModuleBuilderFromModuleFile(moduleFile.Path);
                     if (moduleBuilder != null)
                     {
 
@@ -65,13 +69,21 @@ namespace IshakBuildTool.Project.Module
 
         }
 
+        private void TryCreateAssemblyManager(DirectoryReference engineIntemediateDirectory, List<FileReference> modulesFilesRefs)
+        {
+            if (ModulesAssemblyManager == null)
+            {
+                ModulesAssemblyManager = new ModuleAssemblyManager(engineIntemediateDirectory, modulesFilesRefs);
+            }            
+        }
+
         private ModuleBuilder? GetModuleBuilderFromModuleFile(string modulePath)
         {
 
             return null;
         }
 
-        private Module TryCreateModule(string moduleName)
+        private Module? TryCreateModule(string moduleName)
         {
             if (ModulesCrationDatas == null)
             {
@@ -89,14 +101,13 @@ namespace IshakBuildTool.Project.Module
             {
                 // Module not found, so we built it.
                 moduleCreationData = new ModuleCreationData();
-
-                                
-            }
-            
+                
+                return null;                            
+            }            
         }
 
         
         private Dictionary<string, ModuleCreationData>? ModulesCrationDatas;
-        private Assembly? modulesAssembly;
+        private ModuleAssemblyManager? ModulesAssemblyManager;
     }
 }

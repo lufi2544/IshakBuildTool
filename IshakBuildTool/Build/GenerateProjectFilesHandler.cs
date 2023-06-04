@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IshakBuildTool.Project.Module;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,17 +13,20 @@ namespace IshakBuildTool.Build
      
         public static void GenerateProjectFiles(string CommandLineArguments)
         {
-
-            // First we have to 
+            
+            // First we have to create the modules.
             CreateModules();
 
+
+            //Create the Project Files and the Create the Solution files for them.
+
             // For now we just use the Visual studio project file generator
-            VSProjectGenerator tGenerator = new VSProjectGenerator();
+            //VSProjectGenerator tGenerator = new VSProjectGenerator();
 
 
 
             // Create the .vcxproj for the engine and adds its source files to it.
-            tGenerator.CreateEngineSolutionFile(CommandLineArguments);
+            //tGenerator.CreateEngineSolutionFile(CommandLineArguments);
 
             
             // Crate the Solution Project Hirarchy( IshakEngine, Engine... )
@@ -40,7 +44,10 @@ namespace IshakBuildTool.Build
 
         private static void CreateModules()
         {
-
+            string engineIntermediateDir = Test.TestEnviroment.TestIntermediateFolder;
+            string engineRootPath = Test.TestEnviroment.TestFolderPath;
+            ModuleManager moduleManager = new ModuleManager();
+            moduleManager.DiscoverAndCreateModules(engineRootPath, new ProjectFile.DirectoryReference(engineIntermediateDir));
         }
     }
 }

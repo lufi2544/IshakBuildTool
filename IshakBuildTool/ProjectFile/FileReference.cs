@@ -10,20 +10,20 @@ namespace IshakBuildTool.ProjectFile
     {
         public FileReference(string PathParm)
         {
-            FullPath = PathParm;
+            Path = PathParm;
         }
              
         public DirectoryReference GetDirectory()
         {
-            return new DirectoryReference(Path.GetDirectoryName(FullPath));
+            return new DirectoryReference(System.IO.Path.GetDirectoryName(Path));
         }
 
         public string GetPathWithoutFileExtension()
         {
             string noFileExtensionPath = string.Empty;
-            for (int charIdx = 0; charIdx <  FullPath.Length; ++charIdx)
+            for (int charIdx = 0; charIdx <  Path.Length; ++charIdx)
             {
-                char actualChar = FullPath[charIdx];
+                char actualChar = Path[charIdx];
                 if (actualChar == '.')
                 {
                     return noFileExtensionPath;
@@ -37,21 +37,48 @@ namespace IshakBuildTool.ProjectFile
                // TODO Exception throw exception if the file ref does not have a file with a file extension.
             }
 
-            return FullPath;
+            return Path;
+        }
+
+        public string GetFileNameWithoutExtension()
+        {
+            string fileName = string.Empty;
+            bool bCanAddToFileName = false;
+            for (int charIdx = Path.Length - 1; charIdx < Path.Length; --charIdx)
+            {
+                char actualChar = Path[charIdx];
+                if (actualChar == '\\') 
+                {
+                    return fileName.Substring(fileName.Length - 1, 0);
+                }
+
+                if (actualChar == '.')
+                {
+                    bCanAddToFileName= true;
+                    continue;
+                }
+               
+                if (bCanAddToFileName)
+                {
+                    fileName += actualChar;
+                }
+            }
+
+            return fileName;
         }
 
         public static FileStream Open(FileReference fileRef, FileMode fileMode)
         {
-            return File.Open(fileRef.FullPath, fileMode);
+            return File.Open(fileRef.Path, fileMode);
         }
 
         public FileReference ChangeExtensionCopy(string newExtension)
         {
-            string changedExtensionFile = Path.ChangeExtension(FullPath, newExtension);
+            string changedExtensionFile = System.IO.Path.ChangeExtension(Path, newExtension);
             return new FileReference(changedExtensionFile);
         }
 
 
-        public string FullPath { get; set; }
+        public string Path { get; set; }
     }
 }

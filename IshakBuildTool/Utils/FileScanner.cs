@@ -1,6 +1,6 @@
 ﻿// Copyright(c) Juan Esteban Rayo Contreras. All rights reserved.
 
-using IshakBuildTool.ProjecFile;
+
 using IshakBuildTool.ProjectFile;
 using System;
 using System.Collections.Generic;
@@ -247,7 +247,7 @@ namespace IshakBuildTool.Utils
 
             foreach (String fileExtension in filterExtensions)
             {
-                String fileStr = new String(Path.GetFileName(fileToFilter.FullPath));
+                String fileStr = new String(Path.GetFileName(fileToFilter.Path));
 
                 if (fileStr.Contains(fileExtension))
                 {
@@ -274,7 +274,7 @@ namespace IshakBuildTool.Utils
                 return false;
             }
 
-            String directoryToFilterStr = directoryToFilter.FullPath;            
+            String directoryToFilterStr = directoryToFilter.Path;            
             foreach (String filterDirectory in filterDirectories)
             {                                                
                 if (directoryToFilterStr.Contains(filterDirectory))

@@ -24,7 +24,7 @@ namespace IshakBuildTool.Project
 
         void CreateSolutionFiles()
         {
-            sourceFiles = FileScanner.FindSourceFiles(new ProjectDirectory(path));
+            sourceFiles = FileScanner.FindSourceFiles(path);
         }
 
         public string solutionProjectName { get; set; }

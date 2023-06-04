@@ -46,6 +46,8 @@ add engine files for now, when the moment comes and we have games, we are gonna 
 			-> ModuleAssemblyManager
 				-> Creates the Assembly object which is compiled from the modules info SourceFiles.
 
+
+
 	-> For every module searches the project and adds it to the source files of that project.
 	-> Root folder is added the SubFolder with the Engine Category and the Engine as a ChildProject.
 	-> Root folder is added the Games as SubFolder 
@@ -53,6 +55,13 @@ add engine files for now, when the moment comes and we have games, we are gonna 
 
 
 	-> Generates the .sln file with the RootFolder info.
+
+
+//// TODO ////
+
+-> Find a way to access the engine intermediate directory form withint the managers, etc.
+
+//////////////
 
 
 
