@@ -9,6 +9,8 @@ using System.Runtime.InteropServices;
 using IshakBuildTool.Utils;
 using IshakBuildTool.ProjectFile;
 using System.Runtime.Serialization;
+using System.Collections;
+using System.Reflection.Emit;
 
 namespace IshakBuildTool.Project.Module
 {
@@ -20,16 +22,83 @@ namespace IshakBuildTool.Project.Module
         private readonly string assemblyBinaryExtension = ".dll";
         private readonly string assemblyBinaryName = "ModulesBinary";
 
+        private Assembly? ModulesAssembly;
+
+
         public ModuleAssemblyManager(DirectoryReference engineIntermediateDirectory, List<FileReference> moduleFilesRefs)
         {
             FileReference completeAssemblyPath = new FileReference(engineIntermediateDirectory.Path + assemblyBinaryFilePath + assemblyBinaryName + assemblyBinaryExtension);                       
             CreateAssemblyForModules(completeAssemblyPath, moduleFilesRefs);
         }
 
-        void CreateAssemblyForModules(FileReference assemblyFileRef, List<FileReference> moduleCreationFiles)
+        public ModuleBuilder? GetModuleBuilderByName(string moduleName)
         {
-            // This method will basically convert the Module.cs files to actual C# files taht
-            // the compiler can read, so we can extract the data later on when we need.
+            if (ModulesAssembly == null)
+            {
+                // TODO Exception
+                // Trying to Get a module builder when the Assembly has not even been created yet.
+            }
+
+
+            Type? specifigModuleBuilder = ModulesAssembly.GetType(moduleName);
+            if (specifigModuleBuilder == null)
+            {
+                // TODO Exception
+            }
+
+            // In this case the Modules do not take any parammeter, so we extract the default param from it.
+            Type[] emptyParams = Array.Empty<Type>();
+            ConstructorInfo? constructor = specifigModuleBuilder.GetConstructor(emptyParams);
+            if (constructor == null)
+            {
+                // TODO Exception
+            }
+            
+            // As the module builder is an abstract interface, we can not create an instance of it directly, so we recurr to an UnitializedObject.
+            ModuleBuilder builderObject = (ModuleBuilder)FormatterServices.GetUninitializedObject(specifigModuleBuilder);
+            constructor.Invoke(builderObject, new object[] { });
+
+            return builderObject;
+        }
+
+
+        void CreateAssemblyForModules(FileReference assemblyFileRef, List<FileReference> modulesCreationFiles)
+        {            
+            ModulesAssembly = HandleModulesAssemblyCompilation(assemblyFileRef, modulesCreationFiles);
+
+
+            Type? moduleBuilder = ModulesAssembly.GetType("RendererModuleBuilder");
+
+            if (moduleBuilder != null)
+            {
+                ModuleBuilder redererBuilder = (ModuleBuilder)FormatterServices.GetUninitializedObject(moduleBuilder);
+                Type[] types = Array.Empty<Type>();
+                ConstructorInfo? constructor = moduleBuilder.GetConstructor(types);
+                if (constructor != null)
+                {
+                    constructor.Invoke(redererBuilder, new object[] { });
+                    // TODO Exception
+                }
+
+                var privateDependencies = redererBuilder.PublicModuleDependencies;
+            }
+        }
+
+        Assembly? HandleModulesAssemblyCompilation(FileReference assemblyFileRef, List<FileReference> modulesCreationFiles)
+        {
+            // Create Directory For Assembly if not existed.
+            DirectoryUtils.TryCreateDirectory(assemblyFileRef.GetDirectory().Path);
+
+            List<SyntaxTree> parsedModulesSyntaxTrees = ParseModulesData(modulesCreationFiles);
+            List<MetadataReference> metadataReferences = CreateMetadataReferences();
+            CSharpCompilation modulesRunTimeCompilation = CreateCompilationForModules(parsedModulesSyntaxTrees, metadataReferences);
+
+            return ExecuteCompilation(assemblyFileRef, modulesRunTimeCompilation);
+        }
+
+        /** Basically parses the pure text of the Module.cs files to actually source files that the compiler can read. */
+        List<SyntaxTree> ParseModulesData(List<FileReference> modulesCreationFiles)
+        {            
 
             // Create the parse options for parsing the modules files to Source Files.
             CSharpParseOptions parseOptions = new CSharpParseOptions(
@@ -39,8 +108,7 @@ namespace IshakBuildTool.Project.Module
                 );
 
             List<SyntaxTree> modulesSyntaxTrees = new List<SyntaxTree>();
-
-            foreach (FileReference moduleSourceFile in moduleCreationFiles)
+            foreach (FileReference moduleSourceFile in modulesCreationFiles)
             {
                 SourceText moduleSource = SourceText.From(File.ReadAllText(moduleSourceFile.Path), System.Text.Encoding.UTF8);
                 SyntaxTree tree = CSharpSyntaxTree.ParseText(moduleSource, parseOptions, moduleSourceFile.Path);
@@ -66,40 +134,33 @@ namespace IshakBuildTool.Project.Module
                 modulesSyntaxTrees.Add(tree);
             }
 
-           
-            // Create Directory if not existed.
-            DirectoryUtils.TryCreateDirectory(assemblyFileRef.GetDirectory().Path);            
 
+            return modulesSyntaxTrees;
+        }
+
+        /** Adds any metadata references that is needed for the compile process, 
+         * as the base class for the ModuleBuilder and some other SystemClasses for the final binary to compile.*/
+        List<MetadataReference> CreateMetadataReferences()
+        {
             // Add the metadata references
-            List<MetadataReference> metadataReferences = new List<MetadataReference>();
-            metadataReferences.Add(MetadataReference.CreateFromFile(typeof(object).Assembly.Location));
-            metadataReferences.Add(MetadataReference.CreateFromFile(Assembly.Load("System.Runtime").Location));
-            metadataReferences.Add(MetadataReference.CreateFromFile(Assembly.Load("System.Collections").Location));
-            metadataReferences.Add(MetadataReference.CreateFromFile(Assembly.Load("System.IO").Location));
-            metadataReferences.Add(MetadataReference.CreateFromFile(Assembly.Load("System.IO.FileSystem").Location));
-            metadataReferences.Add(MetadataReference.CreateFromFile(Assembly.Load("System.Linq").Location));
-            metadataReferences.Add(MetadataReference.CreateFromFile(Assembly.Load("System.Private.Xml").Location));
-            metadataReferences.Add(MetadataReference.CreateFromFile(Assembly.Load("System.Private.Xml.Linq").Location));
-            metadataReferences.Add(MetadataReference.CreateFromFile(Assembly.Load("System.Text.RegularExpressions").Location));
-            metadataReferences.Add(MetadataReference.CreateFromFile(Assembly.Load("System.Console").Location));
-            metadataReferences.Add(MetadataReference.CreateFromFile(Assembly.Load("System.Runtime.Extensions").Location));
-//            metadataReferences.Add(MetadataReference.CreateFromFile(Assembly.Load("Microsoft.Extensions.Logging.Abstractions").Location));
-            metadataReferences.Add(MetadataReference.CreateFromFile(Assembly.Load("netstandard").Location));
+            List<MetadataReference> metadataReferences = new List<MetadataReference>
+            {
+                MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
 
-            // process start dependencies
-            metadataReferences.Add(MetadataReference.CreateFromFile(Assembly.Load("System.ComponentModel.Primitives").Location));
-            metadataReferences.Add(MetadataReference.CreateFromFile(Assembly.Load("System.Diagnostics.Process").Location));
+                // System mandatory metadata references
+                MetadataReference.CreateFromFile(Assembly.Load("System.Runtime").Location),
+                MetadataReference.CreateFromFile(Assembly.Load("System.Collections").Location),
 
-            // registry access
-            metadataReferences.Add(MetadataReference.CreateFromFile(Assembly.Load("Microsoft.Win32.Registry").Location));
+                // Ishak Build Tool metadata references
+                MetadataReference.CreateFromFile(typeof(IshakBuildTool.Project.Module.ModuleBuilder).Assembly.Location)
+            };
 
-            // RNGCryptoServiceProvider, used to generate random hex bytes
-            metadataReferences.Add(MetadataReference.CreateFromFile(Assembly.Load("System.Security.Cryptography.Algorithms").Location));
-            metadataReferences.Add(MetadataReference.CreateFromFile(Assembly.Load("System.Security.Cryptography.Csp").Location));
-            metadataReferences.Add(MetadataReference.CreateFromFile(typeof(IshakBuildTool.Project.Module.ModuleBuilder).Assembly.Location));
-            metadataReferences.Add(MetadataReference.CreateFromFile(typeof(FileReference).Assembly.Location));
+            return metadataReferences;
+        }
 
-
+        /** Creates a CSharpCompilation object that holds the data for the compile about the Modules Binary file compilation. */
+        CSharpCompilation CreateCompilationForModules(List<SyntaxTree> modulesSyntaxTrees, List<MetadataReference> modulesMetadataReferences)
+        {
             CSharpCompilationOptions compilationOptions = new CSharpCompilationOptions(
                 outputKind: OutputKind.DynamicallyLinkedLibrary,
                 optimizationLevel: OptimizationLevel.Debug,
@@ -108,34 +169,50 @@ namespace IshakBuildTool.Project.Module
                 reportSuppressedDiagnostics: true
                 );
 
-            string assemblyName = assemblyFileRef.GetFileNameWithoutExtension();
             CSharpCompilation compilation = CSharpCompilation.Create(
                 assemblyName: assemblyBinaryName,
                 syntaxTrees: modulesSyntaxTrees,
-                references: metadataReferences,
+                references: modulesMetadataReferences,
                 options: compilationOptions
                 );
 
-            using (FileStream AssemblyStream = FileReference.Open(assemblyFileRef, FileMode.Create))
+            return compilation;
+        }
+
+        /** 
+         * <summary>
+         *      Submits the compilation directly to the compiler.                 
+         *      
+         * </summary>
+         * 
+         * <returns> The EmitResult about the compilation.</returns>         
+         */
+        EmitResult EmitCompilation(CSharpCompilation compilation, FileStream AssemblyStream, FileStream? pdbStream)
+        {
+            EmitOptions EmitOptions = new EmitOptions(
+            includePrivateMembers: true);     
+
+            return compilation.Emit(
+                peStream: AssemblyStream,
+                pdbStream: pdbStream,
+                options: EmitOptions);            
+        }
+
+        Assembly? ExecuteCompilation(FileReference assemblyFileRef, CSharpCompilation modulesRunTimeCompilation)
+        {
+            using (FileStream assemblyStream =
+                    FileReference.Open(assemblyFileRef, FileMode.Create))
             {
                 FileReference assemblyPDBFile = assemblyFileRef.ChangeExtensionCopy(".pdb");
-                using (FileStream? PdbStream =
-                    RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                    ? FileReference.Open(assemblyPDBFile, FileMode.Create)
-                    : null)
+
+                using (FileStream? pdbStream =
+                        RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                        ? FileReference.Open(assemblyPDBFile, FileMode.Create)
+                        : null)
                 {
-                    EmitOptions EmitOptions = new EmitOptions(
-                        includePrivateMembers: true
-                    );
+                    EmitResult compilationResult = EmitCompilation(modulesRunTimeCompilation, assemblyStream, pdbStream);
 
-                    EmitResult compilationResult = compilation.Emit(
-                        peStream: AssemblyStream,
-                        pdbStream: PdbStream,
-                        options: EmitOptions);
-
-                    
-
-                    // Print Error
+                    // TODO Logger Print Error
                     foreach (Diagnostic diagnostic in compilationResult.Diagnostics)
                     {
                         StringBuilder diagnosticStrB = new StringBuilder();
@@ -144,49 +221,23 @@ namespace IshakBuildTool.Project.Module
                             diagnostic.ToString()
                             );
 
-                        System.Console.WriteLine( diagnosticStrB.ToString() );
-                       
+                        System.Console.WriteLine(diagnosticStrB.ToString());
+
                     }
 
                     if (!compilationResult.Success)
                     {
-                        return;
+                        // TODO Exception
+                        return null;
                     }
 
-                    if (!compilationResult.Success)
-                    {
-                        // TODO Exception The Compilation Was not successful
-
-
-                    }
 
                 }
             }
 
-           ModulesAssembly = Assembly.LoadFile(assemblyFileRef.Path);
-
-
-
-            Type? moduleBuilder = ModulesAssembly.GetType("RendererModuleBuilder");
-            if (moduleBuilder != null)
-            {
-
-                ModuleBuilder redererBuilder = (ModuleBuilder)FormatterServices.GetUninitializedObject(moduleBuilder);
-
-               
-                
-                
-                
-                ConstructorInfo? Constructor = moduleBuilder.GetConstructor(Type.EmptyTypes);
-
-                Constructor.Invoke(redererBuilder, new object[] { });
-
-                var privateDependencies = redererBuilder.PublicModuleDependencies;
-            }
+            return Assembly.LoadFile(assemblyFileRef.Path);
         }
-
-
-        private Assembly? ModulesAssembly;
+        
     }
 }
         

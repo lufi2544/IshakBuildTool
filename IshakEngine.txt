@@ -60,6 +60,7 @@ add engine files for now, when the moment comes and we have games, we are gonna 
 //// TODO ////
 
 -> Find a way to access the engine intermediate directory form withint the managers, etc.
+-> Logger.
 
 //////////////
 
