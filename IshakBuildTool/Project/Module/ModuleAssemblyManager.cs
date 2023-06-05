@@ -5,12 +5,11 @@ using System.Reflection;
 using System.Text;
 using Microsoft.CodeAnalysis.Emit;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
 
+// IBT namespaces
 using IshakBuildTool.Utils;
 using IshakBuildTool.ProjectFile;
-using System.Runtime.Serialization;
-using System.Collections;
-using System.Reflection.Emit;
 
 namespace IshakBuildTool.Project.Module
 {
@@ -20,14 +19,16 @@ namespace IshakBuildTool.Project.Module
 
         private readonly string assemblyBinaryFilePath = "\\Build\\Modules\\";
         private readonly string assemblyBinaryExtension = ".dll";
-        private readonly string assemblyBinaryName = "ModulesBinary";
+        private readonly string assemblyBinaryName = "ModulesBinary";        
 
         private Assembly? ModulesAssembly;
 
 
         public ModuleAssemblyManager(DirectoryReference engineIntermediateDirectory, List<FileReference> moduleFilesRefs)
         {
-            FileReference completeAssemblyPath = new FileReference(engineIntermediateDirectory.Path + assemblyBinaryFilePath + assemblyBinaryName + assemblyBinaryExtension);                       
+            FileReference completeAssemblyPath = 
+                new FileReference(engineIntermediateDirectory.Path + assemblyBinaryFilePath + assemblyBinaryName + assemblyBinaryExtension);
+            
             CreateAssemblyForModules(completeAssemblyPath, moduleFilesRefs);
         }
 
@@ -38,9 +39,8 @@ namespace IshakBuildTool.Project.Module
                 // TODO Exception
                 // Trying to Get a module builder when the Assembly has not even been created yet.
             }
-
-
-            Type? specifigModuleBuilder = ModulesAssembly.GetType(moduleName);
+            
+            Type? specifigModuleBuilder = ModulesAssembly.GetType(moduleName + ModuleBuilder.ModuleBuilderPrefix);
             if (specifigModuleBuilder == null)
             {
                 // TODO Exception
@@ -65,33 +65,16 @@ namespace IshakBuildTool.Project.Module
         void CreateAssemblyForModules(FileReference assemblyFileRef, List<FileReference> modulesCreationFiles)
         {            
             ModulesAssembly = HandleModulesAssemblyCompilation(assemblyFileRef, modulesCreationFiles);
-
-
-            Type? moduleBuilder = ModulesAssembly.GetType("RendererModuleBuilder");
-
-            if (moduleBuilder != null)
-            {
-                ModuleBuilder redererBuilder = (ModuleBuilder)FormatterServices.GetUninitializedObject(moduleBuilder);
-                Type[] types = Array.Empty<Type>();
-                ConstructorInfo? constructor = moduleBuilder.GetConstructor(types);
-                if (constructor != null)
-                {
-                    constructor.Invoke(redererBuilder, new object[] { });
-                    // TODO Exception
-                }
-
-                var privateDependencies = redererBuilder.PublicModuleDependencies;
-            }
         }
 
         Assembly? HandleModulesAssemblyCompilation(FileReference assemblyFileRef, List<FileReference> modulesCreationFiles)
         {
             // Create Directory For Assembly if not existed.
-            DirectoryUtils.TryCreateDirectory(assemblyFileRef.GetDirectory().Path);
+            DirectoryUtils.TryCreateDirectory(assemblyFileRef.Directory.Path);
 
             List<SyntaxTree> parsedModulesSyntaxTrees = ParseModulesData(modulesCreationFiles);
             List<MetadataReference> metadataReferences = CreateMetadataReferences();
-            CSharpCompilation modulesRunTimeCompilation = CreateCompilationForModules(parsedModulesSyntaxTrees, metadataReferences);
+            CSharpCompilation modulesRunTimeCompilation = CreateCompilationObjectForModules(parsedModulesSyntaxTrees, metadataReferences);
 
             return ExecuteCompilation(assemblyFileRef, modulesRunTimeCompilation);
         }
@@ -138,7 +121,7 @@ namespace IshakBuildTool.Project.Module
             return modulesSyntaxTrees;
         }
 
-        /** Adds any metadata references that is needed for the compile process, 
+        /** Adds any metadata references that are needed for the compilation process, 
          * as the base class for the ModuleBuilder and some other SystemClasses for the final binary to compile.*/
         List<MetadataReference> CreateMetadataReferences()
         {
@@ -159,7 +142,7 @@ namespace IshakBuildTool.Project.Module
         }
 
         /** Creates a CSharpCompilation object that holds the data for the compile about the Modules Binary file compilation. */
-        CSharpCompilation CreateCompilationForModules(List<SyntaxTree> modulesSyntaxTrees, List<MetadataReference> modulesMetadataReferences)
+        CSharpCompilation CreateCompilationObjectForModules(List<SyntaxTree> modulesSyntaxTrees, List<MetadataReference> modulesMetadataReferences)
         {
             CSharpCompilationOptions compilationOptions = new CSharpCompilationOptions(
                 outputKind: OutputKind.DynamicallyLinkedLibrary,
@@ -181,8 +164,7 @@ namespace IshakBuildTool.Project.Module
 
         /** 
          * <summary>
-         *      Submits the compilation directly to the compiler.                 
-         *      
+         *      Submits the compilation directly to the compiler.                          
          * </summary>
          * 
          * <returns> The EmitResult about the compilation.</returns>         

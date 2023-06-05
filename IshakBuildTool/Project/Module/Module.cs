@@ -11,11 +11,12 @@ namespace IshakBuildTool.Project.Module
     /** Engine Module */
     public class Module
     {
-        public Module(DirectoryReference ModuleDirParam)
+        public Module(ModuleBuilder moduleBuilder,  FileReference moduleFileRef)
         {
-            ModuleDir = ModuleDirParam;
+            moduleFile = moduleFileRef;
 
-
+            PublicDirectoryRefs = moduleBuilder.PublicModuleDependencies;
+            PrivateDirectoryRefs= moduleBuilder.PrivateModuleDependencies;
         }
 
         void MakePublicDirs()
@@ -28,7 +29,7 @@ namespace IshakBuildTool.Project.Module
 
         }
 
-        DirectoryReference ModuleDir { get; set; }
+        public FileReference moduleFile { get; set; }
         public List<string> PublicDirectoryRefs { get; set; }
         public List<string> PrivateDirectoryRefs { get; set; }
 

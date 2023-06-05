@@ -11,22 +11,14 @@ using System.Threading.Tasks;
 namespace IshakBuildTool.Project.Module
 {
 
-    /** Data referencing a stack of data related to a module creation. */
-    public struct ModuleCreationData
-    {
-        public ModuleCreationData() 
-        {
-            
-        }
-        
-        public ModuleBuilder? Builder = null;
-        public Module? ModuleObject = null;
-    }
 
     /** Class in charge of creating the Modules.  */
     internal class ModuleManager
     {
-        
+        private Dictionary<string, Module>? ModulesDictionary = new Dictionary<string, Module>();
+        private ModuleAssemblyManager? ModulesAssemblyManager;        
+
+
         public ModuleManager() 
         {            
         }
@@ -45,69 +37,46 @@ namespace IshakBuildTool.Project.Module
                     EFileScannerFilterMode.EInclusive,
                     moduleFilter);
 
-            TryCreateAssemblyManager(engineIntermediatePath, foundModules);
-
+            CreateAssemblyManager(engineIntermediatePath, foundModules);
 
             // TODO Function creates the modules.
             if (foundModules.Count > 0)
             {
-                 foreach (FileReference moduleFile in foundModules)
+                 foreach (FileReference moduleFileRef in foundModules)
                  {
-                    ModuleBuilder? moduleBuilder = GetModuleBuilderFromModuleFile(moduleFile.Path);
-                    if (moduleBuilder != null)
-                    {
-
-                    }
-
+                    TryCreateModule(moduleFileRef);
                  }
             }
             else
             {
                 // No Modules Found, maybe a problem here.
-            }
-
-
-        }
-
-        private void TryCreateAssemblyManager(DirectoryReference engineIntemediateDirectory, List<FileReference> modulesFilesRefs)
-        {
-            if (ModulesAssemblyManager == null)
-            {
-                ModulesAssemblyManager = new ModuleAssemblyManager(engineIntemediateDirectory, modulesFilesRefs);
             }            
+
         }
 
-        private ModuleBuilder? GetModuleBuilderFromModuleFile(string modulePath)
+        void TryCreateModule(FileReference moduleFileRef)
         {
+            Module? specificModule;            
+            if (!ModulesDictionary.TryGetValue(moduleFileRef.Name, out specificModule))
+            {
+                ModuleBuilder? moduleBuilder =
+                    GetModuleBuilderFromModuleName(moduleFileRef.Name);
 
-            return null;
+                Module createdModule = new Module(moduleBuilder, moduleFileRef);                                
+                ModulesDictionary.Add(moduleFileRef.Name, createdModule);
+            }
         }
 
-        private Module? TryCreateModule(string moduleName)
+        private void CreateAssemblyManager(DirectoryReference engineIntemediateDirectory, List<FileReference> modulesFilesRefs)
         {
-            if (ModulesCrationDatas == null)
-            {
-                ModulesCrationDatas = new Dictionary<string, ModuleCreationData>();
-            }
-
-            ModuleCreationData moduleCreationData;
-            if (ModulesCrationDatas.TryGetValue(moduleName, out moduleCreationData))
-            {
-                // Found the module
-                return moduleCreationData.ModuleObject;
-
-            }
-            else
-            {
-                // Module not found, so we built it.
-                moduleCreationData = new ModuleCreationData();
-                
-                return null;                            
-            }            
+            ModulesAssemblyManager = new ModuleAssemblyManager(engineIntemediateDirectory, modulesFilesRefs);                      
         }
 
+        private ModuleBuilder? GetModuleBuilderFromModuleName(string moduleName)
+        {
+            return ModulesAssemblyManager.GetModuleBuilderByName(moduleName);
+        }
         
-        private Dictionary<string, ModuleCreationData>? ModulesCrationDatas;
-        private ModuleAssemblyManager? ModulesAssemblyManager;
+
     }
 }

@@ -238,7 +238,7 @@ namespace IshakBuildTool.Build
             // For now we will just return the EngineSourceFileDir
 
             // This is fine for now as we are building the engine and all the source 
-            string publicPrvivateDir = DirectoryUtils.GetPublicOrPrivateDirectoryPathFromDirectory(file.GetDirectory());
+            string publicPrvivateDir = DirectoryUtils.GetPublicOrPrivateDirectoryPathFromDirectory(file.Directory);
 
             // TODO Delete once working.
             return publicPrvivateDir;
@@ -283,7 +283,7 @@ namespace IshakBuildTool.Build
             foreach (FileReference sourceFile in engineSolutionFile.sourceFiles)
             {                
                 // For now we just support source files under the Private Directory.
-                string directory = DirectoryUtils.GetPublicOrPrivateDirectoryPathFromDirectory(sourceFile.GetDirectory());
+                string directory = DirectoryUtils.GetPublicOrPrivateDirectoryPathFromDirectory(sourceFile.Directory);
 
                 directory = DirectoryUtils.MakeRelativeTo(new DirectoryReference(directory), new DirectoryReference(engineSolutionFile.path));
 
