@@ -109,6 +109,8 @@ namespace IshakBuildTool.Utils
           
             return finalRelativatedPath.ToString();
         }
+
+
         // TODO make relative to the project .sln 
        public static string GetPublicOrPrivateDirectoryPathFromDirectory(DirectoryReference dir)
        {
@@ -148,7 +150,7 @@ namespace IshakBuildTool.Utils
                     }
                 }
 
-                directoryStr.Append(dir.Path[idx]);
+                directoryStr.Append(actualLetter);
 
                 if (bScanningPublic)
                 {

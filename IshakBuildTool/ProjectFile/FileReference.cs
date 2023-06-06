@@ -11,11 +11,11 @@ namespace IshakBuildTool.ProjectFile
         public FileReference(string PathParm)
         {
             Path = PathParm;
-            Name = GetFileNameWithoutExtension();
+            Name = System.IO.Path.GetFileName(PathParm);
             Directory = GetDirectory();
         }
 
-        private string GetFileNameWithoutExtension()
+        public string GetFileNameWithoutExtension()
         {
             string fileName = string.Empty;
             bool bCanAddToFileName = false;
@@ -57,30 +57,6 @@ namespace IshakBuildTool.ProjectFile
         private DirectoryReference GetDirectory()
         {
             return new DirectoryReference(System.IO.Path.GetDirectoryName(Path));
-        }
-
-        public string GetNameWithoutPathExtension()
-        {
-            string pureRawName = string.Empty;
-
-            for (int charIdx = Path.Length - 1; charIdx > 0; --charIdx)
-            {
-                char actualChar = Path[charIdx];
-                if (actualChar == '\\')
-                {
-                    break;
-                }
-
-
-            }
-
-            // Process the reverse string
-            if (pureRawName.Length > 0)
-            {
-                pureRawName.Reverse();
-            }
-
-            return pureRawName;
         }
 
         public string GetPathWithoutFileExtension()

@@ -72,15 +72,26 @@ namespace IshakBuildTool.Project.Module
             // Create Directory For Assembly if not existed.
             DirectoryUtils.TryCreateDirectory(assemblyFileRef.Directory.Path);
 
-            List<SyntaxTree> parsedModulesSyntaxTrees = ParseModulesData(modulesCreationFiles);
-            List<MetadataReference> metadataReferences = CreateMetadataReferences();
-            CSharpCompilation modulesRunTimeCompilation = CreateCompilationObjectForModules(parsedModulesSyntaxTrees, metadataReferences);
+            List<SyntaxTree> parsedModulesSyntaxTrees;
+            List<MetadataReference> metadataReferences;            
+            ParseModulesFilesToSourceCode(modulesCreationFiles, out parsedModulesSyntaxTrees, out metadataReferences);
 
+            CSharpCompilation modulesRunTimeCompilation = CreateCompilationObjectForModules(parsedModulesSyntaxTrees, metadataReferences);
             return ExecuteCompilation(assemblyFileRef, modulesRunTimeCompilation);
         }
 
+        /** Parses all the Module.cs files to actual source code, so all of the files are read and then parsed. **/
+        void ParseModulesFilesToSourceCode(
+            List<FileReference> modulesCreationFiles,
+            out List<SyntaxTree> parsedMosulesSyntaxTrees, 
+            out List<MetadataReference> metadataReferences)
+        {
+            parsedMosulesSyntaxTrees = ParseModulesFiles(modulesCreationFiles);
+            metadataReferences= CreateMetadataReferences();
+        }
+
         /** Basically parses the pure text of the Module.cs files to actually source files that the compiler can read. */
-        List<SyntaxTree> ParseModulesData(List<FileReference> modulesCreationFiles)
+        List<SyntaxTree> ParseModulesFiles(List<FileReference> modulesCreationFiles)
         {            
 
             // Create the parse options for parsing the modules files to Source Files.
@@ -194,7 +205,7 @@ namespace IshakBuildTool.Project.Module
                 {
                     EmitResult compilationResult = EmitCompilation(modulesRunTimeCompilation, assemblyStream, pdbStream);
 
-                    // TODO Logger Print Error
+                    // TODO Logger Print Error if the severity is error we should crash the program
                     foreach (Diagnostic diagnostic in compilationResult.Diagnostics)
                     {
                         StringBuilder diagnosticStrB = new StringBuilder();
