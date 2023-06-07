@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IshakBuildTool.Project.Module
+namespace IshakBuildTool.Project.Modules
 {
     /** Engine Module */
     public class Module

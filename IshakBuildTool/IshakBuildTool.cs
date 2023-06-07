@@ -8,8 +8,5 @@ namespace IshakBuildTool
         {
             IshakBuildToolFramework.Execute(args);
         }
-
     }
-
-
 }// IshakBuildTool

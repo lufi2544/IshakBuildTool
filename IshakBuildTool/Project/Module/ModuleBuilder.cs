@@ -1,5 +1,5 @@
 ﻿
-namespace IshakBuildTool.Project.Module
+namespace IshakBuildTool.Project.Modules
 {
     /** This is the actual builder for a Module that HAS to exists in the Module Directory. */
     public abstract class ModuleBuilder

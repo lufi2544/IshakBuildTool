@@ -9,7 +9,7 @@ using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IshakBuildTool.Project.Module
+namespace IshakBuildTool.Project.Modules
 {
 
 
@@ -25,10 +25,34 @@ namespace IshakBuildTool.Project.Module
         {            
         }
 
+
+        public List<Module> GetModules()
+        {
+            List<Module> modules = new List<Module>();
+            foreach (var modulePair in ModulesDictionary)
+            {
+                modules.Add(modulePair.Value);
+            }
+
+            return modules;
+        }
+
         /** Discovers and Creates all the modules. */
         public void DiscoverAndCreateModules(string engineRootDirPath, DirectoryReference engineIntermediatePath)
         {
+            //---- TODO Logger ----
+            System.Console.WriteLine();
+            System.Console.WriteLine("Scanning Modules....");
+            //----
+
             List<FileReference> foundModulesFiles = ScanModules(engineRootDirPath);
+
+            //---- TODO Logger ----
+            StringBuilder stringBuilder= new StringBuilder();
+            stringBuilder.AppendLine("Discovered {0} Modules.", foundModulesFiles.Count);
+            System.Console.WriteLine(stringBuilder);
+            //----
+
             CreateAssemblyManager(engineIntermediatePath, foundModulesFiles);
             CreateModules(foundModulesFiles);         
         }

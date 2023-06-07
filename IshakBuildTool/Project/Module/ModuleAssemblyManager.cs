@@ -11,7 +11,7 @@ using System.Runtime.Serialization;
 using IshakBuildTool.Utils;
 using IshakBuildTool.ProjectFile;
 
-namespace IshakBuildTool.Project.Module
+namespace IshakBuildTool.Project.Modules
 {
     /** Class in charge of creating the Assembly for the engine modules.*/
     internal class ModuleAssemblyManager
@@ -146,7 +146,7 @@ namespace IshakBuildTool.Project.Module
                 MetadataReference.CreateFromFile(Assembly.Load("System.Collections").Location),
 
                 // Ishak Build Tool metadata references
-                MetadataReference.CreateFromFile(typeof(IshakBuildTool.Project.Module.ModuleBuilder).Assembly.Location)
+                MetadataReference.CreateFromFile(typeof(IshakBuildTool.Project.Modules.ModuleBuilder).Assembly.Location)
             };
 
             return metadataReferences;
@@ -224,6 +224,7 @@ namespace IshakBuildTool.Project.Module
                         return null;
                     }
 
+                    System.Console.WriteLine("Compiled Modules Assembly....Success");
 
                 }
             }

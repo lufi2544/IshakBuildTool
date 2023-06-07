@@ -16,10 +16,7 @@ namespace IshakBuildTool
     /** Global Ishak Build Tool framework  */
     internal class IshakBuildToolFramework
     {
-
-        private BuildFramework BuildFramework = new BuildFramework();
-        private ProjectGenerator ProjectGenerator = new ProjectGenerator();        
-
+            
         public IshakBuildToolFramework() 
         {
 
@@ -33,10 +30,7 @@ namespace IshakBuildTool
                 testArgs);
 
             Console.WriteLine(initMessage);
-
-            GenerateProjectFilesHandler.GenerateProjectFiles(testArgs);
+            GenerateProjectFilesHandler.GenerateProjectFiles(commandLineArgs);
         }
-
-
     }
 }

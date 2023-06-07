@@ -9,41 +9,45 @@ using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
+using IshakBuildTool.Build;
 
-using IshakBuildTool.Project;
-
-
-namespace IshakBuildTool.Build
+namespace IshakBuildTool.Project
 {
     // Class for generating data for visual studio.
     // For now the engine will be only generating files for visual studio and windows platform.
-    internal class ProjectGenerator
+    internal class ProjectFileGenerator
     {
 
         enum EVCFileType
         {
             None,
             ClCompile,
-            ClInclude                
+            ClInclude
         }
 
         private ProjectDirectory RootFolder;
 
-        public ProjectGenerator()
+        public ProjectFileGenerator()
         {
             RootFolder = new ProjectDirectory("Root", "");
             bEngineProjectCreated = false;
         }
 
+        public void HandleProjectFileGenerationForProject(Project project)
+        {
+            StringBuilder projectFileSB = new StringBuilder();
+
+        }        
+
         public void CreateEngineSolutionFile(string engineDirectoryPath)
         {
             // TODO Utils make this more accessible by adding this to a file.
             string intermediatePath = engineDirectoryPath + "\\Intermediate\\ProjectFiles";
-            engineSolutionFile = new Project.ProjectFile("IshakEngine", intermediatePath);
-            engineSolutionFile.GUID = BuildGUIDForProject(engineSolutionFile.path, engineSolutionFile.projectName);
-            
+            engineSolutionFile = new ProjectFile("IshakEngine", intermediatePath);
+            //engineSolutionFile.GUID = BuildGUIDForProject(engineSolutionFile.path, engineSolutionFile.projectName);
+
             WriteEngineSolutionFile();
-          
+
             RootFolder.subSolutionFiles.Add(engineSolutionFile);
         }
 
@@ -61,7 +65,7 @@ namespace IshakBuildTool.Build
         void WriteEngineHeaderFile()
         {
             engineProjectFileString = new StringBuilder();
-            
+
             engineProjectFileString.AppendLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
             engineProjectFileString.AppendLine("<Project DefaultTargets=\"Build\" ToolsVersion=\"0.17\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">");
         }
@@ -100,21 +104,21 @@ namespace IshakBuildTool.Build
         }
 
         void WriteEngineProjectGlobals()
-        {           
-            engineProjectFileString.AppendLine("  <PropertyGroup Label=\"Globals\">");            
+        {
+            engineProjectFileString.AppendLine("  <PropertyGroup Label=\"Globals\">");
 
-            engineProjectFileString.AppendLine("    <ProjectGuid>{0}</ProjectGuid>", engineSolutionFile.GUID.ToString("B").ToUpperInvariant());
+            //engineProjectFileString.AppendLine("    <ProjectGuid>{0}</ProjectGuid>", engineSolutionFile.GUID.ToString("B").ToUpperInvariant());
             engineProjectFileString.AppendLine("    <Keyword>MakeFileProj</Keyword>");
             engineProjectFileString.AppendLine("    <RootNamespace>{0}</RootNamespace>", engineSolutionFile.projectName);
-            engineProjectFileString.AppendLine("    <PlatformToolset>{0}/PlatformToolset>", "v143" );
+            engineProjectFileString.AppendLine("    <PlatformToolset>{0}/PlatformToolset>", "v143");
             engineProjectFileString.AppendLine("    <MinimumVisualStudioVersion>{0}</MinimumVisualStudioVersion>", "17.0");
             engineProjectFileString.AppendLine("    <VCProjectVersion>{0}</VCProjectVersion>", "17.0");
             engineProjectFileString.AppendLine("    <NMakeUseOemCodePage>true</NMakeUseOemCodePage>"); // Fixes mojibake with non-Latin character sets (UE-102825)
             engineProjectFileString.AppendLine("    <TargetRuntime>Native</TargetRuntime>");
             engineProjectFileString.AppendLine("  </PropertyGroup>");
 
-        }   
-        
+        }
+
         void WriteEnginePostDefaultProps()
         {
             engineProjectFileString.AppendLine("  <Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.Default.props\" />");
@@ -203,6 +207,8 @@ namespace IshakBuildTool.Build
             // to the compiler compile way.
 
             StringBuilder compilerCompileMacrosB = new StringBuilder();
+
+            /*
             foreach (FileReference sourceFile in engineSolutionFile.sourceFiles)
             {
                 EVCFileType vcCompileType = GetVCFileTypeForFile(sourceFile);
@@ -213,8 +219,8 @@ namespace IshakBuildTool.Build
                 {
                     WriteVCCompileTypeSourceFile(sourceFile);
                 }                
-            }
-            
+            }*/
+
         }
         void WriteVCCompileTypeForStandardFile(EVCFileType vcCompileType, FileReference file)
         {
@@ -226,7 +232,7 @@ namespace IshakBuildTool.Build
             // Write the source file to the engineProjectFileStr and its additional source files for compiling this file, for now this second step
             // will not be necessary as there are only one folder for the engine project, but as we add modules this may be.
             // When implementing the additional module dependent files, we are gonna add them here.
-        
+
             engineProjectFileString.AppendLine("      <AdditionalIncludeDirectories>$(NMakeIncludeSearchPath);{0}", GetDependencyFilesForSourceFile(file));
             engineProjectFileString.AppendLine("    </ClCompile>");
         }
@@ -250,7 +256,8 @@ namespace IshakBuildTool.Build
             {
                 return EVCFileType.ClInclude;
 
-            }else if (file.Path.Contains(".cpp"))
+            }
+            else if (file.Path.Contains(".cpp"))
             {
                 return EVCFileType.ClCompile;
             }
@@ -276,10 +283,13 @@ namespace IshakBuildTool.Build
 
         string GetIncludePathSet()
         {
-            StringBuilder includePathsStrBuilder = new StringBuilder();                      
-          
+            StringBuilder includePathsStrBuilder = new StringBuilder();
+
             // As modules are added to the engine, we would have to change the way we scann the files and store them
             // but for now this should be fine.
+
+            /*
+
             foreach (FileReference sourceFile in engineSolutionFile.sourceFiles)
             {                
                 // For now we just support source files under the Private Directory.
@@ -291,13 +301,14 @@ namespace IshakBuildTool.Build
                 {                    
                     includePathsStrBuilder.AppendLine(directory + ";");        
                 }
-            }           
+            } 
+            */
 
-             return includePathsStrBuilder.ToString();
+            return includePathsStrBuilder.ToString();
         }
 
         public bool bEngineProjectCreated { get; set; }
-        Project.ProjectFile engineSolutionFile { get; set; }
+        ProjectFile engineSolutionFile { get; set; }
 
 
         StringBuilder engineProjectFileString;
@@ -307,7 +318,7 @@ namespace IshakBuildTool.Build
         public void GenerateProjectFiles(string projectPath)
         {
             var projectName = TestEnviroment.TestProjectName;
-           
+
             // Configure
             // Create the c++ project
             var vsSolutionProject = projectName + ".sln";
@@ -322,7 +333,7 @@ namespace IshakBuildTool.Build
             VSSolutionFileContent.AppendLine("# Visual Studio Version 17");
             VSSolutionFileContent.AppendLine("VisualStudioVersion = 17.0.31314.256");
             VSSolutionFileContent.AppendLine("MinimumVisualStudioVersion = 10.0.40219.1");
-            
+
 
             var solutionGUID = BuildGUIDForProject("ISHE", "Engine");
             string FolderGUID = solutionGUID.ToString();
@@ -349,7 +360,7 @@ namespace IshakBuildTool.Build
 
             VSSolutionFileContent.AppendLine("EndGlobal");
 
-            
+
 
             CreateVisualStudioSolutionFile(solutionPath, VSSolutionFileContent.ToString());
             CreateVSFile();
@@ -357,7 +368,7 @@ namespace IshakBuildTool.Build
 
         private void AddProjectHirarchy(ref StringBuilder out_VSSolution)
         {
-          
+
         }
 
         private void CreateVSFile()
@@ -367,7 +378,7 @@ namespace IshakBuildTool.Build
             // Project file header
 
             StringBuilder VCProjectFileContent = new StringBuilder();
-            
+
             VCProjectFileContent.AppendLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
             VCProjectFileContent.AppendLine("<Project DefaultTargets=\"Build\" ToolsVersion=\"17.0\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">");
             VCProjectFileContent.AppendLine("  <ItemGroup Label=\"ProjectConfigurations\">");
@@ -384,12 +395,12 @@ namespace IshakBuildTool.Build
             VCProjectFileContent.AppendLine("</Project>");
 
 
-            CreateDirectory(Test.TestEnviroment.TestIntermediateFolder + "IshakEngine.vcxproj", VCProjectFileContent.ToString());
+            CreateDirectory(TestEnviroment.TestIntermediateFolder + "IshakEngine.vcxproj", VCProjectFileContent.ToString());
         }
 
         private Guid BuildGUIDForProject(string parentPath, string projectName)
         {
-            string PathForMakingGUID = String.Format("{0}/{1}", parentPath, projectName);
+            string PathForMakingGUID = string.Format("{0}/{1}", parentPath, projectName);
 
             return MakeMd5Guid(Encoding.UTF8.GetBytes(PathForMakingGUID));
         }
@@ -397,8 +408,8 @@ namespace IshakBuildTool.Build
         static Guid MakeMd5Guid(byte[] Input)
         {
             byte[] Hash = MD5.Create().ComputeHash(Input);
-            Hash[6] = (byte)(0x30 | (Hash[6] & 0x0f)); // 0b0011'xxxx Version 3 UUID (MD5)
-            Hash[8] = (byte)(0x80 | (Hash[8] & 0x3f)); // 0b10xx'xxxx RFC 4122 UUID
+            Hash[6] = (byte)(0x30 | Hash[6] & 0x0f); // 0b0011'xxxx Version 3 UUID (MD5)
+            Hash[8] = (byte)(0x80 | Hash[8] & 0x3f); // 0b10xx'xxxx RFC 4122 UUID
             Array.Reverse(Hash, 0, 4);
             Array.Reverse(Hash, 4, 2);
             Array.Reverse(Hash, 6, 2);

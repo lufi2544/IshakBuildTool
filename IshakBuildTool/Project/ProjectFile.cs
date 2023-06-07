@@ -16,22 +16,21 @@ namespace IshakBuildTool.Project
         {
             projectName = soutionNameParam;
             solutionProjectName = soutionNameParam + ".vcxproj";
-            path = pathParam + solutionProjectName;
-
-            // We fill the source files here directly
-            CreateSolutionFiles();
+            path = pathParam + solutionProjectName;            
         }
 
-        void CreateSolutionFiles()
+        public void SetOwnerProject(Project project)
         {
-            sourceFiles = FileScanner.FindSourceFiles(path);
+            OwnerProject= project;
         }
 
         public string solutionProjectName { get; set; }
         public string projectName { get; set; }
         public string path { get; set; }
 
-        public List<FileReference> sourceFiles { get; set; }
-        public Guid GUID { get; set; }
+        /** This is the actual content of the file, used by Visual Studio for the IDE. */
+        public string projectFileContent;
+        
+        Project OwnerProject;
     }
 }
