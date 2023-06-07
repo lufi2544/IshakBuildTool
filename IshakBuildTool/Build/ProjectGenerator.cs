@@ -17,7 +17,7 @@ namespace IshakBuildTool.Build
 {
     // Class for generating data for visual studio.
     // For now the engine will be only generating files for visual studio and windows platform.
-    internal class VSProjectGenerator
+    internal class ProjectGenerator
     {
 
         enum EVCFileType
@@ -29,7 +29,7 @@ namespace IshakBuildTool.Build
 
         private ProjectDirectory RootFolder;
 
-        public VSProjectGenerator()
+        public ProjectGenerator()
         {
             RootFolder = new ProjectDirectory("Root", "");
             bEngineProjectCreated = false;

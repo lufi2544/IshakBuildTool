@@ -37,7 +37,7 @@ namespace IshakBuildTool.Build
         }
 
         /** Creates the Projects for visual studio, in this case the .vcxproj for the Engine. */
-        private static void CreateProjects(VSProjectGenerator ProjectGenerator)
+        private static void CreateProjects(ProjectGenerator ProjectGenerator)
         {
             
         }

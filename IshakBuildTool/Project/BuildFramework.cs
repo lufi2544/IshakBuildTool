@@ -9,9 +9,9 @@ namespace IshakBuildTool.Project
 
     // This is the class in charge of managing the entire solution project
     // If we had 2 Games in the Global Project, we would have the Engine Project and then the 2 Game Projects
-    internal class GlobalProject
+    internal class BuildFramework
     {
-        public GlobalProject() { }
+        public BuildFramework() { }
 
 
         /** List of Projects that will be in the soulution File. */

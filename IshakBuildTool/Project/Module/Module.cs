@@ -13,7 +13,6 @@ namespace IshakBuildTool.Project.Module
     /** Engine Module */
     public class Module
     {
-
         public FileReference moduleFile { get; set; }
         public DirectoryReference PublicDirectoryRef { get; set; }
         public DirectoryReference PrivateDirectoryRef { get; set; }
@@ -25,6 +24,8 @@ namespace IshakBuildTool.Project.Module
         
         private ModuleManager ModuleManager;
 
+        List<FileReference> SourceFiles;
+
         public Module(ModuleBuilder moduleBuilder,  FileReference moduleFileRef, ModuleManager moduleManager)
         {
             moduleFile = moduleFileRef;
@@ -35,7 +36,8 @@ namespace IshakBuildTool.Project.Module
                    
             MakePubliDirs();
             MakePrivateDir();
-            BuildModuleDependentDirectories();            
+            BuildModuleDependentDirectoriesString(); 
+            AddSourceFiles();
         }        
 
         void MakePubliDirs()
@@ -57,28 +59,44 @@ namespace IshakBuildTool.Project.Module
         } 
 
         /** We take all the dependent modules and add their Public dirs to this module dependency dir list. */
-        void BuildModuleDependentDirectories()
+        void BuildModuleDependentDirectoriesString()
         {
             StringBuilder moduleDependencySB = new StringBuilder();
 
             // We add by default the Private Dir for this module.
             moduleDependencySB.Append("{0};", PrivateDirectoryRef.Path);
 
-            // TODO function
+            AddPublicModuleDependencies(moduleDependencySB);
+            AddPrivateModuleDependencies(moduleDependencySB);
+
+            ModulesDependencyDirsString = moduleDependencySB.ToString();
+        }
+
+
+        /** We take all the dependent modules and add their Private dirs to this module dependency dir list. */
+        void AddPublicModuleDependencies(StringBuilder stringBuilder)
+        {            
             foreach (string dependentModuleName in PublicDependentModules)
             {
                 Module? dependentModule = ModuleManager.GetModuleByName(dependentModuleName);
-                moduleDependencySB.Append("{0};", dependentModule.PublicDirectoryRef.Path);                
+                stringBuilder.Append("{0};", dependentModule.PublicDirectoryRef.Path);
             }
+        }
 
+        void AddPrivateModuleDependencies(StringBuilder stringBuilder)
+        {
             foreach (string dependentModuleName in PrivateDependentModules)
             {
                 Module? dependentModule = ModuleManager.GetModuleByName(dependentModuleName);
-                moduleDependencySB.Append("{0};", dependentModule.PublicDirectoryRef.Path);
+                stringBuilder.Append("{0};", dependentModule.PrivateDirectoryRef.Path);
             }
+        }
 
-            ModulesDependencyDirsString = moduleDependencySB.ToString();
-        }        
-                 
+        void AddSourceFiles()
+        {
+            SourceFiles = FileScanner.FindSourceFiles(moduleFile.Directory.Path);            
+        }
+
+
     }
 }

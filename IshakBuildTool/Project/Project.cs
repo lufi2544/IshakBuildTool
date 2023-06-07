@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace IshakBuildTool.Project
 {
+    /** Class representing a single project. */
     internal class Project
     {
 

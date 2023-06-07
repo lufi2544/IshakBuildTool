@@ -113,13 +113,13 @@ namespace IshakBuildTool.Utils
    
             if (bRecursive)
             {
-                return FindFilesInDirectoryRecursiveWithFilter(projectDirectory, filterMode, folderFilter, filesFilterMode, fileExtensionsToFilter);
+                return FindFilesInDirectoryWithFilterRecursive(projectDirectory, filterMode, folderFilter, filesFilterMode, fileExtensionsToFilter);
             }
 
             return FindFilesInDirectoryWithExtensionsFilter(projectDirectory, filesFilterMode, fileExtensionsToFilter);
         }
 
-        static private List<FileReference> FindFilesInDirectoryRecursiveWithFilter(
+        static private List<FileReference> FindFilesInDirectoryWithFilterRecursive(
             string folderToExplore,
             EFileScannerFilterMode? filterMode,
             List<string>? folderFilter,
@@ -142,7 +142,7 @@ namespace IshakBuildTool.Utils
             foreach (string directoryPath in foundFilteredDirectories)
             {
                 var mergedFiles = subFolderFiles.Concat(
-                    FindFilesInDirectoryRecursiveWithFilter(
+                    FindFilesInDirectoryWithFilterRecursive(
                         directoryPath,
                         filterMode,
                         folderFilter,
@@ -222,8 +222,8 @@ namespace IshakBuildTool.Utils
             List<FileReference> filteredFiles = new List<FileReference>();
             foreach (FileReference file in filesToFilter)
             {                
-                bool bFileHasExtension = FilterSingleFile(file, filterMode, filesExtensionFilter);
-                if (bFileHasExtension)
+                bool bFilterConditionPassed = FilterSingleFile(file, filterMode, filesExtensionFilter);
+                if (bFilterConditionPassed)
                 {
                     filteredFiles.Add(file);
                 }
@@ -260,10 +260,20 @@ namespace IshakBuildTool.Utils
                         return false;
                     }
                 }
-
             }
 
-            return false;
+            // If after all the filtering nothing has matched, then we have to check if we should include the file 
+            // so if we are excluding .sln and .cs, all the rest have to be included
+            // On the other hand, if we want to include .sln and .cs, then we have to exclude the other files.
+               
+            if (filterMode == EFileScannerFilterMode.EExclusive)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         // For now by default we just filter the folder in an inclusive way.
