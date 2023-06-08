@@ -18,10 +18,10 @@ namespace IshakBuildTool.Project
         /** Writes the .vcxproj for this Project.  */
         public void WriteProjectFile()
         {
-            ProjectFileGenerator projectFileGenerator = new ProjectFileGenerator();
+            ProjectFileGenerator projectFileGenerator = new ProjectFileGenerator(this);
 
             // This will fill up the ProjectFile for this project.
-            projectFileGenerator.HandleProjectFileGenerationForProject(this);
+            projectFileGenerator.HandleProjectFileGeneration();
         }
 
         public string Name { get; set; }
@@ -29,8 +29,8 @@ namespace IshakBuildTool.Project
         /** This is the .vcxproj file. */
         public ProjectFile ProjectFile { get; set; }
 
-        List<Module> Modules;
+        public List<Module> Modules { get; set; }
 
-        Guid GUID;
+        public Guid GUID { get; set; }
     }
 }

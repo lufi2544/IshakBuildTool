@@ -29,7 +29,6 @@ namespace IshakBuildTool.Project
                     );
 
                 createdProject.WriteProjectFile();
-
                 Projects.Add(createdProject);   
             }
         }

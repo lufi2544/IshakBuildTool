@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
 using IshakBuildTool.Build;
+using IshakBuildTool.Project.Modules;
 
 namespace IshakBuildTool.Project
 {
@@ -27,28 +28,29 @@ namespace IshakBuildTool.Project
 
         private ProjectDirectory RootFolder;
 
-        public ProjectFileGenerator()
-        {
-            RootFolder = new ProjectDirectory("Root", "");
-            bEngineProjectCreated = false;
+        private Project ProjectToHandle;
+
+        StringBuilder EngineProjectFileString;
+        List<Tuple<string, Platform.EPlatform>> EngineConfigurations;
+
+        public ProjectFileGenerator(Project projectToHandle)
+        {            
+            ProjectToHandle= projectToHandle;
         }
 
-        public void HandleProjectFileGenerationForProject(Project project)
+        public void HandleProjectFileGeneration()
         {
-            StringBuilder projectFileSB = new StringBuilder();
-
+            CreateEngineSolutionFile();            
         }        
 
-        public void CreateEngineSolutionFile(string engineDirectoryPath)
+        public void CreateEngineSolutionFile()
         {
             // TODO Utils make this more accessible by adding this to a file.
-            string intermediatePath = engineDirectoryPath + "\\Intermediate\\ProjectFiles";
-            engineSolutionFile = new ProjectFile("IshakEngine", intermediatePath);
-            //engineSolutionFile.GUID = BuildGUIDForProject(engineSolutionFile.path, engineSolutionFile.projectName);
+            
+            ProjectToHandle.GUID = BuildGUIDForProject(ProjectToHandle.ProjectFile.path, ProjectToHandle.ProjectFile.solutionProjectName);
 
             WriteEngineSolutionFile();
-
-            RootFolder.subSolutionFiles.Add(engineSolutionFile);
+            
         }
 
         /* Basically after creating the Solution file, in this case what we do is just write in the solution file all the obtained data. */
@@ -64,73 +66,65 @@ namespace IshakBuildTool.Project
 
         void WriteEngineHeaderFile()
         {
-            engineProjectFileString = new StringBuilder();
+            EngineProjectFileString = new StringBuilder();
 
-            engineProjectFileString.AppendLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
-            engineProjectFileString.AppendLine("<Project DefaultTargets=\"Build\" ToolsVersion=\"0.17\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">");
+            EngineProjectFileString.AppendLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+            EngineProjectFileString.AppendLine("<Project DefaultTargets=\"Build\" ToolsVersion=\"0.17\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">");
         }
 
         void WriteEngineProjectConfigurations()
         {
-            engineProjectFileString.AppendLine("  <ItemGroup Label=\"ProjectConfigurations\">");
+            EngineProjectFileString.AppendLine("  <ItemGroup Label=\"ProjectConfigurations\">");
 
-            /*
-            string ProjectPlatformName = PlatformTuple.Item1;
-            AppendLine("    <ProjectConfiguration Include=\"{0}|{1}\">", ProjectConfigurationName, ProjectPlatformName);
-            AppendLine("      <Configuration>{0}</Configuration>", ProjectConfigurationName);
-            AppendLine("      <Platform>{0}</Platform>", ProjectPlatformName);
-            AppendLine("    </ProjectConfiguration>");
-            */
-
-            engineConfigurations = new List<Tuple<string, Platform.EPlatform>>();
+            EngineConfigurations = new List<Tuple<string, Platform.EPlatform>>();
 
             // For now we are just gonna add a default configuration.
             AddConfiguration(IshakEngineConfiguration.Debug, Platform.EPlatform.x64);
             AddConfiguration(IshakEngineConfiguration.Development, Platform.EPlatform.x64);
 
-            engineProjectFileString.AppendLine("  </ItemGroup>");
+            EngineProjectFileString.AppendLine("  </ItemGroup>");
         }
 
 
         void AddConfiguration(IshakEngineConfiguration config, Platform.EPlatform platform)
         {
-            engineConfigurations.Add(new Tuple<string, Platform.EPlatform>(config.ToString(), platform));
+            EngineConfigurations.Add(new Tuple<string, Platform.EPlatform>(config.ToString(), platform));
 
 
-            engineProjectFileString.AppendLine(string.Format("    <ProjectConfiguration Include=\"{0}|{1}\">", config.ToString(), platform.ToString()));
-            engineProjectFileString.AppendLine(string.Format("      <Configuration>{0}</Configuration>", config.ToString()));
-            engineProjectFileString.AppendLine(string.Format("      <Platform>{0}</Platform>", platform.ToString()));
-            engineProjectFileString.AppendLine(string.Format("    </ProjectConfiguration>"));
+            EngineProjectFileString.AppendLine(string.Format("    <ProjectConfiguration Include=\"{0}|{1}\">", config.ToString(), platform.ToString()));
+            EngineProjectFileString.AppendLine(string.Format("      <Configuration>{0}</Configuration>", config.ToString()));
+            EngineProjectFileString.AppendLine(string.Format("      <Platform>{0}</Platform>", platform.ToString()));
+            EngineProjectFileString.AppendLine(string.Format("    </ProjectConfiguration>"));
         }
 
         void WriteEngineProjectGlobals()
         {
-            engineProjectFileString.AppendLine("  <PropertyGroup Label=\"Globals\">");
+            EngineProjectFileString.AppendLine("  <PropertyGroup Label=\"Globals\">");
 
-            //engineProjectFileString.AppendLine("    <ProjectGuid>{0}</ProjectGuid>", engineSolutionFile.GUID.ToString("B").ToUpperInvariant());
-            engineProjectFileString.AppendLine("    <Keyword>MakeFileProj</Keyword>");
-            engineProjectFileString.AppendLine("    <RootNamespace>{0}</RootNamespace>", engineSolutionFile.projectName);
-            engineProjectFileString.AppendLine("    <PlatformToolset>{0}/PlatformToolset>", "v143");
-            engineProjectFileString.AppendLine("    <MinimumVisualStudioVersion>{0}</MinimumVisualStudioVersion>", "17.0");
-            engineProjectFileString.AppendLine("    <VCProjectVersion>{0}</VCProjectVersion>", "17.0");
-            engineProjectFileString.AppendLine("    <NMakeUseOemCodePage>true</NMakeUseOemCodePage>"); // Fixes mojibake with non-Latin character sets (UE-102825)
-            engineProjectFileString.AppendLine("    <TargetRuntime>Native</TargetRuntime>");
-            engineProjectFileString.AppendLine("  </PropertyGroup>");
+            EngineProjectFileString.AppendLine("    <ProjectGuid>{0}</ProjectGuid>",  ProjectToHandle.GUID.ToString("B").ToUpperInvariant());
+            EngineProjectFileString.AppendLine("    <Keyword>MakeFileProj</Keyword>");
+            EngineProjectFileString.AppendLine("    <RootNamespace>{0}</RootNamespace>", ProjectToHandle.ProjectFile.projectName);
+            EngineProjectFileString.AppendLine("    <PlatformToolset>{0}/PlatformToolset>", "v143");
+            EngineProjectFileString.AppendLine("    <MinimumVisualStudioVersion>{0}</MinimumVisualStudioVersion>", "17.0");
+            EngineProjectFileString.AppendLine("    <VCProjectVersion>{0}</VCProjectVersion>", "17.0");
+            EngineProjectFileString.AppendLine("    <NMakeUseOemCodePage>true</NMakeUseOemCodePage>"); // Fixes mojibake with non-Latin character sets (UE-102825)
+            EngineProjectFileString.AppendLine("    <TargetRuntime>Native</TargetRuntime>");
+            EngineProjectFileString.AppendLine("  </PropertyGroup>");
 
         }
 
         void WriteEnginePostDefaultProps()
         {
-            engineProjectFileString.AppendLine("  <Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.Default.props\" />");
+            EngineProjectFileString.AppendLine("  <Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.Default.props\" />");
 
-            foreach (Tuple<string, Platform.EPlatform> configurationTuple in engineConfigurations)
+            foreach (Tuple<string, Platform.EPlatform> configurationTuple in EngineConfigurations)
             {
                 string configurationAndPlatformName = configurationTuple.Item1 + "|" + configurationTuple.Item2.ToString();
                 string conditionString = "Condition=\"'$(Configuration)|$(Platform)'=='" + configurationAndPlatformName + "'\"";
 
-                engineProjectFileString.AppendLine("  <PropertyGroup {0} Label=\"Configuration\">", conditionString);
-                engineProjectFileString.AppendLine("    <ConfigurationType>{0}</ConfigurationType>", "Makefile");
-                engineProjectFileString.AppendLine("    <PlatformToolset>{0}</PlatformToolset>", "v143");
+                EngineProjectFileString.AppendLine("  <PropertyGroup {0} Label=\"Configuration\">", conditionString);
+                EngineProjectFileString.AppendLine("    <ConfigurationType>{0}</ConfigurationType>", "Makefile");
+                EngineProjectFileString.AppendLine("    <PlatformToolset>{0}</PlatformToolset>", "v143");
             }
         }
 
@@ -138,25 +132,25 @@ namespace IshakBuildTool.Project
         {
             // TODO find a way of getting used configuration.
 
-            foreach (var configurationTuple in engineConfigurations)
+            foreach (var configurationTuple in EngineConfigurations)
             {
                 string configurationAndPlatformName = configurationTuple.Item1 + "|" + configurationTuple.Item2.ToString();
                 string conditionString = "Condition=\"'$(Configuration)|$(Platform)'=='" + configurationAndPlatformName + "'\"";
-                engineProjectFileString.AppendLine("  <ImportGroup {0} Label=\"PropertySheets\">", conditionString);
-                engineProjectFileString.AppendLine("    <Import Project=\"$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props\" Condition=\"exists('$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props')\" Label=\"LocalAppDataPlatform\" />");
-                engineProjectFileString.AppendLine("  </ImportGroup>");
+                EngineProjectFileString.AppendLine("  <ImportGroup {0} Label=\"PropertySheets\">", conditionString);
+                EngineProjectFileString.AppendLine("    <Import Project=\"$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props\" Condition=\"exists('$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props')\" Label=\"LocalAppDataPlatform\" />");
+                EngineProjectFileString.AppendLine("  </ImportGroup>");
 
-                engineProjectFileString.AppendLine("  <PropertyGroup {0}>", conditionString);
-                engineProjectFileString.AppendLine("    <IncludePath />");
-                engineProjectFileString.AppendLine("    <ReferencePath />");
-                engineProjectFileString.AppendLine("    <LibraryPath />");
-                engineProjectFileString.AppendLine("    <LibraryWPath />");
-                engineProjectFileString.AppendLine("    <SourcePath />");
-                engineProjectFileString.AppendLine("    <ExcludePath />");
+                EngineProjectFileString.AppendLine("  <PropertyGroup {0}>", conditionString);
+                EngineProjectFileString.AppendLine("    <IncludePath />");
+                EngineProjectFileString.AppendLine("    <ReferencePath />");
+                EngineProjectFileString.AppendLine("    <LibraryPath />");
+                EngineProjectFileString.AppendLine("    <LibraryWPath />");
+                EngineProjectFileString.AppendLine("    <SourcePath />");
+                EngineProjectFileString.AppendLine("    <ExcludePath />");
 
                 string projectUnusedDirectory = "$(ProjectDir)..\\Build\\Unused";
-                engineProjectFileString.AppendLine("    <OutDir>{0}{1}</OutDir>", projectUnusedDirectory, Path.DirectorySeparatorChar);
-                engineProjectFileString.AppendLine("    <IntDir>{0}{1}</IntDir>", projectUnusedDirectory, Path.DirectorySeparatorChar);
+                EngineProjectFileString.AppendLine("    <OutDir>{0}{1}</OutDir>", projectUnusedDirectory, Path.DirectorySeparatorChar);
+                EngineProjectFileString.AppendLine("    <IntDir>{0}{1}</IntDir>", projectUnusedDirectory, Path.DirectorySeparatorChar);
 
                 WriteNMakeBuildProps();
             }
@@ -176,24 +170,24 @@ namespace IshakBuildTool.Project
             */
 
             // TODO make language standard
-            engineProjectFileString.AppendLine("    <AdditionalOptions>{0}</AdditionalOptions>", "std:c++17");
-            engineProjectFileString.AppendLine("  </PropertyGroup>");
+            EngineProjectFileString.AppendLine("    <AdditionalOptions>{0}</AdditionalOptions>", "std:c++17");
+            EngineProjectFileString.AppendLine("  </PropertyGroup>");
         }
 
         // In the case of a game, this would be the shared files from the engine.
         void WriteIntellisenseInfo()
         {
-            engineProjectFileString.AppendLine("  <PropertyGroup>");
+            EngineProjectFileString.AppendLine("  <PropertyGroup>");
 
 
             // TODO make the include paths Set( in this case the Source file for the engine )
 
             string sharedIncludeDirectories = GetIncludePathSet();
-            engineProjectFileString.AppendLine("    <IncludePath>$(IncludePath);{0}</IncludePath>", sharedIncludeDirectories);
-            engineProjectFileString.AppendLine("    <NMakeForcedIncludes>$(NMakeForcedIncludes)</NMakeForcedIncludes>");
-            engineProjectFileString.AppendLine("    <NMakeAssemblySearchPath>$(NMakeAssemblySearchPath)</NMakeAssemblySearchPath>");
-            engineProjectFileString.AppendLine("    <AdditionalOptions>{0}</AdditionalOptions>", GetCppVersion(ECppVersion.Cpp17));
-            engineProjectFileString.AppendLine("  </PropertyGroup>");
+            EngineProjectFileString.AppendLine("    <IncludePath>$(IncludePath);{0}</IncludePath>", sharedIncludeDirectories);
+            EngineProjectFileString.AppendLine("    <NMakeForcedIncludes>$(NMakeForcedIncludes)</NMakeForcedIncludes>");
+            EngineProjectFileString.AppendLine("    <NMakeAssemblySearchPath>$(NMakeAssemblySearchPath)</NMakeAssemblySearchPath>");
+            EngineProjectFileString.AppendLine("    <AdditionalOptions>{0}</AdditionalOptions>", GetCppVersion(ECppVersion.Cpp17));
+            EngineProjectFileString.AppendLine("  </PropertyGroup>");
 
 
             WriteIntellisenseInfoForEngineFiles();
@@ -201,53 +195,49 @@ namespace IshakBuildTool.Project
 
         void WriteIntellisenseInfoForEngineFiles()
         {
-            engineProjectFileString.AppendLine("  <ItemGroup>");
+            EngineProjectFileString.AppendLine("  <ItemGroup>");
 
-            // Here basically we iterate through all the engine source code files and we determine its way of adding 
-            // to the compiler compile way.
-
-            StringBuilder compilerCompileMacrosB = new StringBuilder();
-
-            /*
-            foreach (FileReference sourceFile in engineSolutionFile.sourceFiles)
-            {
-                EVCFileType vcCompileType = GetVCFileTypeForFile(sourceFile);
-
-                WriteVCCompileTypeForStandardFile(vcCompileType, sourceFile);
-
-                if (vcCompileType == EVCFileType.ClCompile)
-                {
-                    WriteVCCompileTypeSourceFile(sourceFile);
-                }                
-            }*/
-
+            WriteVCCompileDataFromProjectModules();
         }
-        void WriteVCCompileTypeForStandardFile(EVCFileType vcCompileType, FileReference file)
+
+        /** Iterate through all the Modules SourceFiles that this project has and write the data from them for Intellisense.  */
+        void WriteVCCompileDataFromProjectModules() 
         {
-            engineProjectFileString.AppendLine("    <{0} Include=\"{1}\"/>", vcCompileType.ToString(), file.Path);
+            foreach (Module module in ProjectToHandle.Modules)
+            {
+                WriteIntellisenseInfoFromModule(module);
+            }
         }
 
-        void WriteVCCompileTypeSourceFile(FileReference file)
+        void WriteIntellisenseInfoFromModule(Module module)
+        {
+            foreach (FileReference sourceFileRef in module.SourceFiles)
+            {
+                EVCFileType cvCompileType = GetVCFileTypeForFile(sourceFileRef);
+                if (cvCompileType == EVCFileType.ClInclude)
+                {
+                    WriteVCCompileTypeForStandardFile(sourceFileRef);
+                }
+                else if (cvCompileType == EVCFileType.ClInclude)
+                {
+                    WriteVCCompileTypeSourceFile(sourceFileRef, module);
+                }
+            }
+        }
+
+        void WriteVCCompileTypeForStandardFile(FileReference file)
+        {
+            EngineProjectFileString.AppendLine("    <{0} Include=\"{1}\"/>", EVCFileType.ClInclude.ToString(), file.Path);
+        }
+
+        void WriteVCCompileTypeSourceFile(FileReference file, Module fileParentModule)
         {
             // Write the source file to the engineProjectFileStr and its additional source files for compiling this file, for now this second step
             // will not be necessary as there are only one folder for the engine project, but as we add modules this may be.
             // When implementing the additional module dependent files, we are gonna add them here.
 
-            engineProjectFileString.AppendLine("      <AdditionalIncludeDirectories>$(NMakeIncludeSearchPath);{0}", GetDependencyFilesForSourceFile(file));
-            engineProjectFileString.AppendLine("    </ClCompile>");
-        }
-
-        string GetDependencyFilesForSourceFile(FileReference file)
-        {
-            // Add a BuildEnviroment for a sourceFile and then the files from that build enviroment.
-            // Module{ Modules{ return paths(private and public) }   };
-            // For now we will just return the EngineSourceFileDir
-
-            // This is fine for now as we are building the engine and all the source 
-            string publicPrvivateDir = DirectoryUtils.GetPublicOrPrivateDirectoryPathFromDirectory(file.Directory);
-
-            // TODO Delete once working.
-            return publicPrvivateDir;
+            EngineProjectFileString.AppendLine("      <AdditionalIncludeDirectories>$(NMakeIncludeSearchPath);{0}", fileParentModule.ModulesDependencyDirsString);
+            EngineProjectFileString.AppendLine("    </ClCompile>");
         }
 
         EVCFileType GetVCFileTypeForFile(FileReference file)
@@ -285,35 +275,14 @@ namespace IshakBuildTool.Project
         {
             StringBuilder includePathsStrBuilder = new StringBuilder();
 
-            // As modules are added to the engine, we would have to change the way we scann the files and store them
-            // but for now this should be fine.
+            // We should add the the engine source folder as a base class here.
 
-            /*
 
-            foreach (FileReference sourceFile in engineSolutionFile.sourceFiles)
-            {                
-                // For now we just support source files under the Private Directory.
-                string directory = DirectoryUtils.GetPublicOrPrivateDirectoryPathFromDirectory(sourceFile.Directory);
 
-                directory = DirectoryUtils.MakeRelativeTo(new DirectoryReference(directory), new DirectoryReference(engineSolutionFile.path));
 
-                if (!includePathsStrBuilder.ToString().Contains(directory))
-                {                    
-                    includePathsStrBuilder.AppendLine(directory + ";");        
-                }
-            } 
-            */
-
+        
             return includePathsStrBuilder.ToString();
-        }
-
-        public bool bEngineProjectCreated { get; set; }
-        ProjectFile engineSolutionFile { get; set; }
-
-
-        StringBuilder engineProjectFileString;
-        List<Tuple<string, Platform.EPlatform>> engineConfigurations;
-
+        }              
 
         public void GenerateProjectFiles(string projectPath)
         {

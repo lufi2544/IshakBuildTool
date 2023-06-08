@@ -18,13 +18,11 @@ namespace IshakBuildTool.Project.Modules
         public DirectoryReference PrivateDirectoryRef { get; set; }
 
         public string ModulesDependencyDirsString { get; set; }
+        public List<FileReference> SourceFiles { get; set; }
 
-        private List<string> PublicDependentModules;
-        private List<string> PrivateDependentModules;
-        
-        private ModuleManager ModuleManager;
-
-        List<FileReference> SourceFiles;
+        ModuleManager ModuleManager;
+        List<string> PublicDependentModules;
+        List<string> PrivateDependentModules;
 
         public Module(ModuleBuilder moduleBuilder,  FileReference moduleFileRef, ModuleManager moduleManager)
         {
