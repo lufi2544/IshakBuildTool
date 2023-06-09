@@ -61,7 +61,7 @@ namespace IshakBuildTool.Project.Modules
         List<FileReference> ScanModules(string engineRootDirPath)
         {
             List<string> moduleFilter = new List<string>();
-            moduleFilter.Add("Module.cs");
+            moduleFilter.Add(".Module.cs");
 
             List<FileReference> foundModuleFiles =  FileScanner.FindFilesInDirectoryWithFilter(
                     engineRootDirPath,

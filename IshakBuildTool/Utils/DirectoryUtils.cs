@@ -12,6 +12,57 @@ namespace IshakBuildTool.Utils
     {
 
 
+        public static bool IsUnderEngineFolder(DirectoryReference dirRef)
+        {
+            string engineSourceFolder = GetEngineSourceFolder();
+            return dirRef.Path.Contains(engineSourceFolder);
+        }
+
+        public static string GetEngineSourceFolder()
+        {            
+            // The Ishak Build Tool must always be under the Source Folder.            
+            return GetPathUntilDirectory(Environment.CurrentDirectory, "Source");            
+        }
+
+        /** Returns the path ultil the diretory specified and ignoring the rest of the dirs after.
+         * 
+         * E.g:
+         * Source/Engine/Module/Renderer ---- UntilDir: Module
+         * Return: Source/Engine/Module
+         */
+        private static string GetPathUntilDirectory(string entireDir, string ultilThiDirName)
+        {
+            string actualDirName = string.Empty;
+            string formattedDir = string.Empty;
+
+            for (int idx = 0; idx < entireDir.Length; ++idx)
+            {
+                char actualDirChar = entireDir[idx];
+                if (actualDirChar == '\\')
+                {
+                    // When reached to a '\' we compare the dir name,
+                    // if is the one wanted, we return the path
+                    if (actualDirName == ultilThiDirName)
+                    {
+                        return formattedDir;
+                    }
+                    else
+                    {                        
+                        actualDirName = string.Empty;
+                    }
+                }
+                else
+                {                    
+                    actualDirName += actualDirChar;
+                }
+
+                formattedDir += actualDirChar;
+
+            }
+
+            return string.Empty;
+        }
+
         public static void TryCreateDirectory(string dirPath)
         {
             DirectoryInfo dirInfo = new DirectoryInfo(dirPath);

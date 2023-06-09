@@ -4,9 +4,6 @@ using IshakBuildTool.Configuration;
 using IshakBuildTool.ProjectFile;
 using IshakBuildTool.Test;
 using IshakBuildTool.Utils;
-using System;
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
 using IshakBuildTool.Build;
@@ -18,16 +15,13 @@ namespace IshakBuildTool.Project
     // For now the engine will be only generating files for visual studio and windows platform.
     internal class ProjectFileGenerator
     {
-
         enum EVCFileType
         {
             None,
             ClCompile,
             ClInclude
         }
-
-        private ProjectDirectory RootFolder;
-
+        
         private Project ProjectToHandle;
 
         StringBuilder EngineProjectFileString;
@@ -62,6 +56,7 @@ namespace IshakBuildTool.Project
             WriteEnginePostDefaultProps();
             WriteEngineProjectConfigurationsProps();
             WriteIntellisenseInfo();
+            int a = 0;
         }
 
         void WriteEngineHeaderFile()
@@ -213,21 +208,20 @@ namespace IshakBuildTool.Project
         {
             foreach (FileReference sourceFileRef in module.SourceFiles)
             {
-                EVCFileType cvCompileType = GetVCFileTypeForFile(sourceFileRef);
-                if (cvCompileType == EVCFileType.ClInclude)
-                {
-                    WriteVCCompileTypeForStandardFile(sourceFileRef);
-                }
-                else if (cvCompileType == EVCFileType.ClInclude)
+                EVCFileType vcCompileType = GetVCFileTypeForFile(sourceFileRef);                
+                WriteStandardVCCompileTypeForFile(sourceFileRef, vcCompileType);
+                if (vcCompileType == EVCFileType.ClCompile)
                 {
                     WriteVCCompileTypeSourceFile(sourceFileRef, module);
                 }
+
+
             }
         }
 
-        void WriteVCCompileTypeForStandardFile(FileReference file)
+        void WriteStandardVCCompileTypeForFile(FileReference file, EVCFileType cvFileType)
         {
-            EngineProjectFileString.AppendLine("    <{0} Include=\"{1}\"/>", EVCFileType.ClInclude.ToString(), file.Path);
+            EngineProjectFileString.AppendLine("    <{0} Include=\"{1}\"/>", cvFileType.ToString(), file.Path);
         }
 
         void WriteVCCompileTypeSourceFile(FileReference file, Module fileParentModule)
@@ -236,7 +230,7 @@ namespace IshakBuildTool.Project
             // will not be necessary as there are only one folder for the engine project, but as we add modules this may be.
             // When implementing the additional module dependent files, we are gonna add them here.
 
-            EngineProjectFileString.AppendLine("      <AdditionalIncludeDirectories>$(NMakeIncludeSearchPath);{0}", fileParentModule.ModulesDependencyDirsString);
+            EngineProjectFileString.AppendLine("      <AdditionalIncludeDirectories>$(NMakeIncludeSearchPath);{0}", fileParentModule.ModulesDependencyDirsString + GetIncludePathSet());
             EngineProjectFileString.AppendLine("    </ClCompile>");
         }
 
@@ -275,12 +269,8 @@ namespace IshakBuildTool.Project
         {
             StringBuilder includePathsStrBuilder = new StringBuilder();
 
-            // We should add the the engine source folder as a base class here.
-
-
-
-
-        
+            // We should add the the engine source folder as a base include here.
+            includePathsStrBuilder.Append(DirectoryUtils.GetEngineSourceFolder());        
             return includePathsStrBuilder.ToString();
         }              
 
