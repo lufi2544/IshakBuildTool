@@ -1,9 +1,10 @@
-﻿using IshakBuildTool.ProjecFile;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using IshakBuildTool.Project;
 
 namespace IshakBuildTool.ProjectFile
 {
@@ -14,14 +15,14 @@ namespace IshakBuildTool.ProjectFile
         {
             DirectoryName = folderNameParam;
             DirectoryPath= directoryParam;
-            subSolutionFiles = new List<SolutionFile>();
+            subSolutionFiles = new List<Project.ProjectFile>();
         }
 
-        public ProjectDirectory(string directoryParam)
+        public ProjectDirectory(string directoryPath)
         {            
-            DirectoryPath = directoryParam;
-            DirectoryName = Path.GetFileName(directoryParam);                        
-            subSolutionFiles = new List<SolutionFile>();
+            DirectoryPath = directoryPath;
+            DirectoryName = Path.GetFileName(directoryPath);                        
+            subSolutionFiles = new List<Project.ProjectFile>();
         }
 
         public string DirectoryPath { get; set; }
@@ -30,7 +31,7 @@ namespace IshakBuildTool.ProjectFile
                 
         List<string> SubFolders { get; set;}
 
-        public List<SolutionFile> subSolutionFiles { get; set; }
+        public List<Project.ProjectFile> subSolutionFiles { get; set; }
 
         /** Files inside the Folder.  ex: .h, .cpp, .cs*/
         List<string> Files { get;}

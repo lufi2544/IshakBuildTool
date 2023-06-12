@@ -13,5 +13,10 @@ namespace IshakBuildTool.Utils
             builder.AppendFormat(format, args);
             builder.AppendLine();
         }
+
+        public static void Append(this StringBuilder builder, string format, params object[] args)
+        {
+            builder.AppendFormat(format, args);
+        }
     }
 }

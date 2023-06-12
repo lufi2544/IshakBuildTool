@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IshakBuildTool.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,19 +7,24 @@ using System.Threading.Tasks;
 
 namespace IshakBuildTool.ProjectFile
 {
-    internal class DirectoryReference
+    public class DirectoryReference
     {
         public DirectoryReference(string pathParam) 
         {
-            path = pathParam;
+            Path = pathParam;
 
+        }
+
+        DirectoryReference GetParentDir()
+        {
+            return new DirectoryReference(DirectoryUtils.GetParentDirectoryPathFromDirectory(Path));
         }
 
         public bool IsUnder(DirectoryReference otherDir)
         {            
-            return path.Contains(otherDir.path);                       
+            return Path.Contains(otherDir.Path);                       
         }
 
-        public string path { get; set; }
+        public string Path { get; set; }        
     }
 }

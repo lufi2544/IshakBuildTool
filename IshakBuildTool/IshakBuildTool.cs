@@ -1,8 +1,4 @@
-﻿using IshakBuildTool.Test;
-
-using IshakBuildTool.Build;
-using IshakBuildTool.Utils;
-using IshakBuildTool.ProjectFile;
+﻿
 
 namespace IshakBuildTool
 {
@@ -10,14 +6,7 @@ namespace IshakBuildTool
     {
         static void Main(string[] args)
         {
-            var testArgs = TestEnviroment.TestFolderPath;            
-            var initMessage = String.Format("Starting IshakBuildTool for path: {0} ", testArgs);
-            Console.WriteLine(initMessage);
-
-            GenerateProjectFilesHandler.GenerateProjectFiles(testArgs);
+            IshakBuildToolFramework.Execute(args);
         }
-
     }
-
-
 }// IshakBuildTool

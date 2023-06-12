@@ -11,6 +11,85 @@ namespace IshakBuildTool.Utils
     internal class DirectoryUtils
     {
 
+
+        public static bool IsUnderEngineFolder(DirectoryReference dirRef)
+        {
+            string engineSourceFolder = GetEngineSourceFolder();
+            return dirRef.Path.Contains(engineSourceFolder);
+        }
+
+        public static string GetEngineSourceFolder()
+        {            
+            // The Ishak Build Tool must always be under the Source Folder.            
+            return GetPathUntilDirectory(Environment.CurrentDirectory, "Source");            
+        }
+
+        /** Returns the path ultil the diretory specified and ignoring the rest of the dirs after.
+         * 
+         * E.g:
+         * Source/Engine/Module/Renderer ---- UntilDir: Module
+         * Return: Source/Engine/Module
+         */
+        private static string GetPathUntilDirectory(string entireDir, string ultilThiDirName)
+        {
+            string actualDirName = string.Empty;
+            string formattedDir = string.Empty;
+
+            for (int idx = 0; idx < entireDir.Length; ++idx)
+            {
+                char actualDirChar = entireDir[idx];
+                if (actualDirChar == '\\')
+                {
+                    // When reached to a '\' we compare the dir name,
+                    // if is the one wanted, we return the path
+                    if (actualDirName == ultilThiDirName)
+                    {
+                        return formattedDir;
+                    }
+                    else
+                    {                        
+                        actualDirName = string.Empty;
+                    }
+                }
+                else
+                {                    
+                    actualDirName += actualDirChar;
+                }
+
+                formattedDir += actualDirChar;
+
+            }
+
+            return string.Empty;
+        }
+
+        public static void TryCreateDirectory(string dirPath)
+        {
+            DirectoryInfo dirInfo = new DirectoryInfo(dirPath);
+
+            if (!dirInfo.Exists)
+            {
+                dirInfo.Create();
+            }
+        }
+        public static string GetParentDirectoryPathFromDirectory(string dirPath)
+        {
+            if (dirPath.Equals(string.Empty))
+            {
+                return dirPath;
+            }
+
+            MakeDirectoryRelativeData dirRelativeData = new MakeDirectoryRelativeData(dirPath);
+          
+            // We have to make sure that we have more than 1 directory for getting the parentDir
+            if (dirRelativeData.directories.Count > 1)
+            {
+                return dirRelativeData.ConstructPathFromDirectoryIdx(dirRelativeData.directories.Count - 1);
+            }
+
+            return string.Empty;
+        }
+
         public static string MakeRelativeTo(DirectoryReference referenceDir, DirectoryReference makeRelativeToThisDir)
         {
             // See how much one is equal to the other.
@@ -21,35 +100,68 @@ namespace IshakBuildTool.Utils
             // 2 from the one that is not equal, we reach to the actual makerelativeDir, count the folders
             // and that would be the amount of ../
 
-            string otherDir = referenceDir.path;
-            string relativeToDir = makeRelativeToThisDir.path;
+            string otherDir = referenceDir.Path;
+            string relativeToDir = makeRelativeToThisDir.Path;
 
             MakeDirectoryRelativeData otherDirRelativeData = new MakeDirectoryRelativeData(otherDir);
-            MakeDirectoryRelativeData relativeDirData = new MakeDirectoryRelativeData(makeRelativeToThisDir.path);
+            MakeDirectoryRelativeData relativeDirData = new MakeDirectoryRelativeData(makeRelativeToThisDir.Path);
 
-            StringBuilder finalRelativatedPath = new StringBuilder();
             int flaggedIdx = -1;
             for(int idx = 0; idx < relativeDirData.directories.Count; ++idx)
             {
-                if (!relativeDirData.directories[idx].Equals(otherDirRelativeData.directories[idx]))
+                if (!relativeDirData.directories[idx].name.Equals(otherDirRelativeData.directories[idx].name))
                 {
-                    flaggedIdx= idx;
-                }
+                    if (idx == 0)
+                    {
+                        break;
+                    }
 
-                if (flaggedIdx != -1)
-                {
-                    finalRelativatedPath.Append("{0}")
-                }
+                    // Construct path from the flagged idx - 1 because this is whre the directories start to differ.
+                    // Adds the ../ that correspond to the folders count needed for reaching that folder.                                                           
+                    //
+                    //-> Refered Dir:         C/Engine/Binaries/Game/Space/Source...
+                    //                        0    1      2      3     4     5
+                    //                                 flagged
+                    //
+                    //->RelativeToThis:      C/Engine/Build/Game
+                    //                        0   1     2     3  
+                    //
+                    // Final Relative Path: ../../Binaries/Game/Space/Source... 
+
+                    flaggedIdx = idx - 1;
+                    break;
+                }                                                    
             }
+            
 
-            // C/Binaries/Game/Source/Public
-            // C/Binaries/Game/Engine
+            // Checked if we got some DirReference that was not equal
+            StringBuilder finalRelativatedPath = new StringBuilder();            
+            if (flaggedIdx != -1)
+            {
 
-            // ../../Engine
 
-            // If they are not equal at all, we just return the absolute path.
-            return referenceDir.path;            
+                int pointsNum = relativeDirData.directories.Count - flaggedIdx;
+                string partialPath = otherDirRelativeData.ConstructPathFromDirectoryIdx(flaggedIdx - 1);
+
+                StringBuilder pointsStringB = new StringBuilder();
+                for (int pointsIdx = 0; pointsIdx < pointsNum; ++pointsIdx)
+                {
+                    pointsStringB.Append("../");
+                }
+
+                finalRelativatedPath.Append(pointsStringB.ToString() + partialPath);
+
+            }
+            else
+            {
+                // Nothing equal, so we return the absolute path.
+                finalRelativatedPath.Append(referenceDir.Path);
+            }
+          
+            return finalRelativatedPath.ToString();
         }
+
+
         // TODO make relative to the project .sln 
        public static string GetPublicOrPrivateDirectoryPathFromDirectory(DirectoryReference dir)
        {
@@ -62,9 +174,9 @@ namespace IshakBuildTool.Utils
             int strIdx = 0;
             StringBuilder directoryStr = new StringBuilder();
 
-            for (int idx = 0; idx < dir.path.Length; ++idx)
+            for (int idx = 0; idx < dir.Path.Length; ++idx)
             {                
-                char actualLetter = dir.path.ElementAt(idx);               
+                char actualLetter = dir.Path.ElementAt(idx);               
                 char privateStrLetter = privateStr.ElementAt(strIdx);
                 if (privateStrLetter == actualLetter)
                 {                    
@@ -89,7 +201,7 @@ namespace IshakBuildTool.Utils
                     }
                 }
 
-                directoryStr.Append(dir.path[idx]);
+                directoryStr.Append(actualLetter);
 
                 if (bScanningPublic)
                 {
