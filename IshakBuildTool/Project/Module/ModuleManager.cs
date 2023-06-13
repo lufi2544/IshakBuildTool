@@ -149,7 +149,7 @@ namespace IshakBuildTool.Project.Modules
 
         private ModuleBuilder? GetModuleBuilderFromModuleName(string moduleName)
         {
-            return ModulesAssemblyManager.GetModuleBuilderByName(moduleName);
+            return ModulesAssemblyManager.GetModuleBuilderByName(moduleName, ModulesAssemblyManager.GetModulesAssembly());
         }
         
 

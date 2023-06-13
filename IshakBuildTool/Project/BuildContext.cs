@@ -12,6 +12,14 @@ namespace IshakBuildTool.Project
     // If we had 2 Games in the Global Project, we would have the Engine Project and then the 2 Game Projects
     internal class BuildContext
     {
+
+        /** List of Projects that will be in the soulution File. */
+        public List<Project> Projects { get; set; }
+
+        /** This will wrap up all the projects and is a wrapper for the .sln file.  */
+        public SolutionFile? SolutionFile { get; set; }
+
+
         public BuildContext() 
         {
             Projects= new List<Project>();
@@ -32,12 +40,10 @@ namespace IshakBuildTool.Project
                 Projects.Add(createdProject);   
             }
         }
-        
 
-        /** List of Projects that will be in the soulution File. */
-        public List<Project> Projects { get; set; }
+        public void CreateSolutionFile()
+        {
 
-        /** This will wrap up all the projects and is a wrapper for the .sln file.  */
-        public SolutionFile? SolutionFile { get; set; }
+        }
     }
 }

@@ -17,10 +17,8 @@ namespace IshakBuildTool.Project
         public string ProjectName { get; set; }
         public string Path { get; set; }
 
+        /** This is the actual content of the file, used by Visual Studio for the IDE. */        
         string ProjectFileContent = string.Empty;
-
-        /** This is the actual content of the file, used by Visual Studio for the IDE. */
-        public string? projectFileContent;
 
         Project? OwnerProject;
 
