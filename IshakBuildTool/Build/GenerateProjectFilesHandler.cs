@@ -25,6 +25,8 @@ namespace IshakBuildTool.Build
 
             // Creates the .sln file for the Development Enviroment
             ishakBuildToolBuildContext.CreateSolutionFile();
+            
+            
                         
 
             // Crate the Solution Project Hirarchy( IshakEngine, Engine... )

@@ -104,7 +104,7 @@ namespace IshakBuildTool.Project
             EngineProjectFileString.AppendLine("    <ProjectGuid>{0}</ProjectGuid>",  ProjectToHandle.GUID.ToString("B").ToUpperInvariant());
             EngineProjectFileString.AppendLine("    <Keyword>MakeFileProj</Keyword>");
             EngineProjectFileString.AppendLine("    <RootNamespace>{0}</RootNamespace>", ProjectToHandle.ProjectFile.ProjectName);
-            EngineProjectFileString.AppendLine("    <PlatformToolset>{0}/PlatformToolset>", "v143");
+            EngineProjectFileString.AppendLine("    <PlatformToolset>{0}</PlatformToolset>", "v143");
             EngineProjectFileString.AppendLine("    <MinimumVisualStudioVersion>{0}</MinimumVisualStudioVersion>", "17.0");
             EngineProjectFileString.AppendLine("    <VCProjectVersion>{0}</VCProjectVersion>", "17.0");
             EngineProjectFileString.AppendLine("    <NMakeUseOemCodePage>true</NMakeUseOemCodePage>"); // Fixes mojibake with non-Latin character sets (UE-102825)
@@ -125,6 +125,7 @@ namespace IshakBuildTool.Project
                 EngineProjectFileString.AppendLine("  <PropertyGroup {0} Label=\"Configuration\">", conditionString);
                 EngineProjectFileString.AppendLine("    <ConfigurationType>{0}</ConfigurationType>", "Makefile");
                 EngineProjectFileString.AppendLine("    <PlatformToolset>{0}</PlatformToolset>", "v143");
+                EngineProjectFileString.AppendLine("  </PropertyGroup>");
             }
         }
 
@@ -221,13 +222,16 @@ namespace IshakBuildTool.Project
         {
             foreach (FileReference sourceFileRef in module.SourceFiles)
             {
-                EVCFileType vcCompileType = GetVCFileTypeForFile(sourceFileRef);                
-                WriteStandardVCCompileTypeForFile(sourceFileRef, vcCompileType);
+                EVCFileType vcCompileType = GetVCFileTypeForFile(sourceFileRef);
+                                                
                 if (vcCompileType == EVCFileType.ClCompile)
                 {
                     WriteVCCompileTypeSourceFile(sourceFileRef, module);
                 }
-
+                else
+                {
+                    WriteStandardVCCompileTypeForFile(sourceFileRef, vcCompileType);
+                }
 
             }
         }
@@ -242,7 +246,7 @@ namespace IshakBuildTool.Project
             // Write the source file to the engineProjectFileStr and its additional source files for compiling this file, for now this second step
             // will not be necessary as there are only one folder for the engine project, but as we add modules this may be.
             // When implementing the additional module dependent files, we are gonna add them here.
-
+            EngineProjectFileString.AppendLine("    <{0} Include=\"{1}\">", EVCFileType.ClCompile.ToString(), file.Path);
             EngineProjectFileString.AppendLine("      <AdditionalIncludeDirectories>$(NMakeIncludeSearchPath);{0};</AdditionalIncludeDirectories>", fileParentModule.ModulesDependencyDirsString + GetIncludePathSet());
             EngineProjectFileString.AppendLine("    </ClCompile>");
         }

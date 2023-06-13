@@ -14,15 +14,14 @@ namespace IshakBuildTool.Project
     {
 
         /** List of Projects that will be in the soulution File. */
-        public List<Project> Projects { get; set; }
+        private List<Project> Projects = new List<Project>();
 
         /** This will wrap up all the projects and is a wrapper for the .sln file.  */
-        public SolutionFile? SolutionFile { get; set; }
+        private SolutionFile? SolutionFile { get; set; }
 
 
         public BuildContext() 
-        {
-            Projects= new List<Project>();
+        {            
         }
 
         public void AddProject(string projectName, string projectPath, List<Module> modules)
