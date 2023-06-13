@@ -12,5 +12,5 @@ namespace IshakBuildTool.Configuration
             Debug,
             Development,            
         }
-    
+            
 }
