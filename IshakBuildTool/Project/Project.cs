@@ -4,8 +4,7 @@ namespace IshakBuildTool.Project
 {
     /** Class representing a single project. */
     internal class Project
-    {
-        public Project() { }
+    {        
         public Project(string name, ProjectFile projectFile, List<Module> modules)
         {
             ProjectFile = projectFile;
