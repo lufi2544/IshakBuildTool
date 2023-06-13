@@ -14,15 +14,15 @@ namespace IshakBuildTool.Project.Modules
     public class Module
     {
         public FileReference moduleFile { get; set; }
-        public DirectoryReference PublicDirectoryRef { get; set; }
-        public DirectoryReference PrivateDirectoryRef { get; set; }
+        public DirectoryReference? PublicDirectoryRef { get; set; }
+        public DirectoryReference? PrivateDirectoryRef { get; set; }
 
-        public string ModulesDependencyDirsString { get; set; }
-        public List<FileReference> SourceFiles { get; set; }
+        public string? ModulesDependencyDirsString { get; set; }
+        public List<FileReference>? SourceFiles { get; set; }
 
         ModuleManager ModuleManager;
-        List<string> PublicDependentModules;
-        List<string> PrivateDependentModules;
+        List<string>? PublicDependentModules;
+        List<string>? PrivateDependentModules;
 
         public Module(ModuleBuilder moduleBuilder,  FileReference moduleFileRef, ModuleManager moduleManager)
         {

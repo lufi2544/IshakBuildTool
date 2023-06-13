@@ -9,6 +9,6 @@ namespace IshakBuildTool.Test
         public static string TestProjectName = "IshakEngine";
         public static string TestFolderPathSource = "C:\\IshakEngine\\Source";
         public static string TestIntermediateFolder = TestFolderPath + "\\Intermediate";
-        public static string TestProjectFilesFolder = TestIntermediateFolder + "\\ProjectFiles";
+        public static string TestProjectFilesFolder = TestIntermediateFolder + "\\ProjectFiles\\";
     }
 }

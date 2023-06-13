@@ -16,13 +16,14 @@ namespace IshakBuildTool.Project.Modules
     /** Class in charge of creating the Modules.  */
     public class ModuleManager
     {
-        private Dictionary<string, Module>? ModulesDictionary = new Dictionary<string, Module>();
+        private Dictionary<string, Module> ModulesDictionary = new Dictionary<string, Module>();
         private Dictionary<string, FileReference> ModulesFileRefsDictionary = new Dictionary<string, FileReference>();
         private ModuleAssemblyManager? ModulesAssemblyManager;        
 
 
         public ModuleManager() 
         {            
+            
         }
 
 

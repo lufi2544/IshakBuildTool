@@ -46,54 +46,6 @@ namespace IshakBuildTool.Utils
         };
 
        
-        // STARNDARD File Scanner //
-        static public List<FileReference> FindFilesInDirectory(ProjectDirectory projectFolder, bool bRecursive = false)
-        {
-            if (bRecursive)
-            {
-                return FindFilesInDirectoryRecursive(projectFolder);
-            }
-
-            return FindFilesInDirectory(projectFolder);
-        }
-
-        static private List<FileReference> FindFilesInDirectoryRecursive(ProjectDirectory folderToExplore)
-        {
-            List<FileReference> foundFiles = FindFilesInDirectory(folderToExplore);
-            List<string> foundDirectories = Directory.GetDirectories(folderToExplore.DirectoryPath).ToList();
-
-            // No more subdirectories, so we jus return the found files in the one we are exploring.
-            if (foundDirectories.Count == 0)
-            {
-                return foundFiles;
-            }
-
-            // Explore subdirectories for files
-            List<FileReference> subFolderFiles = new List<FileReference>();
-            foreach (string directoryPath in foundDirectories)
-            {
-                var mergedFiles = subFolderFiles.Concat(FindFilesInDirectoryRecursive(new ProjectDirectory(directoryPath))).ToList();
-                subFolderFiles = mergedFiles;
-            }
-
-            foundFiles.AddRange(subFolderFiles);
-            return foundFiles;
-        }
-
-        static private List<FileReference> FindFilesInDirectory(ProjectDirectory folderToExplore)
-        {
-            List<FileReference> foundFilesReferences = new List<FileReference>();
-            List<string> foundFiles = Directory.GetFiles(folderToExplore.DirectoryPath).ToList();
-
-            foreach (string file in foundFiles)
-            {
-                foundFilesReferences.Add(new FileReference(file));
-            }
-
-
-            return foundFilesReferences;
-        }
-
 
         // FILTERED File Scanner//
 

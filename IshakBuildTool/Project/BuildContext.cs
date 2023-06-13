@@ -38,6 +38,6 @@ namespace IshakBuildTool.Project
         public List<Project> Projects { get; set; }
 
         /** This will wrap up all the projects and is a wrapper for the .sln file.  */
-        public SolutionFile SolutionFile { get; set; }
+        public SolutionFile? SolutionFile { get; set; }
     }
 }

@@ -25,10 +25,11 @@ namespace IshakBuildTool.Project
         private Project ProjectToHandle;
 
         StringBuilder EngineProjectFileString;
-        List<Tuple<string, Platform.EPlatform>> EngineConfigurations;
+        List<Tuple<string, Platform.EPlatform>>? EngineConfigurations;
 
         public ProjectFileGenerator(Project projectToHandle)
-        {            
+        {
+            EngineProjectFileString = new StringBuilder();
             ProjectToHandle= projectToHandle;
         }
 
@@ -41,7 +42,7 @@ namespace IshakBuildTool.Project
         {
             // TODO Utils make this more accessible by adding this to a file.
             
-            ProjectToHandle.GUID = BuildGUIDForProject(ProjectToHandle.ProjectFile.path, ProjectToHandle.ProjectFile.solutionProjectName);
+            ProjectToHandle.GUID = BuildGUIDForProject(ProjectToHandle.ProjectFile.Path, ProjectToHandle.ProjectFile.SolutionProjectName);
 
             WriteEngineSolutionFile();
             
@@ -55,9 +56,13 @@ namespace IshakBuildTool.Project
             WriteEngineProjectGlobals();
             WriteEnginePostDefaultProps();
             WriteEngineProjectConfigurationsProps();
-            WriteIntellisenseInfo();
-            int a = 0;
+            WriteIntellisenseInfo();   
+            WriteSourcePathProperty(); 
+            ImportFinalProjectFileArguments();
+            CreateProjectFile();
         }
+
+       
 
         void WriteEngineHeaderFile()
         {
@@ -98,7 +103,7 @@ namespace IshakBuildTool.Project
 
             EngineProjectFileString.AppendLine("    <ProjectGuid>{0}</ProjectGuid>",  ProjectToHandle.GUID.ToString("B").ToUpperInvariant());
             EngineProjectFileString.AppendLine("    <Keyword>MakeFileProj</Keyword>");
-            EngineProjectFileString.AppendLine("    <RootNamespace>{0}</RootNamespace>", ProjectToHandle.ProjectFile.projectName);
+            EngineProjectFileString.AppendLine("    <RootNamespace>{0}</RootNamespace>", ProjectToHandle.ProjectFile.ProjectName);
             EngineProjectFileString.AppendLine("    <PlatformToolset>{0}/PlatformToolset>", "v143");
             EngineProjectFileString.AppendLine("    <MinimumVisualStudioVersion>{0}</MinimumVisualStudioVersion>", "17.0");
             EngineProjectFileString.AppendLine("    <VCProjectVersion>{0}</VCProjectVersion>", "17.0");
@@ -174,9 +179,7 @@ namespace IshakBuildTool.Project
         {
             EngineProjectFileString.AppendLine("  <PropertyGroup>");
 
-
-            // TODO make the include paths Set( in this case the Source file for the engine )
-
+           
             string sharedIncludeDirectories = GetIncludePathSet();
             EngineProjectFileString.AppendLine("    <IncludePath>$(IncludePath);{0}</IncludePath>", sharedIncludeDirectories);
             EngineProjectFileString.AppendLine("    <NMakeForcedIncludes>$(NMakeForcedIncludes)</NMakeForcedIncludes>");
@@ -188,11 +191,21 @@ namespace IshakBuildTool.Project
             WriteIntellisenseInfoForEngineFiles();
         }
 
+        string GetIncludePathSet()
+        {
+            StringBuilder includePathsStrBuilder = new StringBuilder();
+
+            // We should add the the engine source folder as a base include here.
+            includePathsStrBuilder.Append(DirectoryUtils.GetEngineSourceFolder());
+            return includePathsStrBuilder.ToString();
+        }
+
         void WriteIntellisenseInfoForEngineFiles()
         {
             EngineProjectFileString.AppendLine("  <ItemGroup>");
 
             WriteVCCompileDataFromProjectModules();
+            EngineProjectFileString.AppendLine("  </ItemGroup>");
         }
 
         /** Iterate through all the Modules SourceFiles that this project has and write the data from them for Intellisense.  */
@@ -230,8 +243,28 @@ namespace IshakBuildTool.Project
             // will not be necessary as there are only one folder for the engine project, but as we add modules this may be.
             // When implementing the additional module dependent files, we are gonna add them here.
 
-            EngineProjectFileString.AppendLine("      <AdditionalIncludeDirectories>$(NMakeIncludeSearchPath);{0}", fileParentModule.ModulesDependencyDirsString + GetIncludePathSet());
+            EngineProjectFileString.AppendLine("      <AdditionalIncludeDirectories>$(NMakeIncludeSearchPath);{0};</AdditionalIncludeDirectories>", fileParentModule.ModulesDependencyDirsString + GetIncludePathSet());
             EngineProjectFileString.AppendLine("    </ClCompile>");
+        }
+
+        void WriteSourcePathProperty()
+        {
+            EngineProjectFileString.AppendLine("  <PropertyGroup>");
+            EngineProjectFileString.Append("    <SourcePath>");
+
+            foreach (Module module in ProjectToHandle.Modules)
+            {
+                EngineProjectFileString.Append("{0};", module.PrivateDirectoryRef);
+            }
+
+            EngineProjectFileString.AppendLine("</SourcePath>");
+            EngineProjectFileString.AppendLine("  </PropertyGroup>");
+        }
+
+        void CreateProjectFile()
+        {
+            ProjectToHandle.ProjectFile.SetProjectFileContent(EngineProjectFileString.ToString());
+            ProjectToHandle.ProjectFile.Create();
         }
 
         EVCFileType GetVCFileTypeForFile(FileReference file)
@@ -265,102 +298,17 @@ namespace IshakBuildTool.Project
             return string.Empty;
         }
 
-        string GetIncludePathSet()
+        void ImportFinalProjectFileArguments()
         {
-            StringBuilder includePathsStrBuilder = new StringBuilder();
-
-            // We should add the the engine source folder as a base include here.
-            includePathsStrBuilder.Append(DirectoryUtils.GetEngineSourceFolder());        
-            return includePathsStrBuilder.ToString();
-        }              
-
-        public void GenerateProjectFiles(string projectPath)
-        {
-            var projectName = TestEnviroment.TestProjectName;
-
-            // Configure
-            // Create the c++ project
-            var vsSolutionProject = projectName + ".sln";
-
-            string solutionPath = projectPath + vsSolutionProject;
-
-            StringBuilder VSSolutionFileContent = new StringBuilder();
-
-            // TODO Create the visual studio Content
-            VSSolutionFileContent.AppendLine();
-            VSSolutionFileContent.AppendLine("Microsoft Visual Studio Solution File, Format Version 12.00");
-            VSSolutionFileContent.AppendLine("# Visual Studio Version 17");
-            VSSolutionFileContent.AppendLine("VisualStudioVersion = 17.0.31314.256");
-            VSSolutionFileContent.AppendLine("MinimumVisualStudioVersion = 10.0.40219.1");
-
-
-            var solutionGUID = BuildGUIDForProject("ISHE", "Engine");
-            string FolderGUID = solutionGUID.ToString();
-            VSSolutionFileContent.AppendLine("Project(\"" + BuildGlobals.VSSolutionHash + "\") = \"" + "Engine" + "\", \"" + "Engine" + "\", \"" + FolderGUID + "\"");
-            VSSolutionFileContent.AppendLine("EndProject");
-
-
-            string CppProjectType = "{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}";
-
-            var engineGUID = BuildGUIDForProject("ISHE", projectName);
-            string FolderGUID2 = engineGUID.ToString();
-
-            string VSProjectCustomExtension = BuildGlobals.DefaultIntermediateFolder + projectName + BuildGlobals.VSProjectExtension;
-
-            VSSolutionFileContent.AppendLine("Project(\"" + CppProjectType + "\") = \"" + projectName + "\", \"" + VSProjectCustomExtension + "\", \"" + FolderGUID2 + "\"");
-            VSSolutionFileContent.AppendLine("EndProject");
-
-
-            VSSolutionFileContent.AppendLine("Global");
-            VSSolutionFileContent.AppendLine("	GlobalSection(NestedProjects) = preSolution");
-            VSSolutionFileContent.AppendLine("		" + engineGUID.ToString("B").ToUpperInvariant() + " = " + solutionGUID.ToString("B"));
-
-            VSSolutionFileContent.AppendLine("	EndGlobalSection");
-
-            VSSolutionFileContent.AppendLine("EndGlobal");
-
-
-
-            CreateVisualStudioSolutionFile(solutionPath, VSSolutionFileContent.ToString());
-            CreateVSFile();
+            EngineProjectFileString.AppendLine("  <Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.targets\" />");
+            EngineProjectFileString.AppendLine("  <ImportGroup Label=\"ExtensionTargets\">");
+            EngineProjectFileString.AppendLine("  </ImportGroup>");
+            EngineProjectFileString.AppendLine("</Project>");
         }
 
-        private void AddProjectHirarchy(ref StringBuilder out_VSSolution)
+        private Guid BuildGUIDForProject(string projectPath, string projectName)
         {
-
-        }
-
-        private void CreateVSFile()
-        {
-            // General Stuff
-
-            // Project file header
-
-            StringBuilder VCProjectFileContent = new StringBuilder();
-
-            VCProjectFileContent.AppendLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
-            VCProjectFileContent.AppendLine("<Project DefaultTargets=\"Build\" ToolsVersion=\"17.0\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">");
-            VCProjectFileContent.AppendLine("  <ItemGroup Label=\"ProjectConfigurations\">");
-
-
-            // Configurations
-
-            VCProjectFileContent.AppendLine("    <ProjectConfiguration Include=\"DebugEngine|x64\">");
-            VCProjectFileContent.AppendLine("      <Configuration>DebugEngine</Configuration>");
-            VCProjectFileContent.AppendLine("      <Platform>x64</Platform>");
-            VCProjectFileContent.AppendLine("    </ProjectConfiguration>");
-
-            VCProjectFileContent.AppendLine("  </ItemGroup>");
-            VCProjectFileContent.AppendLine("</Project>");
-
-
-            CreateDirectory(TestEnviroment.TestIntermediateFolder + "IshakEngine.vcxproj", VCProjectFileContent.ToString());
-        }
-
-        private Guid BuildGUIDForProject(string parentPath, string projectName)
-        {
-            string PathForMakingGUID = string.Format("{0}/{1}", parentPath, projectName);
-
+            string PathForMakingGUID = string.Format("{0}/{1}", projectPath, projectName);
             return MakeMd5Guid(Encoding.UTF8.GetBytes(PathForMakingGUID));
         }
 
@@ -373,30 +321,6 @@ namespace IshakBuildTool.Project
             Array.Reverse(Hash, 4, 2);
             Array.Reverse(Hash, 6, 2);
             return new Guid(Hash);
-        }
-
-        public void CreateVisualStudioSolutionFile(string filePath, string content)
-        {
-
-            CreateDirectory(filePath, content);
-        }
-
-        private void CreateDirectory(string filePath, string content)
-        {
-            bool bFileExists = File.Exists(filePath);
-
-            if (bFileExists)
-            {
-                //  for now let's do nothing here.
-            }
-            else
-            {
-                //create the solution
-
-                var info = Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
-                File.WriteAllText(filePath, content, Encoding.UTF8);
-
-            }
         }
 
     }

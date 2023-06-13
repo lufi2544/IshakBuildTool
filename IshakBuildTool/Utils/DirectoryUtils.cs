@@ -12,6 +12,24 @@ namespace IshakBuildTool.Utils
     {
 
 
+        public static void CreateDirectoryWithContent(string path, string content, bool bOverride = true)
+        {
+            bool bFileExists = File.Exists(path);
+
+            if (bFileExists && !bOverride)
+            {
+                //  for now let's do nothing here.
+            }
+            else
+            {
+                //create the solution
+
+                Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+                File.WriteAllText(path, content, Encoding.UTF8);
+
+            }
+        }
+
         public static bool IsUnderEngineFolder(DirectoryReference dirRef)
         {
             string engineSourceFolder = GetEngineSourceFolder();

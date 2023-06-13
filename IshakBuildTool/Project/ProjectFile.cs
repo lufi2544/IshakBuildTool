@@ -9,28 +9,49 @@ using System.Threading.Tasks;
 
 namespace IshakBuildTool.Project
 {
+
     /*This is an object that wraps up a .vcxproj file.  */
     internal class ProjectFile
     {
+        public string SolutionProjectName { get; set; }
+        public string ProjectName { get; set; }
+        public string Path { get; set; }
+
+        string ProjectFileContent = string.Empty;
+
+        /** This is the actual content of the file, used by Visual Studio for the IDE. */
+        public string? projectFileContent;
+
+        Project? OwnerProject;
+
         public ProjectFile(string soutionNameParam, string pathParam)
         {
-            projectName = soutionNameParam;
-            solutionProjectName = soutionNameParam + ".vcxproj";
-            path = pathParam + solutionProjectName;            
+            ProjectName = soutionNameParam;
+            SolutionProjectName = soutionNameParam + ".vcxproj";
+            Path = pathParam + SolutionProjectName;            
         }
 
         public void SetOwnerProject(Project project)
         {
             OwnerProject= project;
         }
-
-        public string solutionProjectName { get; set; }
-        public string projectName { get; set; }
-        public string path { get; set; }
-
-        /** This is the actual content of the file, used by Visual Studio for the IDE. */
-        public string projectFileContent;
         
-        Project OwnerProject;
+        public void SetProjectFileContent(string content)
+        {
+            ProjectFileContent = content;            
+        }        
+
+        public void Create()
+        {
+            // We will not create anything if the content is not filled.
+            if (ProjectFileContent == string.Empty)
+            {
+                return;
+            }
+            else
+            {
+                DirectoryUtils.CreateDirectoryWithContent(Path, ProjectFileContent);
+            }
+        }
     }
 }
