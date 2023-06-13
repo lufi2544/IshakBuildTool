@@ -6,13 +6,48 @@ using System.Threading.Tasks;
 
 namespace IshakBuildTool.ProjectFile
 {
+    public enum EFileType
+    {
+        None,
+        Header,
+        Source,
+        Module
+    }
+
     public class FileReference
     {
+        public string Name { get; set; }
+        public string Path { get; set; }
+        public DirectoryReference Directory { get; set; }
+
+        public EFileType FileType { get; set; }
+
         public FileReference(string PathParm)
         {
             Path = PathParm;
             Name = System.IO.Path.GetFileName(PathParm);
             Directory = GetDirectory();
+            SetFileType();
+        }
+
+        void SetFileType()
+        {
+            if (Name.Contains(".h"))
+            {
+                FileType= EFileType.Header;
+
+            }else if (Name.Contains(".cpp"))
+            {
+                FileType= EFileType.Source;
+
+            }else if (Name.Contains(".Module."))
+            {
+                FileType= EFileType.Module;
+            }
+            else
+            {
+                FileType = EFileType.None;
+            }            
         }
 
         public string GetFileNameWithoutExtension()
@@ -91,10 +126,5 @@ namespace IshakBuildTool.ProjectFile
             string changedExtensionFile = System.IO.Path.ChangeExtension(Path, newExtension);
             return new FileReference(changedExtensionFile);
         }
-
-
-        public string Name { get; set; }        
-        public string Path { get; set; }      
-        public DirectoryReference Directory { get; set; }
     }
 }

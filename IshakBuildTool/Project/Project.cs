@@ -22,7 +22,7 @@ namespace IshakBuildTool.Project
 
             Name = name;
             Modules = modules;
-        }  
+        }          
         
         /** Writes the .vcxproj for this Project.  */
         public void WriteProjectFile()

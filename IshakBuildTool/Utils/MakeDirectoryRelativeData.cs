@@ -33,7 +33,7 @@ namespace IshakBuildTool.Utils
             for (int idx = 0; idx < path.Length; ++idx)
             {
                 char actualChar = path[idx];
-                if (actualChar == '/')
+                if (actualChar == '/' || actualChar  == '\\' || idx == path.Length - 1)
                 {
                     if (idx == path.Length - 1)
                     {

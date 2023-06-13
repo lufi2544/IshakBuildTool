@@ -108,26 +108,28 @@ namespace IshakBuildTool.Utils
             return string.Empty;
         }
 
-        public static string MakeRelativeTo(DirectoryReference referenceDir, DirectoryReference makeRelativeToThisDir)
+        public static string MakeRelativeTo(FileReference targetDir, FileReference parentDir)
+        {
+            string relativePath = MakeRelativeTo(targetDir.Directory, parentDir.Directory);
+
+            return relativePath + "/" + targetDir.Name;            
+        }        
+
+        /** Makes the parent Dir relative to the target Dir. */
+        public static string MakeRelativeTo(DirectoryReference targetDir, DirectoryReference parentFile)
         {
             // See how much one is equal to the other.
 
-            // 1-> under the same folder, but in different folders
-            // 1 we iterate through the folder path, and make a new string and stop that string when 
-            // they stop equal.
-            // 2 from the one that is not equal, we reach to the actual makerelativeDir, count the folders
-            // and that would be the amount of ../
+            string otherDir = targetDir.Path;
+            string parentFileDir = parentFile.Path;
 
-            string otherDir = referenceDir.Path;
-            string relativeToDir = makeRelativeToThisDir.Path;
-
-            MakeDirectoryRelativeData otherDirRelativeData = new MakeDirectoryRelativeData(otherDir);
-            MakeDirectoryRelativeData relativeDirData = new MakeDirectoryRelativeData(makeRelativeToThisDir.Path);
+            MakeDirectoryRelativeData targetDirRelativeData = new MakeDirectoryRelativeData(otherDir);
+            MakeDirectoryRelativeData parentFileRelativeData = new MakeDirectoryRelativeData(parentFileDir);
 
             int flaggedIdx = -1;
-            for(int idx = 0; idx < relativeDirData.directories.Count; ++idx)
+            for(int idx = 0; idx < parentFileRelativeData.directories.Count; ++idx)
             {
-                if (!relativeDirData.directories[idx].name.Equals(otherDirRelativeData.directories[idx].name))
+                if (!parentFileRelativeData.directories[idx].name.Equals(targetDirRelativeData.directories[idx].name))
                 {
                     if (idx == 0)
                     {
@@ -146,11 +148,12 @@ namespace IshakBuildTool.Utils
                     //
                     // Final Relative Path: ../../Binaries/Game/Space/Source... 
 
-                    flaggedIdx = idx - 1;
+                    flaggedIdx = idx;
                     break;
                 }                                                    
             }
             
+            // the flaggedIdx is the idx where we need to go with the target file.
 
             // Checked if we got some DirReference that was not equal
             StringBuilder finalRelativatedPath = new StringBuilder();            
@@ -158,8 +161,8 @@ namespace IshakBuildTool.Utils
             {
 
 
-                int pointsNum = relativeDirData.directories.Count - flaggedIdx;
-                string partialPath = otherDirRelativeData.ConstructPathFromDirectoryIdx(flaggedIdx - 1);
+                int pointsNum = parentFileRelativeData.directories.Count - flaggedIdx;
+                string partialPath = targetDirRelativeData.ConstructPathFromDirectoryIdx(flaggedIdx);
 
                 StringBuilder pointsStringB = new StringBuilder();
                 for (int pointsIdx = 0; pointsIdx < pointsNum; ++pointsIdx)
@@ -173,7 +176,7 @@ namespace IshakBuildTool.Utils
             else
             {
                 // Nothing equal, so we return the absolute path.
-                finalRelativatedPath.Append(referenceDir.Path);
+                finalRelativatedPath.Append(targetDir.Path);
             }
           
             return finalRelativatedPath.ToString();
