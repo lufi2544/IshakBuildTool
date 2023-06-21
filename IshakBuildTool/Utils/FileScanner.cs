@@ -42,6 +42,7 @@ namespace IshakBuildTool.Utils
         {
             ".vcxproj",
             ".vcxproj.filters",
+            ".csproj",
             ".sln"
         };
 

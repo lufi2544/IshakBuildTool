@@ -1,9 +1,7 @@
 ﻿using IshakBuildTool.ProjectFile;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+
+using IshakBuildTool.Utils;
 
 namespace IshakBuildTool.Project
 {
@@ -18,9 +16,17 @@ namespace IshakBuildTool.Project
 
         /** Final filters for the project, representing the folders. */
         List<string> FolderFilters= new List<string>();
-                              
-        
-        void Init() 
+
+        FileReference FilterFileReference;
+
+
+        public ProjectFileFilterGenerator(ProjectFile projectFileToHandleFilters) 
+        {
+            string filterFilePath = projectFileToHandleFilters.Path + ".filters";
+            FilterFileReference= new FileReference(filterFilePath);            
+        }
+
+        public void Init() 
         {
             ProjectFilterFileSB.AppendLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
             ProjectFilterFileSB.AppendLine("<Project ToolsVersion=\"17.0\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">");
@@ -28,25 +34,100 @@ namespace IshakBuildTool.Project
         }
 
         
-        void Finish()
+        public void Finish()
         {
             ProjectFilterFileSB.AppendLine("  </ItemGroup>");
             ProjectFilterFileSB.AppendLine("</Project>");
+            DirectoryUtils.CreateDirectoryWithContent(FilterFileReference.Path, ProjectFilterFileSB.ToString());
         }
-
         
-        void AddFile(FileReference fileRef)
+               
+        public void AddFile(FileReference fileRef)
         {
-            if (FolderFilters.Contains(fileRef.Directory.Path))
+            FileReference relativePathToFilterFile;
+            string fileFilterName = string.Empty;
+            List<string> fileFiltersToCreate = GetFilterInfoForFile(fileRef, out relativePathToFilterFile, ref fileFilterName);
+
+            CreateFiltersForFile(fileFiltersToCreate);
+            WriteFileData(fileRef, relativePathToFilterFile.Path, fileFilterName);
+        }
+
+        List<string> GetFilterInfoForFile(FileReference fileRef, out FileReference relativePathToFilterFile, ref string fileFilterEntireName)
+        {
+            // TODO make better architecture.
+            relativePathToFilterFile = DirectoryUtils.MakeRelativeTo(fileRef, FilterFileReference);                        
+            fileFilterEntireName =  DirectoryUtils.RemoveFolderMoveCharsFromDirRef(relativePathToFilterFile.Directory);
+            return GetFilterListFromFilterName(ref fileFilterEntireName);
+        }
+
+        List<string > GetFilterListFromFilterName(ref string filterName)
+        {
+            List<string> filters = new List<string>();
+            string actualDirName = string.Empty;
+            for (int charIdx = 0; charIdx < filterName.Length; ++charIdx)
             {
-                // Filter already exists.
-
-
+                char actualChar = filterName[charIdx];
+                if (actualChar == '\\')
+                {
+                    filters.Add(actualDirName);
+                    actualDirName += actualChar;
+                }
+                else if (charIdx == filterName.Length - 1)
+                {
+                    actualDirName += actualChar;
+                    filters.Add(actualDirName);
+                }
+                else
+                { 
+                    actualDirName += actualChar;
+                }                
             }
-            else
+            filterName = actualDirName;
+
+            return filters;
+        }
+
+        void CreateFiltersForFile(List<string> filterList)
+        {
+            foreach (string filterName in filterList)
             {
-                // Create new filter.
+                if (!DoesFilterExists(filterName))
+                {
+                    AddFilter(filterName);
+                }
             }
         }
+
+        bool DoesFilterExists(string filterName)
+        {
+            return FolderFilters.Contains(filterName);
+        }
+
+        void AddFilter(string filterName)
+        {            
+            ProjectFilterFileSB.AppendLine("    <Filter Include=\"{0}\">", filterName);
+            ProjectFilterFileSB.AppendLine("      <UniqueIdentifier>{0}</UniqueIdentifier>", GeneratorGlobals.BuildGuid(filterName).ToString("B").ToUpperInvariant());
+            ProjectFilterFileSB.AppendLine("    </Filter>");
+
+            FolderFilters.Add(filterName);
+        }
+
+        void WriteFileData(FileReference fileRef, string fileRelativePathToFilterFile, string filterName)
+        {
+            EVCFileType VCFIleType = GeneratorGlobals.GetVCFileTypeForFile(fileRef);
+            ProjectFilterFileSB.AppendLine("    <{0} Include=\"{1}\">", VCFIleType, fileRelativePathToFilterFile);
+            HandleFilterWriting(filterName);
+            ProjectFilterFileSB.AppendLine("    </{0}>", VCFIleType);
+        }
+
+        void HandleFilterWriting(string filterName)
+        {
+            if (filterName == string.Empty)
+            {
+                return;
+            }
+
+            ProjectFilterFileSB.AppendLine("      <Filter>{0}</Filter>", filterName);
+        }      
     }
 }

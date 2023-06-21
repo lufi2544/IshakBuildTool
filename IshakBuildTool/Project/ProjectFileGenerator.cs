@@ -15,12 +15,6 @@ namespace IshakBuildTool.Project
     // For now the engine will be only generating files for visual studio and windows platform.
     internal class ProjectFileGenerator
     {
-        enum EVCFileType
-        {
-            None,
-            ClCompile,
-            ClInclude
-        }
         
         private Project ProjectToHandle;
 
@@ -28,10 +22,12 @@ namespace IshakBuildTool.Project
         StringBuilder ProjectFileFiltersSB = new StringBuilder();
         
         List<Tuple<string, Platform.EPlatform>>? EngineConfigurations;
+        ProjectFileFilterGenerator? FilterGenerator = null;
 
         public ProjectFileGenerator(Project projectToHandle)
         {            
             ProjectToHandle= projectToHandle;
+            FilterGenerator = new ProjectFileFilterGenerator(projectToHandle.ProjectFile);
         }
 
         public void HandleProjectFileGeneration()
@@ -43,7 +39,7 @@ namespace IshakBuildTool.Project
         {
             // TODO Utils make this more accessible by adding this to a file.
             
-            ProjectToHandle.GUID = BuildGUIDForProject(ProjectToHandle.ProjectFile.Path, ProjectToHandle.ProjectFile.SolutionProjectName);
+            ProjectToHandle.GUID = GeneratorGlobals.BuildGUIDForProject(ProjectToHandle.ProjectFile.Path, ProjectToHandle.ProjectFile.SolutionProjectName);
 
             WriteEngineSolutionFile();
             
@@ -61,9 +57,7 @@ namespace IshakBuildTool.Project
             WriteSourcePathProperty(); 
             ImportFinalProjectFileArguments();
             CreateProjectFile();
-        }
-
-       
+        }       
 
         void WriteEngineHeaderFile()
         {
@@ -74,7 +68,11 @@ namespace IshakBuildTool.Project
 
 
             ProjectFileFiltersSB.AppendLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
-            ProjectFileFiltersSB.AppendLine("<Project ToolsVersion=\"17.0\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">");
+            ProjectFileFiltersSB.AppendLine("<Project ToolsVersion=\"17.0\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">");            
+
+
+            // Init FilterGenerator
+            FilterGenerator.Init();
         }
 
         void WriteEngineProjectConfigurations()
@@ -236,13 +234,15 @@ namespace IshakBuildTool.Project
             {
                 WriteIntellisenseInfoFromModule(module);
             }
+
+            FilterGenerator.Finish();
         }
 
         void WriteIntellisenseInfoFromModule(Module module)
         {
             foreach (FileReference sourceFileRef in module.SourceFiles)
             {
-                EVCFileType vcCompileType = GetVCFileTypeForFile(sourceFileRef);
+                EVCFileType vcCompileType = GeneratorGlobals.GetVCFileTypeForFile(sourceFileRef);
                                                 
                 if (vcCompileType == EVCFileType.ClCompile)
                 {
@@ -253,26 +253,13 @@ namespace IshakBuildTool.Project
                     WriteStandardVCCompileTypeForFile(sourceFileRef, vcCompileType);
                 }
 
-            }
-        }
-
-        EVCFileType GetVCFileTypeForFile(FileReference file)
-        {
-            switch (file.FileType)
-            {
-                case EFileType.Header:
-                    return EVCFileType.ClInclude;
-
-                case EFileType.Source:
-                    return EVCFileType.ClCompile;
-
-                default: return EVCFileType.None;
-            }           
+                FilterGenerator.AddFile(sourceFileRef);
+            }            
         }
 
         void WriteStandardVCCompileTypeForFile(FileReference file, EVCFileType cvFileType)
         {
-            string fileRelativeToProjectFile = DirectoryUtils.MakeRelativeTo(file, ProjectToHandle.ProjectFile.GetProjectFileRef());
+            string fileRelativeToProjectFile = DirectoryUtils.MakeRelativeTo(file, ProjectToHandle.ProjectFile.GetProjectFileRef()).Path;
 
             ProjectFileSB.AppendLine("    <{0} Include=\"{1}\"/>", cvFileType.ToString(), fileRelativeToProjectFile);
         }
@@ -284,7 +271,7 @@ namespace IshakBuildTool.Project
             // When implementing the additional module dependent files, we are gonna add them here.
 
 
-            string fileRelativeToProjectFile = DirectoryUtils.MakeRelativeTo(file, ProjectToHandle.ProjectFile.GetProjectFileRef());
+            string fileRelativeToProjectFile = DirectoryUtils.MakeRelativeTo(file, ProjectToHandle.ProjectFile.GetProjectFileRef()).Path;
 
             ProjectFileSB.AppendLine(
                 "    <{0} Include=\"{1}\">",
@@ -323,23 +310,6 @@ namespace IshakBuildTool.Project
             ProjectFileSB.AppendLine("  <ImportGroup Label=\"ExtensionTargets\">");
             ProjectFileSB.AppendLine("  </ImportGroup>");
             ProjectFileSB.AppendLine("</Project>");
-        }
-
-        private Guid BuildGUIDForProject(string projectPath, string projectName)
-        {
-            string PathForMakingGUID = string.Format("{0}/{1}", projectPath, projectName);
-            return MakeMd5Guid(Encoding.UTF8.GetBytes(PathForMakingGUID));
-        }
-
-        static Guid MakeMd5Guid(byte[] Input)
-        {
-            byte[] Hash = MD5.Create().ComputeHash(Input);
-            Hash[6] = (byte)(0x30 | Hash[6] & 0x0f); // 0b0011'xxxx Version 3 UUID (MD5)
-            Hash[8] = (byte)(0x80 | Hash[8] & 0x3f); // 0b10xx'xxxx RFC 4122 UUID
-            Array.Reverse(Hash, 0, 4);
-            Array.Reverse(Hash, 4, 2);
-            Array.Reverse(Hash, 6, 2);
-            return new Guid(Hash);
         }
 
     }
