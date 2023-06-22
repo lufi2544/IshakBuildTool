@@ -31,7 +31,7 @@ namespace IshakBuildTool.Project
             }
         }
 
-        public static Guid BuildGUIDForProject(string projectPath, string projectName)
+        public static Guid BuildGUID(string projectPath, string projectName)
         {
             string PathForMakingGUID = string.Format("{0}/{1}", projectPath, projectName);
             return MakeMd5Guid(Encoding.UTF8.GetBytes(PathForMakingGUID));

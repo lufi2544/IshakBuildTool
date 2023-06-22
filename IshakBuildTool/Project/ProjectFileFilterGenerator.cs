@@ -15,33 +15,33 @@ namespace IshakBuildTool.Project
         StringBuilder ProjectFilterFileSB = new StringBuilder();
 
         /** Final filters for the project, representing the folders. */
-        List<string> FolderFilters= new List<string>();
+        List<string> FolderFilters = new List<string>();
 
         FileReference FilterFileReference;
 
 
-        public ProjectFileFilterGenerator(ProjectFile projectFileToHandleFilters) 
+        public ProjectFileFilterGenerator(ProjectFile projectFileToHandleFilters)
         {
             string filterFilePath = projectFileToHandleFilters.Path + ".filters";
-            FilterFileReference= new FileReference(filterFilePath);            
+            FilterFileReference = new FileReference(filterFilePath);
         }
 
-        public void Init() 
+        public void Init()
         {
             ProjectFilterFileSB.AppendLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
             ProjectFilterFileSB.AppendLine("<Project ToolsVersion=\"17.0\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">");
             ProjectFilterFileSB.AppendLine("  <ItemGroup>");
         }
 
-        
+
         public void Finish()
         {
             ProjectFilterFileSB.AppendLine("  </ItemGroup>");
             ProjectFilterFileSB.AppendLine("</Project>");
-            DirectoryUtils.CreateDirectoryWithContent(FilterFileReference.Path, ProjectFilterFileSB.ToString());
+            DirectoryUtils.CreateFileWithContent(FilterFileReference.Path, ProjectFilterFileSB.ToString());
         }
-        
-               
+
+
         public void AddFile(FileReference fileRef)
         {
             FileReference relativePathToFilterFile;
@@ -55,12 +55,12 @@ namespace IshakBuildTool.Project
         List<string> GetFilterInfoForFile(FileReference fileRef, out FileReference relativePathToFilterFile, ref string fileFilterEntireName)
         {
             // TODO make better architecture.
-            relativePathToFilterFile = DirectoryUtils.MakeRelativeTo(fileRef, FilterFileReference);                        
-            fileFilterEntireName =  DirectoryUtils.RemoveFolderMoveCharsFromDirRef(relativePathToFilterFile.Directory);
+            relativePathToFilterFile = DirectoryUtils.MakeRelativeTo(fileRef, FilterFileReference);
+            fileFilterEntireName = DirectoryUtils.RemoveFolderMoveCharsFromDirRef(relativePathToFilterFile.Directory);
             return GetFilterListFromFilterName(ref fileFilterEntireName);
         }
 
-        List<string > GetFilterListFromFilterName(ref string filterName)
+        List<string> GetFilterListFromFilterName(ref string filterName)
         {
             List<string> filters = new List<string>();
             string actualDirName = string.Empty;
@@ -78,9 +78,9 @@ namespace IshakBuildTool.Project
                     filters.Add(actualDirName);
                 }
                 else
-                { 
+                {
                     actualDirName += actualChar;
-                }                
+                }
             }
             filterName = actualDirName;
 
@@ -104,7 +104,7 @@ namespace IshakBuildTool.Project
         }
 
         void AddFilter(string filterName)
-        {            
+        {
             ProjectFilterFileSB.AppendLine("    <Filter Include=\"{0}\">", filterName);
             ProjectFilterFileSB.AppendLine("      <UniqueIdentifier>{0}</UniqueIdentifier>", GeneratorGlobals.BuildGuid(filterName).ToString("B").ToUpperInvariant());
             ProjectFilterFileSB.AppendLine("    </Filter>");
@@ -128,6 +128,6 @@ namespace IshakBuildTool.Project
             }
 
             ProjectFilterFileSB.AppendLine("      <Filter>{0}</Filter>", filterName);
-        }      
+        }
     }
 }

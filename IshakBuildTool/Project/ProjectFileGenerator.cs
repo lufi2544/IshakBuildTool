@@ -2,9 +2,7 @@
 
 using IshakBuildTool.Configuration;
 using IshakBuildTool.ProjectFile;
-using IshakBuildTool.Test;
 using IshakBuildTool.Utils;
-using System.Security.Cryptography;
 using System.Text;
 using IshakBuildTool.Build;
 using IshakBuildTool.Project.Modules;
@@ -15,34 +13,34 @@ namespace IshakBuildTool.Project
     // For now the engine will be only generating files for visual studio and windows platform.
     internal class ProjectFileGenerator
     {
-        
+
         private Project ProjectToHandle;
 
         StringBuilder ProjectFileSB = new StringBuilder();
         StringBuilder ProjectFileFiltersSB = new StringBuilder();
-        
+
         List<Tuple<string, Platform.EPlatform>>? EngineConfigurations;
         ProjectFileFilterGenerator? FilterGenerator = null;
 
         public ProjectFileGenerator(Project projectToHandle)
-        {            
-            ProjectToHandle= projectToHandle;
+        {
+            ProjectToHandle = projectToHandle;
             FilterGenerator = new ProjectFileFilterGenerator(projectToHandle.ProjectFile);
         }
 
         public void HandleProjectFileGeneration()
         {
-            CreateEngineSolutionFile();            
-        }        
+            CreateEngineSolutionFile();
+        }
 
         public void CreateEngineSolutionFile()
         {
             // TODO Utils make this more accessible by adding this to a file.
-            
-            ProjectToHandle.GUID = GeneratorGlobals.BuildGUIDForProject(ProjectToHandle.ProjectFile.Path, ProjectToHandle.ProjectFile.SolutionProjectName);
+
+            ProjectToHandle.SetGUID(GeneratorGlobals.BuildGUID(ProjectToHandle.ProjectFile.Path, ProjectToHandle.ProjectFile.SolutionProjectName));
 
             WriteEngineSolutionFile();
-            
+
         }
 
         /* Basically after creating the Solution file, in this case what we do is just write in the solution file all the obtained data. */
@@ -53,11 +51,11 @@ namespace IshakBuildTool.Project
             WriteEngineProjectGlobals();
             WriteEnginePostDefaultProps();
             WriteEngineProjectConfigurationsProps();
-            WriteIntellisenseInfo();   
-            WriteSourcePathProperty(); 
+            WriteIntellisenseInfo();
+            WriteSourcePathProperty();
             ImportFinalProjectFileArguments();
             CreateProjectFile();
-        }       
+        }
 
         void WriteEngineHeaderFile()
         {
@@ -68,7 +66,7 @@ namespace IshakBuildTool.Project
 
 
             ProjectFileFiltersSB.AppendLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
-            ProjectFileFiltersSB.AppendLine("<Project ToolsVersion=\"17.0\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">");            
+            ProjectFileFiltersSB.AppendLine("<Project ToolsVersion=\"17.0\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">");
 
 
             // Init FilterGenerator
@@ -104,7 +102,7 @@ namespace IshakBuildTool.Project
         {
             ProjectFileSB.AppendLine("  <PropertyGroup Label=\"Globals\">");
 
-            ProjectFileSB.AppendLine("    <ProjectGuid>{0}</ProjectGuid>",  ProjectToHandle.GUID.ToString("B").ToUpperInvariant());
+            ProjectFileSB.AppendLine("    <ProjectGuid>{0}</ProjectGuid>", ProjectToHandle.GetGUID());
             ProjectFileSB.AppendLine("    <Keyword>MakeFileProj</Keyword>");
             ProjectFileSB.AppendLine("    <RootNamespace>{0}</RootNamespace>", ProjectToHandle.ProjectFile.ProjectName);
             ProjectFileSB.AppendLine("    <PlatformToolset>{0}</PlatformToolset>", "v143");
@@ -183,7 +181,7 @@ namespace IshakBuildTool.Project
         {
             ProjectFileSB.AppendLine("  <PropertyGroup>");
 
-           
+
             string sharedIncludeDirectories = GetIncludePathSet();
             ProjectFileSB.AppendLine("    <IncludePath>$(IncludePath);{0}</IncludePath>", sharedIncludeDirectories);
             ProjectFileSB.AppendLine("    <NMakeForcedIncludes>$(NMakeForcedIncludes)</NMakeForcedIncludes>");
@@ -228,7 +226,7 @@ namespace IshakBuildTool.Project
         }
 
         /** Iterate through all the Modules SourceFiles that this project has and write the data from them for Intellisense.  */
-        void WriteVCCompileDataFromProjectModules() 
+        void WriteVCCompileDataFromProjectModules()
         {
             foreach (Module module in ProjectToHandle.Modules)
             {
@@ -243,7 +241,7 @@ namespace IshakBuildTool.Project
             foreach (FileReference sourceFileRef in module.SourceFiles)
             {
                 EVCFileType vcCompileType = GeneratorGlobals.GetVCFileTypeForFile(sourceFileRef);
-                                                
+
                 if (vcCompileType == EVCFileType.ClCompile)
                 {
                     WriteVCCompileTypeSourceFile(sourceFileRef, module);
@@ -254,7 +252,7 @@ namespace IshakBuildTool.Project
                 }
 
                 FilterGenerator.AddFile(sourceFileRef);
-            }            
+            }
         }
 
         void WriteStandardVCCompileTypeForFile(FileReference file, EVCFileType cvFileType)

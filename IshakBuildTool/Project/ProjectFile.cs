@@ -17,9 +17,9 @@ namespace IshakBuildTool.Project
 
         public string ProjectName { get; set; }
 
-        public string Path { get; set; }        
+        public string Path { get; set; }
 
-        /** This is the actual content of the file, used by Visual Studio for the IDE. */        
+        /** This is the actual content of the file, used by Visual Studio for the IDE. */
         string ProjectFileContent = string.Empty;
 
         Project? OwnerProject = null;
@@ -29,7 +29,7 @@ namespace IshakBuildTool.Project
             ProjectName = soutionNameParam;
             SolutionProjectName = soutionNameParam + ".vcxproj";
             Path = pathParam + SolutionProjectName;
-        }     
+        }
 
         public FileReference GetProjectFileRef()
         {
@@ -38,13 +38,13 @@ namespace IshakBuildTool.Project
 
         public void SetOwnerProject(Project project)
         {
-            OwnerProject= project;
+            OwnerProject = project;
         }
-        
+
         public void SetProjectFileContent(string content)
         {
-            ProjectFileContent = content;            
-        }        
+            ProjectFileContent = content;
+        }
 
         public void Create()
         {
@@ -56,7 +56,7 @@ namespace IshakBuildTool.Project
             }
             else
             {
-                DirectoryUtils.CreateDirectoryWithContent(Path, ProjectFileContent);
+                DirectoryUtils.CreateFileWithContent(Path, ProjectFileContent);
             }
         }
     }

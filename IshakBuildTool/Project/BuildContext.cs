@@ -1,9 +1,4 @@
 ﻿using IshakBuildTool.Project.Modules;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IshakBuildTool.Project
 {
@@ -16,12 +11,13 @@ namespace IshakBuildTool.Project
         /** List of Projects that will be in the soulution File. */
         private List<Project> Projects = new List<Project>();
 
-        /** This will wrap up all the projects and is a wrapper for the .sln file.  */
-        private SolutionFile? SolutionFile { get; set; }
+        /** Generator for the SolutionFile. */               
+        SolutionFileGenerator? SolutionFileGenerator { get; set; }
 
 
         public BuildContext() 
         {            
+
         }
 
         public void AddProject(string projectName, string projectPath, List<Module> modules)
@@ -40,9 +36,13 @@ namespace IshakBuildTool.Project
             }
         }
 
+        /** Creates the .sln file for the BuildContext */
         public void CreateSolutionFile()
         {
+            SolutionFileGenerator = new SolutionFileGenerator();
 
+            // TODO TestEnviro
+            SolutionFileGenerator.GenerateSolutionFile(Projects, Test.TestEnviroment.TestFolderPath,  Test.TestEnviroment.DefaultEngineName);
         }
     }
 }

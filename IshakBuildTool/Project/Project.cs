@@ -1,4 +1,5 @@
 ﻿using IshakBuildTool.Project.Modules;
+using System.Text;
 
 namespace IshakBuildTool.Project
 {
@@ -10,20 +11,38 @@ namespace IshakBuildTool.Project
         /** This is the .vcxproj file. */
         public ProjectFile ProjectFile { get; set; }
 
-        public List<Module> Modules { get; set; }
+        public List<Module>? Modules { get; set; }
 
-        public Guid GUID { get; set; }
+        Guid GUID { get; set; }
+
+        /** Project type, for a c++ project it would be a certain id. */
+        public string ProjectTypeId { get; set; }
 
 
-        public Project(string name, ProjectFile projectFile, List<Module> modules)
+        public Project(string name, ProjectFile projectFile, List<Module>? modules)
         {
             ProjectFile = projectFile;
             ProjectFile.SetOwnerProject(this);
 
             Name = name;
             Modules = modules;
-        }          
-        
+            ProjectTypeId = GetProjectId();
+        }
+
+        public void SetGUID(Guid guid)
+        {
+            GUID = guid;    
+        }
+        public string GetGUID()
+        {
+            return GUID.ToString("B").ToUpperInvariant();
+        }
+
+        string GetProjectId()
+        {
+            return ProjectGlobals.CpppProjectFileId;
+        }
+
         /** Writes the .vcxproj for this Project.  */
         public void WriteProjectFile()
         {

@@ -11,7 +11,7 @@ namespace IshakBuildTool.Utils
     internal class DirectoryUtils
     {      
 
-        public static void CreateDirectoryWithContent(string path, string content, bool bOverride = true)
+        public static void CreateFileWithContent(string path, string content, bool bOverride = true)
         {
             bool bFileExists = File.Exists(path);
 
