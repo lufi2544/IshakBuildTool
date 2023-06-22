@@ -1,10 +1,5 @@
 ﻿using IshakBuildTool.Project;
 using IshakBuildTool.Project.Modules;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IshakBuildTool.Build
 {
@@ -20,21 +15,11 @@ namespace IshakBuildTool.Build
             // Init the BuildFramework that contains the Engine Solution File
             CreateBuildContext(createdModules);
 
-            // Create the build context                        
+            // Create the build context( in this step the .vcxproj file is created )                        
             BuildContext ishakBuildToolBuildContext = CreateBuildContext(createdModules);
 
-            // 
-
-
-            // Create the .vcxproj for the engine and adds its source files to it.
-            //tGenerator.CreateEngineSolutionFile(CommandLineArguments);
-
-
-            // Crate the Solution Project Hirarchy( IshakEngine, Engine... )
-            // When we have games, I would like to add the game as a RootFolder Name like ( GameName- EngineFiles- GameFiles  )
-
-
-
+            // Creates the .sln file for the Development Enviroment
+            ishakBuildToolBuildContext.CreateSolutionFile();                                                        
     }
 
         /** Creates the Projects for visual studio, in this case the .vcxproj for the Engine. */

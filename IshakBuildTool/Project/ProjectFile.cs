@@ -14,43 +14,49 @@ namespace IshakBuildTool.Project
     internal class ProjectFile
     {
         public string SolutionProjectName { get; set; }
+
         public string ProjectName { get; set; }
+
         public string Path { get; set; }
 
+        /** This is the actual content of the file, used by Visual Studio for the IDE. */
         string ProjectFileContent = string.Empty;
 
-        /** This is the actual content of the file, used by Visual Studio for the IDE. */
-        public string? projectFileContent;
-
-        Project? OwnerProject;
+        Project? OwnerProject = null;
 
         public ProjectFile(string soutionNameParam, string pathParam)
         {
             ProjectName = soutionNameParam;
             SolutionProjectName = soutionNameParam + ".vcxproj";
-            Path = pathParam + SolutionProjectName;            
+            Path = pathParam + SolutionProjectName;
+        }
+
+        public FileReference GetProjectFileRef()
+        {
+            return new FileReference(Path);
         }
 
         public void SetOwnerProject(Project project)
         {
-            OwnerProject= project;
+            OwnerProject = project;
         }
-        
+
         public void SetProjectFileContent(string content)
         {
-            ProjectFileContent = content;            
-        }        
+            ProjectFileContent = content;
+        }
 
         public void Create()
         {
             // We will not create anything if the content is not filled.
             if (ProjectFileContent == string.Empty)
             {
+                // TODO Exception 
                 return;
             }
             else
             {
-                DirectoryUtils.CreateDirectoryWithContent(Path, ProjectFileContent);
+                DirectoryUtils.CreateFileWithContent(Path, ProjectFileContent);
             }
         }
     }

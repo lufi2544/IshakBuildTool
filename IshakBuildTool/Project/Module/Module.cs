@@ -32,13 +32,13 @@ namespace IshakBuildTool.Project.Modules
             PrivateDependentModules = moduleBuilder.PrivateModuleDependencies;
             ModuleManager = moduleManager;
                    
-            MakePubliDirs();
+            MakePublicDirs();
             MakePrivateDir();
             BuildModuleDependentDirectoriesString(); 
             AddSourceFiles();
         }        
 
-        void MakePubliDirs()
+        void MakePublicDirs()
         {
             string modulePublicDirPath = moduleFile.Directory.Path + Path.DirectorySeparatorChar + "Public";
 
@@ -71,7 +71,7 @@ namespace IshakBuildTool.Project.Modules
         }
 
 
-        /** We take all the dependent modules and add their Private dirs to this module dependency dir list. */
+        /** We take all the dependent modules and add their Public dirs to this module dependency dir list. */
         void AddPublicModuleDependencies(StringBuilder stringBuilder)
         {            
             foreach (string dependentModuleName in PublicDependentModules)

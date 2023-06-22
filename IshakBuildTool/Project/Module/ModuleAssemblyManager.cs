@@ -32,7 +32,12 @@ namespace IshakBuildTool.Project.Modules
             CreateAssemblyForModules(completeAssemblyPath, moduleFilesRefs);
         }
 
-        public ModuleBuilder? GetModuleBuilderByName(string moduleName)
+        public Assembly? GetModulesAssembly()
+        {
+            return ModulesAssembly;
+        }
+
+        public ModuleBuilder? GetModuleBuilderByName(string moduleName, Assembly? modulesAssembly)
         {
             if (ModulesAssembly == null)
             {
@@ -40,7 +45,7 @@ namespace IshakBuildTool.Project.Modules
                 // Trying to Get a module builder when the Assembly has not even been created yet.
             }
             
-            Type? specifigModuleBuilder = ModulesAssembly.GetType(moduleName + ModuleBuilder.ModuleBuilderPrefix);
+            Type? specifigModuleBuilder = GetModulesAssembly().GetType(moduleName + ModuleBuilder.ModuleBuilderPrefix);
             if (specifigModuleBuilder == null)
             {
                 // TODO Exception

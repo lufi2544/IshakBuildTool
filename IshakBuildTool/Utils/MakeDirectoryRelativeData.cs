@@ -11,36 +11,40 @@ namespace IshakBuildTool.Utils
     {
         public DirectoryData(string nameParam)
         {
-            name = nameParam;
+            Name = nameParam;
         }
 
-        public string name { get; set; }
+        public string Name { get; set; }
     }
 
     internal class MakeDirectoryRelativeData
     {
+
+        public List<DirectoryData> Directories { get; set; }
+        string Path;
+
         public MakeDirectoryRelativeData(string absolutePath) 
         {
-            path = absolutePath;
+            Path = absolutePath;
 
-            directories = new List<DirectoryData>();
+            Directories = new List<DirectoryData>();
             DivideInDirectories();
         }
 
         private void DivideInDirectories()
         {
             string actualDirectoryStr = string.Empty;
-            for (int idx = 0; idx < path.Length; ++idx)
+            for (int idx = 0; idx < Path.Length; ++idx)
             {
-                char actualChar = path[idx];
-                if (actualChar == '/')
+                char actualChar = Path[idx];
+                if (actualChar == '/' || actualChar  == '\\' || idx == Path.Length - 1)
                 {
-                    if (idx == path.Length - 1)
+                    if (idx == Path.Length - 1)
                     {
                         actualDirectoryStr += actualChar;
                     }
 
-                    directories.Add(new DirectoryData(actualDirectoryStr));
+                    Directories.Add(new DirectoryData(actualDirectoryStr));
                     actualDirectoryStr = string.Empty;
                 }
                 else
@@ -54,26 +58,23 @@ namespace IshakBuildTool.Utils
         {
             StringBuilder finalPathBuilder = new StringBuilder();
 
-            for (int idx = fromIdx; idx < directories.Count; ++idx)
+            for (int idx = fromIdx; idx < Directories.Count; ++idx)
             {
-                DirectoryData dirData = directories[idx];
+                DirectoryData dirData = Directories[idx];
 
-                if (idx == directories.Count - 1)
+                if (idx == Directories.Count - 1)
                 {
-                    finalPathBuilder.Append("{0}", dirData.name);
+                    finalPathBuilder.Append("{0}", dirData.Name);
 
                 }
                 else if (idx > 0)
                 {
-                    finalPathBuilder.Append("{0}/", dirData.name);
+                    finalPathBuilder.Append("{0}/", dirData.Name);
                 }
 
             }
 
             return finalPathBuilder.ToString();
         }
-
-        public List<DirectoryData> directories { get; set; }
-        string path;
     }
 }

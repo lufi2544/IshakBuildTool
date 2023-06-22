@@ -1,9 +1,4 @@
 ﻿using IshakBuildTool.Project.Modules;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IshakBuildTool.Project
 {
@@ -12,9 +7,17 @@ namespace IshakBuildTool.Project
     // If we had 2 Games in the Global Project, we would have the Engine Project and then the 2 Game Projects
     internal class BuildContext
     {
+
+        /** List of Projects that will be in the soulution File. */
+        private List<Project> Projects = new List<Project>();
+
+        /** Generator for the SolutionFile. */               
+        SolutionFileGenerator? SolutionFileGenerator { get; set; }
+
+
         public BuildContext() 
-        {
-            Projects= new List<Project>();
+        {            
+
         }
 
         public void AddProject(string projectName, string projectPath, List<Module> modules)
@@ -32,12 +35,14 @@ namespace IshakBuildTool.Project
                 Projects.Add(createdProject);   
             }
         }
-        
 
-        /** List of Projects that will be in the soulution File. */
-        public List<Project> Projects { get; set; }
+        /** Creates the .sln file for the BuildContext */
+        public void CreateSolutionFile()
+        {
+            SolutionFileGenerator = new SolutionFileGenerator();
 
-        /** This will wrap up all the projects and is a wrapper for the .sln file.  */
-        public SolutionFile? SolutionFile { get; set; }
+            // TODO TestEnviro
+            SolutionFileGenerator.GenerateSolutionFile(Projects, Test.TestEnviroment.TestFolderPath,  Test.TestEnviroment.DefaultEngineName);
+        }
     }
 }
