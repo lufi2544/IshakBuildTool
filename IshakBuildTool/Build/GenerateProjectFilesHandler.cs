@@ -10,11 +10,8 @@ namespace IshakBuildTool.Build
         {                       
             // First we have to create the modules.
             List<IshakModule> createdModules = CreateModules();
-
-            // Init the BuildFramework that contains the Engine Solution File
-            CreateBuildContext(createdModules);
-
-            // Create the build context( in this step the .vcxproj file is created )                        
+            
+            // Create the build context( contains the info from all the projects that form the entire solution like Engine, Games...)                      
             BuildContext ishakBuildToolBuildContext = CreateBuildContext(createdModules);
 
             // Creates the .sln file for the Development Enviroment
