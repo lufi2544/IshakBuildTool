@@ -187,16 +187,14 @@ namespace IshakBuildTool.Utils
             // Checked if we got some DirReference that was not equal
             StringBuilder finalRelativatedPath = new StringBuilder();            
             if (flaggedIdx != -1)
-            {
-
-
+            {                
                 int pointsNum = parentFileRelativeData.Directories.Count - flaggedIdx;
                 string partialPath = targetDirRelativeData.ConstructPathFromDirectoryIdx(flaggedIdx);
 
                 StringBuilder pointsStringB = new StringBuilder();
                 for (int pointsIdx = 0; pointsIdx < pointsNum; ++pointsIdx)
                 {
-                    pointsStringB.Append("..\\");
+                    pointsStringB.Append(".." + Path.DirectorySeparatorChar);
                 }
 
                 finalRelativatedPath.Append(pointsStringB.ToString() + partialPath);

@@ -1,17 +1,11 @@
 ﻿using IshakBuildTool.ProjectFile;
 using IshakBuildTool.Utils;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Diagnostics;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace IshakBuildTool.Project.Modules
 {
     /** Engine Module */
-    public class Module
+    public class IshakModule
     {
         public FileReference moduleFile { get; set; }
         public DirectoryReference? PublicDirectoryRef { get; set; }
@@ -24,7 +18,7 @@ namespace IshakBuildTool.Project.Modules
         List<string>? PublicDependentModules;
         List<string>? PrivateDependentModules;
 
-        public Module(ModuleBuilder moduleBuilder,  FileReference moduleFileRef, ModuleManager moduleManager)
+        public IshakModule(ModuleBuilder moduleBuilder,  FileReference moduleFileRef, ModuleManager moduleManager)
         {
             moduleFile = moduleFileRef;
 
@@ -76,7 +70,7 @@ namespace IshakBuildTool.Project.Modules
         {            
             foreach (string dependentModuleName in PublicDependentModules)
             {
-                Module? dependentModule = ModuleManager.GetModuleByName(dependentModuleName);
+                IshakModule? dependentModule = ModuleManager.GetModuleByName(dependentModuleName);
                 stringBuilder.Append("{0};", dependentModule.PublicDirectoryRef.Path);
             }
         }
@@ -85,7 +79,7 @@ namespace IshakBuildTool.Project.Modules
         {
             foreach (string dependentModuleName in PrivateDependentModules)
             {
-                Module? dependentModule = ModuleManager.GetModuleByName(dependentModuleName);
+                IshakModule? dependentModule = ModuleManager.GetModuleByName(dependentModuleName);
                 stringBuilder.Append("{0};", dependentModule.PrivateDirectoryRef.Path);
             }
         }

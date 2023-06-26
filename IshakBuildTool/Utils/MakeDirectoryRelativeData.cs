@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿
 using System.Text;
-using System.Threading.Tasks;
 
 namespace IshakBuildTool.Utils
 {
@@ -37,7 +34,7 @@ namespace IshakBuildTool.Utils
             for (int idx = 0; idx < Path.Length; ++idx)
             {
                 char actualChar = Path[idx];
-                if (actualChar == '/' || actualChar  == '\\' || idx == Path.Length - 1)
+                if (actualChar  == '\\' || idx == Path.Length - 1)
                 {
                     if (idx == Path.Length - 1)
                     {
@@ -69,7 +66,7 @@ namespace IshakBuildTool.Utils
                 }
                 else if (idx > 0)
                 {
-                    finalPathBuilder.Append("{0}/", dirData.Name);
+                    finalPathBuilder.Append("{0}" + "\\", dirData.Name);
                 }
 
             }

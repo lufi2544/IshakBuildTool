@@ -11,7 +11,7 @@ namespace IshakBuildTool.Project
 {
 
     /*This is an object that wraps up a .vcxproj file.  */
-    internal class ProjectFile
+    internal class IshakProjectFile
     {
         public string SolutionProjectName { get; set; }
 
@@ -22,9 +22,9 @@ namespace IshakBuildTool.Project
         /** This is the actual content of the file, used by Visual Studio for the IDE. */
         string ProjectFileContent = string.Empty;
 
-        Project? OwnerProject = null;
+        IshakProject? OwnerProject = null;
 
-        public ProjectFile(string soutionNameParam, string pathParam)
+        public IshakProjectFile(string soutionNameParam, string pathParam)
         {
             ProjectName = soutionNameParam;
             SolutionProjectName = soutionNameParam + ".vcxproj";
@@ -36,7 +36,7 @@ namespace IshakBuildTool.Project
             return new FileReference(Path);
         }
 
-        public void SetOwnerProject(Project project)
+        public void SetOwnerProject(IshakProject project)
         {
             OwnerProject = project;
         }

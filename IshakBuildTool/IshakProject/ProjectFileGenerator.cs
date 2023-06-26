@@ -14,7 +14,7 @@ namespace IshakBuildTool.Project
     internal class ProjectFileGenerator
     {
 
-        private Project ProjectToHandle;
+        private IshakProject ProjectToHandle;
 
         StringBuilder ProjectFileSB = new StringBuilder();
         StringBuilder ProjectFileFiltersSB = new StringBuilder();
@@ -22,7 +22,7 @@ namespace IshakBuildTool.Project
         List<Tuple<string, Platform.EPlatform>>? EngineConfigurations;
         ProjectFileFilterGenerator? FilterGenerator = null;
 
-        public ProjectFileGenerator(Project projectToHandle)
+        public ProjectFileGenerator(IshakProject projectToHandle)
         {
             ProjectToHandle = projectToHandle;
             FilterGenerator = new ProjectFileFilterGenerator(projectToHandle.ProjectFile);
@@ -228,7 +228,7 @@ namespace IshakBuildTool.Project
         /** Iterate through all the Modules SourceFiles that this project has and write the data from them for Intellisense.  */
         void WriteVCCompileDataFromProjectModules()
         {
-            foreach (Module module in ProjectToHandle.Modules)
+            foreach (IshakModule module in ProjectToHandle.Modules)
             {
                 WriteIntellisenseInfoFromModule(module);
             }
@@ -236,7 +236,7 @@ namespace IshakBuildTool.Project
             FilterGenerator.Finish();
         }
 
-        void WriteIntellisenseInfoFromModule(Module module)
+        void WriteIntellisenseInfoFromModule(IshakModule module)
         {
             foreach (FileReference sourceFileRef in module.SourceFiles)
             {
@@ -262,7 +262,7 @@ namespace IshakBuildTool.Project
             ProjectFileSB.AppendLine("    <{0} Include=\"{1}\"/>", cvFileType.ToString(), fileRelativeToProjectFile);
         }
 
-        void WriteVCCompileTypeSourceFile(FileReference file, Module fileParentModule)
+        void WriteVCCompileTypeSourceFile(FileReference file, IshakModule fileParentModule)
         {
             // Write the source file to the engineProjectFileStr and its additional source files for compiling this file, for now this second step
             // will not be necessary as there are only one folder for the engine project, but as we add modules this may be.
@@ -287,7 +287,7 @@ namespace IshakBuildTool.Project
             ProjectFileSB.AppendLine("  <PropertyGroup>");
             ProjectFileSB.Append("    <SourcePath>");
 
-            foreach (Module module in ProjectToHandle.Modules)
+            foreach (IshakModule module in ProjectToHandle.Modules)
             {
                 ProjectFileSB.Append("{0};", module.PrivateDirectoryRef);
             }

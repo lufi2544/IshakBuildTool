@@ -4,14 +4,14 @@ using System.Text;
 namespace IshakBuildTool.Project
 {
     /** Class representing a single project. */
-    internal class Project
+    internal class IshakProject
     {
         public string Name { get; set; }
 
         /** This is the .vcxproj file. */
-        public ProjectFile ProjectFile { get; set; }
+        public IshakProjectFile ProjectFile { get; set; }
 
-        public List<Module>? Modules { get; set; }
+        public List<IshakModule>? Modules { get; set; }
 
         Guid GUID { get; set; }
 
@@ -19,7 +19,7 @@ namespace IshakBuildTool.Project
         public string ProjectTypeId { get; set; }
 
 
-        public Project(string name, ProjectFile projectFile, List<Module>? modules)
+        public IshakProject(string name, IshakProjectFile projectFile, List<IshakModule>? modules)
         {
             ProjectFile = projectFile;
             ProjectFile.SetOwnerProject(this);

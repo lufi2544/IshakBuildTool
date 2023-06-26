@@ -16,7 +16,7 @@ namespace IshakBuildTool.Project.Modules
     /** Class in charge of creating the Modules.  */
     public class ModuleManager
     {
-        private Dictionary<string, Module> ModulesDictionary = new Dictionary<string, Module>();
+        private Dictionary<string, IshakModule> ModulesDictionary = new Dictionary<string, IshakModule>();
         private Dictionary<string, FileReference> ModulesFileRefsDictionary = new Dictionary<string, FileReference>();
         private ModuleAssemblyManager? ModulesAssemblyManager;        
 
@@ -27,9 +27,9 @@ namespace IshakBuildTool.Project.Modules
         }
 
 
-        public List<Module> GetModules()
+        public List<IshakModule> GetModules()
         {
-            List<Module> modules = new List<Module>();
+            List<IshakModule> modules = new List<IshakModule>();
             foreach (var modulePair in ModulesDictionary)
             {
                 modules.Add(modulePair.Value);
@@ -86,9 +86,9 @@ namespace IshakBuildTool.Project.Modules
             }
         }
 
-        public Module? GetModuleByName(string moduleName)
+        public IshakModule? GetModuleByName(string moduleName)
         {
-            Module? specificModule;
+            IshakModule? specificModule;
             if (!ModulesDictionary.TryGetValue(moduleName, out specificModule))
             {
                 // ModuleNotFound then we create it
@@ -120,11 +120,11 @@ namespace IshakBuildTool.Project.Modules
             }              
         }
 
-        private Module? TryCreateModule(FileReference moduleFileRef)
+        private IshakModule? TryCreateModule(FileReference moduleFileRef)
         {
             string moduleName = moduleFileRef.GetFileNameWithoutExtension();
 
-            Module? specificModule;            
+            IshakModule? specificModule;            
             if (!ModulesDictionary.TryGetValue(moduleName, out specificModule))
             {                
                 ModuleBuilder? moduleBuilder = GetModuleBuilderFromModuleName(moduleName);
@@ -134,9 +134,9 @@ namespace IshakBuildTool.Project.Modules
             return specificModule;
         }
 
-        Module CreateSpecificModule(string moduleName, ModuleBuilder builder, FileReference moduleFileRef)
+        IshakModule CreateSpecificModule(string moduleName, ModuleBuilder builder, FileReference moduleFileRef)
         {
-            Module createdModule = new Module(builder, moduleFileRef, this);
+            IshakModule createdModule = new IshakModule(builder, moduleFileRef, this);
             ModulesDictionary.Add(moduleName, createdModule);
 
             return createdModule;

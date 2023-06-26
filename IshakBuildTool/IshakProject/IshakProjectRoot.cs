@@ -12,12 +12,12 @@ namespace IshakBuildTool.Project
      *  Engine(Root) ---> IshakEngine( Project )
      *  Games ---> Shooter( Game )
      */
-    internal class ProjectRoot
+    internal class IshakProjectRoot
     {
         public string Name { get; set; }
         Guid GUID;                  
 
-        public ProjectRoot(string name)            
+        public IshakProjectRoot(string name)            
         {
             Name= name;
             GUID = GeneratorGlobals.BuildGUID(Name, Name);

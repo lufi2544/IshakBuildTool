@@ -20,7 +20,7 @@ namespace IshakBuildTool.Project
         FileReference FilterFileReference;
 
 
-        public ProjectFileFilterGenerator(ProjectFile projectFileToHandleFilters)
+        public ProjectFileFilterGenerator(IshakProjectFile projectFileToHandleFilters)
         {
             string filterFilePath = projectFileToHandleFilters.Path + ".filters";
             FilterFileReference = new FileReference(filterFilePath);

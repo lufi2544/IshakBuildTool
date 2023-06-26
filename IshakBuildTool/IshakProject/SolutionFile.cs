@@ -1,6 +1,5 @@
 ﻿using System.Text;
 using IshakBuildTool.ProjectFile;
-using IshakBuildTool.Utils;
 
 namespace IshakBuildTool.Project
 {
@@ -9,7 +8,7 @@ namespace IshakBuildTool.Project
     internal class SolutionFile
     {
         StringBuilder SolutionFileBuilder = new StringBuilder();
-        List<Project> SolutionFileProjects = new List<Project>();
+        List<IshakProject> SolutionFileProjects = new List<IshakProject>();
         public readonly FileReference? SolutionFileRef;
 
         public SolutionFile()

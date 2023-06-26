@@ -1,16 +1,15 @@
-﻿using IshakBuildTool.Project;
-using IshakBuildTool.Project.Modules;
+﻿using IshakBuildTool.Project.Modules;
 
 namespace IshakBuildTool.Build
 {
+
     public class GenerateProjectFilesHandler
     {
         
-        public static void GenerateProjectFiles(string[] args)
-        {
-            
+        public static void GenerateProjectFiles()
+        {                       
             // First we have to create the modules.
-            List<Module> createdModules = CreateModules();
+            List<IshakModule> createdModules = CreateModules();
 
             // Init the BuildFramework that contains the Engine Solution File
             CreateBuildContext(createdModules);
@@ -20,34 +19,26 @@ namespace IshakBuildTool.Build
 
             // Creates the .sln file for the Development Enviroment
             ishakBuildToolBuildContext.CreateSolutionFile();                                                        
-    }
-
-        /** Creates the Projects for visual studio, in this case the .vcxproj for the Engine. */
-        private static void CreateProjects(ProjectFileGenerator ProjectGenerator)
-        {
-            
         }
 
-        private static List<Module> CreateModules()
+        static List<IshakModule> CreateModules()
         {
-            string engineIntermediateDir = Test.TestEnviroment.TestIntermediateFolder;
-            string engineRootPath = Test.TestEnviroment.TestFolderPath;
+            EntireProjectDirectoryParams dirParams = BuildProjectManager.GetInstance().GetProjectDirectoryParams();           
 
             ModuleManager moduleManager = new ModuleManager();
-            moduleManager.DiscoverAndCreateModules(engineRootPath, new ProjectFile.DirectoryReference(engineIntermediateDir));
+            moduleManager.DiscoverAndCreateModules(dirParams.RootDir, new ProjectFile.DirectoryReference(dirParams.IntermediateDir));
 
             return moduleManager.GetModules();
         }
 
-        private static BuildContext CreateBuildContext(List<Module> modules)
+        static BuildContext CreateBuildContext(List<IshakModule> modules)
         {
             BuildContext buildContext = new BuildContext();
+            EntireProjectDirectoryParams dirParams = BuildProjectManager.GetInstance().GetProjectDirectoryParams();
 
             // Add Engine Project
-            buildContext.AddProject("IshakEngine", Test.TestEnviroment.TestProjectFilesFolder, modules);
-
+            buildContext.AddProject("IshakEngine", dirParams.ProjectFilesDir, modules);
             
-
             return buildContext;
         }
         

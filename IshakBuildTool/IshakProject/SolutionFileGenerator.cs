@@ -9,7 +9,7 @@ namespace IshakBuildTool.Project
     {
 
         StringBuilder SolutionFileSB = new StringBuilder();
-        Dictionary<ProjectRoot, Project> projectsWithRootDictionary = new Dictionary<ProjectRoot, Project>();
+        Dictionary<IshakProjectRoot, IshakProject> projectsWithRootDictionary = new Dictionary<IshakProjectRoot, IshakProject>();
 
         public SolutionFileGenerator()
         {
@@ -17,7 +17,7 @@ namespace IshakBuildTool.Project
         }
 
         public void GenerateSolutionFile(
-            List<Project> projects,
+            List<IshakProject> projects,
             string directoryPath,
             string solutionFileName)
         {
@@ -41,24 +41,24 @@ namespace IshakBuildTool.Project
             SolutionFileSB.AppendLine("MinimumVisualStudioVersion = 10.0.40219.1");
         }
 
-        void AddProjects(List<Project> projects)
+        void AddProjects(List<IshakProject> projects)
         {
-            foreach (Project project in projects)
+            foreach (IshakProject project in projects)
             {
                 AddProjectToSolutionFile(project);
             }
         }
 
-        void AddProjectToSolutionFile(Project project)
+        void AddProjectToSolutionFile(IshakProject project)
         {
-            ProjectRoot rootProject = CreateRootProjectFolder(project);
+            IshakProjectRoot rootProject = CreateRootProjectFolder(project);
             projectsWithRootDictionary.Add(rootProject, project);
 
             WriteProjectInSolutionFile(rootProject, project);            
         }
 
                 
-        ProjectRoot CreateRootProjectFolder(Project project)
+        IshakProjectRoot CreateRootProjectFolder(IshakProject project)
         {
 
             // TODO decide weather we just use the Projects Alone or we use RootFolders, either way I think it is okay.
@@ -72,31 +72,31 @@ namespace IshakBuildTool.Project
                 rootName = "Game";
             }
 
-            return new ProjectRoot(rootName);            
+            return new IshakProjectRoot(rootName);            
         }
 
-        void WriteProjectInSolutionFile(ProjectRoot projectRoot, Project project)
+        void WriteProjectInSolutionFile(IshakProjectRoot projectRoot, IshakProject project)
         {
             WriteRootInSolutionFile(projectRoot);
             WriteProjectInSolutionFile(project);            
         }
 
-        void WriteRootInSolutionFile(ProjectRoot projectRoot)
+        void WriteRootInSolutionFile(IshakProjectRoot projectRoot)
         {
             SolutionFileSB.AppendLine("Project(\"{0}\") = \"{1}\", \"{2}\", \"{3}\"", projectRoot.GetGenericVSRootGUID(), projectRoot.Name, projectRoot.Name, projectRoot.GetGUID());
             SolutionFileSB.AppendLine("EndProject");
         }
 
-        void WriteProjectInSolutionFile(Project project)
+        void WriteProjectInSolutionFile(IshakProject project)
         {
             SolutionFileSB.AppendLine("Project(\"{0}\") = \"{1}\", \"{2}\", \"{3}\"", project.ProjectTypeId, project.Name, project.ProjectFile.Path, project.GetGUID());
             SolutionFileSB.AppendLine("EndProject");
         }
 
-        void WriteConfigurations(List<Project> projects)
+        void WriteConfigurations(List<IshakProject> projects)
         {
             SolutionFileSB.AppendLine("Global"); 
-            foreach (Project project in projects)
+            foreach (IshakProject project in projects)
             {
                 SolutionFileSB.AppendLine("     GlobalSection(SolutionConfigurationPlatforms) = preSolution");
                 SolutionFileSB.AppendLine("         {0}|{1} = {0}|{1}", Test.TestEnviroment.DefaultConfigurationName, Test.TestEnviroment.DefaultPlatform.ToString());

@@ -1,11 +1,5 @@
 ﻿
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 // IBT
 using IshakBuildTool.Build;
 using IshakBuildTool.Project;
@@ -22,15 +16,29 @@ namespace IshakBuildTool
 
         }
 
-        public static void Execute(string[] commandLineArgs)
+        public static void Execute(string[] args)
         {
-            var testArgs = TestEnviroment.TestFolderPath;
+            // Inits the Manager in charge of parsing the commandLine Args to actual args that the tool uses.
+            CommandLineArgs cmdLineArgs = new CommandLineArgs(args);
+            InitBuildProjectManager(cmdLineArgs);
+
+            string buildEnviromentRootDir = GetBuildEnviromentRootDir();
             var initMessage = String.Format(
                 "Starting IshakBuildTool for path: {0} ",
-                testArgs);
+                buildEnviromentRootDir);
 
             Console.WriteLine(initMessage);
-            GenerateProjectFilesHandler.GenerateProjectFiles(commandLineArgs);
+            GenerateProjectFilesHandler.GenerateProjectFiles();
+        }
+
+        static void InitBuildProjectManager(CommandLineArgs cmdArgs)
+        {
+            BuildProjectManager.GetInstance().Init(cmdArgs);
+        }
+
+        static string GetBuildEnviromentRootDir()
+        {
+            return BuildProjectManager.GetInstance().GetProjectDirectoryParams().RootDir;
         }
     }
 }
