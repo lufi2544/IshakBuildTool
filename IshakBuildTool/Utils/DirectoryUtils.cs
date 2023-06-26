@@ -168,14 +168,14 @@ namespace IshakBuildTool.Utils
                     // Construct path from the flagged idx - 1 because this is whre the directories start to differ.
                     // Adds the ../ that correspond to the folders count needed for reaching that folder.                                                           
                     //
-                    //-> Refered Dir:         C/Engine/Binaries/Game/Space/Source...
+                    //-> Refered Dir:         C:\Engine\Binaries\Game\Space\Source...
                     //                        0    1      2      3     4     5
                     //                                 flagged
                     //
                     //->RelativeToThis:      C/Engine/Build/Game
                     //                        0   1     2     3  
                     //
-                    // Final Relative Path: ../../Binaries/Game/Space/Source... 
+                    // Final Relative Path: ..\..\Binaries\Game\Space\Source... 
 
                     flaggedIdx = idx;
                     break;
