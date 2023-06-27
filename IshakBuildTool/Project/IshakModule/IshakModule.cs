@@ -55,13 +55,21 @@ namespace IshakBuildTool.Project.Modules
         {
             StringBuilder moduleDependencySB = new StringBuilder();
 
-            // We add by default the Private Dir for this module.
-            moduleDependencySB.Append("{0};", PrivateDirectoryRef.Path);
+
+            AddDefaultDirectories(ref moduleDependencySB);
 
             AddPublicModuleDependencies(moduleDependencySB);
             AddPrivateModuleDependencies(moduleDependencySB);
 
             ModulesDependencyDirsString = moduleDependencySB.ToString();
+        }
+
+        void AddDefaultDirectories(ref StringBuilder moduleDependencySB)
+        {
+            // We add by default the Private Dir for this module.
+            moduleDependencySB.Append("{0};", PrivateDirectoryRef.Path);
+            moduleDependencySB.Append("{0};", moduleFile.Directory.Path);
+
         }
 
 

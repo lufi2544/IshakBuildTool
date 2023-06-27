@@ -2,6 +2,7 @@
 
 using IshakBuildTool.Test;
 using System.Text;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace IshakBuildTool
 {
@@ -9,14 +10,10 @@ namespace IshakBuildTool
     {
         static void Main(string[] args)
         {
-            if (args.Length == 0)
-            {
-                args = new string[]{
-                    "-r", TestEnviroment.TestCommandLineArgs,
-                    "-pt", TestEnviroment.TestProjectType};            
-            }
-
-            IshakBuildToolFramework.Execute(args);
+            string[] argss = {
+            "-r", "C:\\IshakEngine",
+            "-pt", "Application"};             
+            IshakBuildToolFramework.Execute(argss);
         }
     }
 }// IshakBuildTool
