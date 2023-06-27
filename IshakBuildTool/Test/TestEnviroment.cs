@@ -15,5 +15,6 @@ namespace IshakBuildTool.Test
         public static Platform.EPlatform DefaultPlatform = Platform.EPlatform.x64;
 
         public static string TestCommandLineArgs = "C:\\IshakEngine";
+        public static string TestProjectType = "Application";
     }
 }

@@ -46,10 +46,22 @@ namespace IshakBuildTool.Project
         /** Writes the .vcxproj for this Project.  */
         public void WriteProjectFile()
         {
-            ProjectFileGenerator projectFileGenerator = new ProjectFileGenerator(this);
+            ProjectFileGenerator projectFileGenerator = GetProjectFileGenerator();
 
             // This will fill up the ProjectFile for this project.
             projectFileGenerator.HandleProjectFileGeneration();
+        }
+
+        ProjectFileGenerator GetProjectFileGenerator()
+        {
+            bool bFound;
+            IshakBuildToolFramework.GetCommandLineParam("-bm", out bFound);
+            if (bFound)
+            {
+                return new ProjectFileGeneratorLegacy(this);
+            }
+
+            return new ProjectFileGenerator(this);
         }
     }
 }

@@ -14,13 +14,11 @@ namespace IshakBuildTool.Project
     internal class ProjectFileGenerator
     {
 
-        private IshakProject ProjectToHandle;
-
-        StringBuilder ProjectFileSB = new StringBuilder();
-        StringBuilder ProjectFileFiltersSB = new StringBuilder();
-
+        IshakProject ProjectToHandle;
         List<Tuple<string, Platform.EPlatform>>? EngineConfigurations;
         ProjectFileFilterGenerator? FilterGenerator = null;
+
+        protected StringBuilder ProjectFileSB = new StringBuilder();        
 
         public ProjectFileGenerator(IshakProject projectToHandle)
         {
@@ -39,12 +37,14 @@ namespace IshakBuildTool.Project
 
             ProjectToHandle.SetGUID(GeneratorGlobals.BuildGUID(ProjectToHandle.ProjectFile.Path, ProjectToHandle.ProjectFile.SolutionProjectName));
 
+            // Init FilterGenerator
+            FilterGenerator.Init();
             WriteEngineSolutionFile();
 
         }
 
         /* Basically after creating the Solution file, in this case what we do is just write in the solution file all the obtained data. */
-        void WriteEngineSolutionFile()
+        protected virtual void WriteEngineSolutionFile()
         {
             WriteEngineHeaderFile();
             WriteEngineProjectConfigurations();
@@ -63,14 +63,9 @@ namespace IshakBuildTool.Project
 
             ProjectFileSB.AppendLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
             ProjectFileSB.AppendLine("<Project DefaultTargets=\"Build\" ToolsVersion=\"0.17\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">");
+            
 
-
-            ProjectFileFiltersSB.AppendLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
-            ProjectFileFiltersSB.AppendLine("<Project ToolsVersion=\"17.0\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">");
-
-
-            // Init FilterGenerator
-            FilterGenerator.Init();
+            
         }
 
         void WriteEngineProjectConfigurations()
@@ -103,7 +98,7 @@ namespace IshakBuildTool.Project
             ProjectFileSB.AppendLine("  <PropertyGroup Label=\"Globals\">");
 
             ProjectFileSB.AppendLine("    <ProjectGuid>{0}</ProjectGuid>", ProjectToHandle.GetGUID());
-            ProjectFileSB.AppendLine("    <Keyword>MakeFileProj</Keyword>");
+            ProjectFileSB.AppendLine("    <Keyword>Win32Proj</Keyword>");
             ProjectFileSB.AppendLine("    <RootNamespace>{0}</RootNamespace>", ProjectToHandle.ProjectFile.ProjectName);
             ProjectFileSB.AppendLine("    <PlatformToolset>{0}</PlatformToolset>", "v143");
             ProjectFileSB.AppendLine("    <MinimumVisualStudioVersion>{0}</MinimumVisualStudioVersion>", "17.0");
@@ -118,16 +113,23 @@ namespace IshakBuildTool.Project
         {
             ProjectFileSB.AppendLine("  <Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.Default.props\" />");
 
+            
             foreach (Tuple<string, Platform.EPlatform> configurationTuple in EngineConfigurations)
             {
                 string configurationAndPlatformName = configurationTuple.Item1 + "|" + configurationTuple.Item2.ToString();
                 string conditionString = "Condition=\"'$(Configuration)|$(Platform)'=='" + configurationAndPlatformName + "'\"";
 
-                ProjectFileSB.AppendLine("  <PropertyGroup {0} Label=\"Configuration\">", conditionString);
-                ProjectFileSB.AppendLine("    <ConfigurationType>{0}</ConfigurationType>", "Makefile");
+                ProjectFileSB.AppendLine("  <PropertyGroup {0} Label=\"Configuration\">", conditionString);                
+                ProjectFileSB.AppendLine("    <ConfigurationType>{0}</ConfigurationType>", GetAppType());
                 ProjectFileSB.AppendLine("    <PlatformToolset>{0}</PlatformToolset>", "v143");
                 ProjectFileSB.AppendLine("  </PropertyGroup>");
             }
+            
+        }
+
+        string GetAppType()
+        {
+            return BuildProjectManager.GetInstance().GetProjectDirectoryParams().ProjectType;            
         }
 
         void WriteEngineProjectConfigurationsProps()
@@ -216,7 +218,7 @@ namespace IshakBuildTool.Project
             return includePathsStrBuilder.ToString();
         }
 
-        void WriteIntellisenseInfoForEngineFiles()
+        protected void WriteIntellisenseInfoForEngineFiles()
         {
             ProjectFileSB.AppendLine("  <ItemGroup>");
 
@@ -282,27 +284,27 @@ namespace IshakBuildTool.Project
             ProjectFileSB.AppendLine("    </ClCompile>");
         }
 
-        void WriteSourcePathProperty()
+        protected void WriteSourcePathProperty()
         {
             ProjectFileSB.AppendLine("  <PropertyGroup>");
             ProjectFileSB.Append("    <SourcePath>");
 
             foreach (IshakModule module in ProjectToHandle.Modules)
             {
-                ProjectFileSB.Append("{0};", module.PrivateDirectoryRef);
+                ProjectFileSB.Append("{0};", module.PrivateDirectoryRef.Path);
             }
 
             ProjectFileSB.AppendLine("</SourcePath>");
             ProjectFileSB.AppendLine("  </PropertyGroup>");
         }
 
-        void CreateProjectFile()
+        protected void CreateProjectFile()
         {
             ProjectToHandle.ProjectFile.SetProjectFileContent(ProjectFileSB.ToString());
             ProjectToHandle.ProjectFile.Create();
         }
 
-        void ImportFinalProjectFileArguments()
+        protected void ImportFinalProjectFileArguments()
         {
             ProjectFileSB.AppendLine("  <Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.targets\" />");
             ProjectFileSB.AppendLine("  <ImportGroup Label=\"ExtensionTargets\">");

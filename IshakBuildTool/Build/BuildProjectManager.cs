@@ -16,16 +16,20 @@ namespace IshakBuildTool.Build
         {
             
         }
-
+        
         public string RootDir { get; set;} = string.Empty;
         public string SourceDir { get; set; } = string.Empty;
         public string IntermediateDir { get; set; } = string.Empty;
         public string ProjectFilesDir { get; set; } = string.Empty;
+
+        public string ProjectType { get; set; } = string.Empty;        
     }
     /** Manager that will hold info when building the project like the Source Dir, Intermediate, etc.d */
     internal class BuildProjectManager
     {
         static BuildProjectManager? SingleTonProjectManager = null; 
+
+        public CommandLineArgs CommandLineArgs { get; set; }
       
         private EntireProjectDirectoryParams ThisEntireProjectDirectoryParams { get; set; }
 
@@ -42,6 +46,7 @@ namespace IshakBuildTool.Build
 
         public void Init(CommandLineArgs args)
         {            
+            CommandLineArgs = args;
             EntireProjectDirectoryParams localProjectDirectoryParams = new EntireProjectDirectoryParams();
 
             bool bFoundRootDirArgumentCategory;
@@ -51,8 +56,17 @@ namespace IshakBuildTool.Build
                 // TODO Exception
                 throw new Exception();
             }
-                        
-            localProjectDirectoryParams.RootDir = foundArg;             
+
+            string foundProjectTypeArg = args.GetArgumentFromCategory("-pt", out bFoundRootDirArgumentCategory);
+
+            if(bFoundRootDirArgumentCategory == false) 
+            {
+                throw new Exception(); 
+            }
+
+            localProjectDirectoryParams.RootDir = foundArg;
+            localProjectDirectoryParams.ProjectType = foundProjectTypeArg;
+
             SetUpFolders(ref localProjectDirectoryParams);
             ThisEntireProjectDirectoryParams = localProjectDirectoryParams;           
         }            

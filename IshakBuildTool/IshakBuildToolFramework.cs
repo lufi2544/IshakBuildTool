@@ -7,14 +7,14 @@ using IshakBuildTool.Test;
 
 namespace IshakBuildTool
 {
-    /** Global Ishak Build Tool framework  */
+    /** Global Ishak Build Tool framework.  */
     internal class IshakBuildToolFramework
     {
             
         public IshakBuildToolFramework() 
         {
 
-        }
+        }        
 
         public static void Execute(string[] args)
         {
@@ -39,6 +39,11 @@ namespace IshakBuildTool
         static string GetBuildEnviromentRootDir()
         {
             return BuildProjectManager.GetInstance().GetProjectDirectoryParams().RootDir;
+        }
+
+        public static string GetCommandLineParam(string commandLineCategory, out bool bFound)
+        {
+            return BuildProjectManager.GetInstance().CommandLineArgs.GetArgumentFromCategory(commandLineCategory, out bFound);
         }
     }
 }

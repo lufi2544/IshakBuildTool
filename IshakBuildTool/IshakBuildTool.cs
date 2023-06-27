@@ -9,8 +9,14 @@ namespace IshakBuildTool
     {
         static void Main(string[] args)
         {
-            string[] lArgs = new string[]{ "-r", Test.TestEnviroment.TestCommandLineArgs };            
-            IshakBuildToolFramework.Execute(lArgs);
+            if (args.Length == 0)
+            {
+                args = new string[]{
+                    "-r", TestEnviroment.TestCommandLineArgs,
+                    "-pt", TestEnviroment.TestProjectType};            
+            }
+
+            IshakBuildToolFramework.Execute(args);
         }
     }
 }// IshakBuildTool
