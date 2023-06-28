@@ -1,6 +1,17 @@
 # IshakBuildTool
 This is a Build Tool that has the prupose of Building the development enviroment for my game Engine called IshakEngine.
 
+## Motivation
+I have opted for C# for 2 main reasons:
+
+  &rarr; **First:** I wanted to learn C#.
+
+  &rarr; **Second:** Wanted to take advantage of the .NET framework that I think is very powerful library for this kind of projects.
+
+**All the IshakEngine is going to be developed in pure C++**
+
+## Explaination
+
 **IMPORTANT:** The Ishak Engine is a ***single platform*** Engine created for windows, so the Build tool is architechture **JUST for Windows**, at least for now.
 
 **NOTE: Still work in progress**, the basic architechture is planned, but can be changed along the implementation.
