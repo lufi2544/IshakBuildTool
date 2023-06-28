@@ -8,7 +8,7 @@ I have opted for C# for 2 main reasons:
 
   &rarr; **First:** I wanted to learn C#.
 
-  &rarr; **Second:** Wanted to take advantage of the .NET framework that I think is very powerful library for this kind of projects.
+  &rarr; **Second:** Wanted to take advantage of the .NET framework that I think is very powerful a library for this kind of projects.
 
 **All the IshakEngine is going to be developed in pure C++**
 
