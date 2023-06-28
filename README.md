@@ -10,7 +10,7 @@ we will use custom compile actions like: Multi-threading compilation, re-compili
 
 I have made the architercture in a way that the Engine is divided in Modules. Every module counts with Module build file( Module.cs ) which will define further information about the module like:
 dependencies, static libraries, dynamic libraries loading,etc.
-At run time all the modules builder files are compiled to a DLL so any info can be extracted and all the enviroment can be set correctly.
+At run time all the modules builder files are compiled to a DLL so any builder can be extracted at runtime and the Modules created in consequence.
 
 <img src="/RepoImages/Screenshot 2023-06-28 165418.png" alt="Alt text" title="Module Image">
 
