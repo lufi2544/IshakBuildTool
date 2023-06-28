@@ -10,7 +10,7 @@ I have opted for C# for 2 main reasons:
 
 **All the IshakEngine is going to be developed in pure C++**
 
-## Explaination
+## Introduction
 
 **IMPORTANT:** The Ishak Engine is a ***single platform*** Engine created for windows, so the Build tool is architechture **JUST for Windows**, at least for now.
 
