@@ -22,6 +22,8 @@ namespace IshakBuildTool.ProjectFile
 
         public EFileType FileType { get; set; }
 
+        public static readonly FileReference Null = new FileReference("");
+
         public FileReference(string PathParm)
         {
             Path = PathParm;

@@ -2,6 +2,7 @@
 
 // IBT
 using IshakBuildTool.Build;
+using IshakBuildTool.Platform;
 using IshakBuildTool.Project;
 using IshakBuildTool.Test;
 
@@ -11,6 +12,8 @@ namespace IshakBuildTool
     internal class IshakBuildToolFramework
     {
             
+        static WindowsPlatform? WindowsPlatformRef = null;
+
         public IshakBuildToolFramework() 
         {
 
@@ -21,6 +24,7 @@ namespace IshakBuildTool
             // Inits the Manager in charge of parsing the commandLine Args to actual args that the tool uses.
             CommandLineArgs cmdLineArgs = new CommandLineArgs(args);
             InitBuildProjectManager(cmdLineArgs);
+            CreateWindowsPlatform();
 
             string buildEnviromentRootDir = GetBuildEnviromentRootDir();
             var initMessage = String.Format(
@@ -29,6 +33,11 @@ namespace IshakBuildTool
 
             Console.WriteLine(initMessage);
             GenerateProjectFilesHandler.GenerateProjectFiles();
+        }
+
+        static void CreateWindowsPlatform()
+        {
+            WindowsPlatformRef = new WindowsPlatform();   
         }
 
         static void InitBuildProjectManager(CommandLineArgs cmdArgs)

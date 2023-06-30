@@ -15,7 +15,7 @@ namespace IshakBuildTool.Project
     {
 
         IshakProject ProjectToHandle;
-        List<Tuple<string, Platform.EPlatform>>? EngineConfigurations;
+        List<Tuple<string, Platform.EPlatformArchitecture>>? EngineConfigurations;
         ProjectFileFilterGenerator? FilterGenerator = null;
 
         protected StringBuilder ProjectFileSB = new StringBuilder();        
@@ -72,19 +72,19 @@ namespace IshakBuildTool.Project
         {
             ProjectFileSB.AppendLine("  <ItemGroup Label=\"ProjectConfigurations\">");
 
-            EngineConfigurations = new List<Tuple<string, Platform.EPlatform>>();
+            EngineConfigurations = new List<Tuple<string, Platform.EPlatformArchitecture>>();
 
             // For now we are just gonna add a default configuration.
-            AddConfiguration(IshakEngineConfiguration.Debug, Platform.EPlatform.x64);
-            AddConfiguration(IshakEngineConfiguration.Development, Platform.EPlatform.x64);
+            AddConfiguration(IshakEngineConfiguration.Debug, Platform.EPlatformArchitecture.x64);
+            AddConfiguration(IshakEngineConfiguration.Development, Platform.EPlatformArchitecture.x64);
 
             ProjectFileSB.AppendLine("  </ItemGroup>");
         }
 
 
-        void AddConfiguration(IshakEngineConfiguration config, Platform.EPlatform platform)
+        void AddConfiguration(IshakEngineConfiguration config, Platform.EPlatformArchitecture platform)
         {
-            EngineConfigurations.Add(new Tuple<string, Platform.EPlatform>(config.ToString(), platform));
+            EngineConfigurations.Add(new Tuple<string, Platform.EPlatformArchitecture>(config.ToString(), platform));
 
 
             ProjectFileSB.AppendLine(string.Format("    <ProjectConfiguration Include=\"{0}|{1}\">", config.ToString(), platform.ToString()));
@@ -114,7 +114,7 @@ namespace IshakBuildTool.Project
             ProjectFileSB.AppendLine("  <Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.Default.props\" />");
 
             
-            foreach (Tuple<string, Platform.EPlatform> configurationTuple in EngineConfigurations)
+            foreach (Tuple<string, Platform.EPlatformArchitecture> configurationTuple in EngineConfigurations)
             {
                 string configurationAndPlatformName = configurationTuple.Item1 + "|" + configurationTuple.Item2.ToString();
                 string conditionString = "Condition=\"'$(Configuration)|$(Platform)'=='" + configurationAndPlatformName + "'\"";

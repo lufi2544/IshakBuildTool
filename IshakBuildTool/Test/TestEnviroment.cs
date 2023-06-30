@@ -12,7 +12,7 @@ namespace IshakBuildTool.Test
         public static string DefaultConfigurationName = "DebugEngine";
         public static string DefaultEngineName = "IshakEngine";
         public static IshakEngineConfiguration DefaultConfiguration = IshakEngineConfiguration.Debug;
-        public static Platform.EPlatform DefaultPlatform = Platform.EPlatform.x64;
+        public static Platform.EPlatformArchitecture DefaultPlatform = Platform.EPlatformArchitecture.x64;
 
         public static string TestCommandLineArgs = "C:\\IshakEngine";
         public static string TestProjectType = "Application";
