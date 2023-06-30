@@ -82,6 +82,37 @@ namespace IshakBuildTool.Utils
             return string.Empty;
         }
 
+        public static DirectoryReference Combine(DirectoryReference dirRef, params string[] valuesToCombine)
+        {
+            if (valuesToCombine.Length == 0)
+            {
+                return dirRef;
+            }
+
+            string combinedPath = dirRef.Path;            
+            for (int idx = 0; idx < valuesToCombine.Length; ++idx)
+            {
+                string value = valuesToCombine[idx];
+                // If we find an empty value we just return the ref directory.
+                if (value == string.Empty)
+                {
+                    return dirRef;
+                }
+
+                if (idx == valuesToCombine.Length - 1)
+                {
+                    combinedPath += value;
+                }
+                else
+                {
+                    combinedPath += (value + DirectoryReference.DirectorySeparatorChar);
+                }
+            }
+
+
+            return new DirectoryReference(combinedPath);
+        } 
+
         public static void TryCreateDirectory(string dirPath)
         {
             DirectoryInfo dirInfo = new DirectoryInfo(dirPath);
@@ -91,6 +122,19 @@ namespace IshakBuildTool.Utils
                 dirInfo.Create();
             }
         }
+
+        public static bool DirectoryExists(DirectoryReference dirRef)
+        {
+            DirectoryInfo dirInfo = new DirectoryInfo(dirRef.Path);
+            return dirInfo.Exists;
+        }
+
+        public static bool DirectoryExists(string dirPathRef)
+        {
+            DirectoryInfo dirInfo = new DirectoryInfo(dirPathRef);
+            return dirInfo.Exists;
+        }
+
         public static string GetParentDirectoryPathFromDirectory(string dirPath)
         {
             if (dirPath.Equals(string.Empty))

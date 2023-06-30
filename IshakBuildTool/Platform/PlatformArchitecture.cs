@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace IshakBuildTool.Platform
 {
-    enum EPlatform
+    enum EPlatformArchitecture
     {
         x64
     }
