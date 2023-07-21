@@ -33,11 +33,11 @@ namespace IshakBuildTool.Utils
 
         public static bool IsUnderEngineFolder(DirectoryReference dirRef)
         {
-            string engineSourceFolder = GetEngineSourceFolder();
+            string engineSourceFolder = GetEngineSourceDir();
             return dirRef.Path.Contains(engineSourceFolder);
         }
 
-        public static string GetEngineSourceFolder()
+        public static string GetEngineSourceDir()
         {            
             // The Ishak Build Tool must always be under the Source Folder.            
             return GetPathUntilDirectory(Environment.CurrentDirectory, "Source");            
@@ -88,6 +88,16 @@ namespace IshakBuildTool.Utils
             {
                 return dirRef;
             }
+
+            // Check if we have "//" at the end of the path, if not, just add it
+            var dirPathLenght = dirRef.Path.Length;
+            var lastDirPathChar = dirRef.Path[dirPathLenght - 1];
+            
+            if (lastDirPathChar != DirectoryReference.DirectorySeparatorChar)
+            {
+                dirRef.Path += DirectoryReference.DirectorySeparatorChar;                                
+            }
+
 
             string combinedPath = dirRef.Path;            
             for (int idx = 0; idx < valuesToCombine.Length; ++idx)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IshakBuildTool.ProjectFile;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Versioning;
@@ -13,26 +14,17 @@ namespace IshakBuildTool.Platform
     internal class WindowsPlatform
     {
 
-        //---- Singleton ----
-        private WindowsPlatform? singleton = null;
-        //----  -----
-
-        WindowsPlatform GetInstance()
-        {
-            if (singleton == null)
-            {
-                singleton = new WindowsPlatform();
-            }
-
-            return singleton;
-        }
-
-
         WindowsSDK WindowsSDK { get; set; }
 
         public WindowsPlatform()
         {
             WindowsSDK = new WindowsSDK();
+        }
+
+
+        public List<DirectoryReference> GetWindowsSDKIncludeDirs()
+        {
+            return WindowsSDK.IncludeDirectories;
         }
 
 

@@ -10,6 +10,6 @@ namespace IshakBuildTool.ToolChain
         Compiler Compiler = new Compiler();
 
         /** Wrapper for the Windows Platform. */
-        WindowsPlatform? WindowsPlatform = null;
+        public WindowsPlatform WindowsPlatform = new WindowsPlatform();
     }
 }

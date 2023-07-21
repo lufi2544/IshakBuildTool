@@ -14,13 +14,17 @@ namespace IshakBuildTool.ProjectFile
         {
             Path = string.Empty;                        
         }
-
-        
+            
 
         public DirectoryReference(string pathParam) 
         {
             Path = pathParam;
         }     
+
+        public bool IsValid()
+        {
+            return Path != string.Empty;
+        }
 
         public string GetDirectoryName()
         {

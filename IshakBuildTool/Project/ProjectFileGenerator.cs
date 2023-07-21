@@ -6,6 +6,7 @@ using IshakBuildTool.Utils;
 using System.Text;
 using IshakBuildTool.Build;
 using IshakBuildTool.Project.Modules;
+using IshakBuildTool.Platform;
 
 namespace IshakBuildTool.Project
 {
@@ -214,7 +215,16 @@ namespace IshakBuildTool.Project
             StringBuilder includePathsStrBuilder = new StringBuilder();
 
             // We should add the the engine source folder as a base include here.
-            includePathsStrBuilder.Append(DirectoryUtils.GetEngineSourceFolder());
+            includePathsStrBuilder.Append(DirectoryUtils.GetEngineSourceDir());
+
+            List<DirectoryReference> windowsIncludeFiles = IshakBuildToolFramework.ToolChain.WindowsPlatform.GetWindowsSDKIncludeDirs();
+
+
+            foreach (DirectoryReference dir in windowsIncludeFiles)
+            {
+                includePathsStrBuilder.AppendFormat("{0};", dir.Path);
+            }
+
             return includePathsStrBuilder.ToString();
         }
 

@@ -5,6 +5,7 @@ using IshakBuildTool.Build;
 using IshakBuildTool.Platform;
 using IshakBuildTool.Project;
 using IshakBuildTool.Test;
+using IshakBuildTool.ToolChain;
 
 namespace IshakBuildTool
 {
@@ -12,7 +13,7 @@ namespace IshakBuildTool
     internal class IshakBuildToolFramework
     {
             
-        static WindowsPlatform? WindowsPlatformRef = null;
+        public static IshakToolChain ToolChain { get; set; }
 
         public IshakBuildToolFramework() 
         {
@@ -24,7 +25,7 @@ namespace IshakBuildTool
             // Inits the Manager in charge of parsing the commandLine Args to actual args that the tool uses.
             CommandLineArgs cmdLineArgs = new CommandLineArgs(args);
             InitBuildProjectManager(cmdLineArgs);
-            CreateWindowsPlatform();
+            CreateToolChain();
 
             string buildEnviromentRootDir = GetBuildEnviromentRootDir();
             var initMessage = String.Format(
@@ -35,9 +36,9 @@ namespace IshakBuildTool
             GenerateProjectFilesHandler.GenerateProjectFiles();
         }
 
-        static void CreateWindowsPlatform()
+        static void CreateToolChain()
         {
-            WindowsPlatformRef = new WindowsPlatform();   
+            ToolChain = new IshakToolChain();
         }
 
         static void InitBuildProjectManager(CommandLineArgs cmdArgs)
