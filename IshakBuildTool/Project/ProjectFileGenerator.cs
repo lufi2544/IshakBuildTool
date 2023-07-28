@@ -185,7 +185,7 @@ namespace IshakBuildTool.Project
             ProjectFileSB.AppendLine("  <PropertyGroup>");
 
 
-            string sharedIncludeDirectories = GetIncludePathSet();
+            string sharedIncludeDirectories = GetSharedIncludeFilesPaths();
             ProjectFileSB.AppendLine("    <IncludePath>$(IncludePath);{0}</IncludePath>", sharedIncludeDirectories);
             ProjectFileSB.AppendLine("    <NMakeForcedIncludes>$(NMakeForcedIncludes)</NMakeForcedIncludes>");
             ProjectFileSB.AppendLine("    <NMakeAssemblySearchPath>$(NMakeAssemblySearchPath)</NMakeAssemblySearchPath>");
@@ -210,17 +210,15 @@ namespace IshakBuildTool.Project
             return string.Empty;
         }
 
-        string GetIncludePathSet()
+        string GetSharedIncludeFilesPaths()
         {
             StringBuilder includePathsStrBuilder = new StringBuilder();
 
             // We should add the the engine source folder as a base include here.
-            includePathsStrBuilder.Append(DirectoryUtils.GetEngineSourceDir());
-
-            List<DirectoryReference> windowsIncludeFiles = IshakBuildToolFramework.ToolChain.WindowsPlatform.GetWindowsSDKIncludeDirs();
-
-
-            foreach (DirectoryReference dir in windowsIncludeFiles)
+            includePathsStrBuilder.AppendFormat("{0};", DirectoryUtils.GetEngineSourceDir());     
+            
+            List<DirectoryReference> toolChainIncludeFiles = IshakBuildToolFramework.ToolChain.GetSharedDirectoriesFromToolChain();
+            foreach (DirectoryReference dir in toolChainIncludeFiles)
             {
                 includePathsStrBuilder.AppendFormat("{0};", dir.Path);
             }
@@ -260,18 +258,25 @@ namespace IshakBuildTool.Project
                 }
                 else
                 {
-                    WriteStandardVCCompileTypeForFile(sourceFileRef, vcCompileType);
+                    WriteStandardVCCompileTypeForFile(sourceFileRef, vcCompileType, module);
                 }
 
                 FilterGenerator.AddFile(sourceFileRef);
             }
         }
 
-        void WriteStandardVCCompileTypeForFile(FileReference file, EVCFileType cvFileType)
+        void WriteStandardVCCompileTypeForFile(FileReference file, EVCFileType cvFileType, IshakModule module)
         {
             string fileRelativeToProjectFile = DirectoryUtils.MakeRelativeTo(file, ProjectToHandle.ProjectFile.GetProjectFileRef()).Path;
 
-            ProjectFileSB.AppendLine("    <{0} Include=\"{1}\"/>", cvFileType.ToString(), fileRelativeToProjectFile);
+            ProjectFileSB.AppendLine("    <{0} Include=\"{1}\">", cvFileType.ToString(), fileRelativeToProjectFile);
+
+            ProjectFileSB.AppendLine(
+                "      <AdditionalIncludeDirectories>$(NMakeIncludeSearchPath);{0};</AdditionalIncludeDirectories>",
+                module.ModulesDependencyDirsString + GetSharedIncludeFilesPaths());
+
+            ProjectFileSB.AppendLine("    </{0}>", cvFileType.ToString());
+
         }
 
         void WriteVCCompileTypeSourceFile(FileReference file, IshakModule fileParentModule)
@@ -289,7 +294,7 @@ namespace IshakBuildTool.Project
 
             ProjectFileSB.AppendLine(
                 "      <AdditionalIncludeDirectories>$(NMakeIncludeSearchPath);{0};</AdditionalIncludeDirectories>",
-                fileParentModule.ModulesDependencyDirsString + GetIncludePathSet());
+                fileParentModule.ModulesDependencyDirsString + GetSharedIncludeFilesPaths());
 
             ProjectFileSB.AppendLine("    </ClCompile>");
         }

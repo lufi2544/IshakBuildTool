@@ -1,47 +1,14 @@
-﻿using IshakBuildTool.Build;
-using IshakBuildTool.ProjectFile;
+﻿using IshakBuildTool.ProjectFile;
+using IshakBuildTool.ToolChain;
 using IshakBuildTool.Utils;
 using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Runtime.Versioning;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace IshakBuildTool.Platform
 {
 
-    [SupportedOSPlatform("windows")]
-    public struct WindowsVersion
-    {
-        public WindowsVersion()
-        {
-             Version = 0;
-             VersionStr = string.Empty;
-        }
-
-        public int Version { get; set; }
-        public string VersionStr { get; set; }
-
-        public void SetVersion(string versionToSet)
-        {
-            VersionStr = versionToSet;
-
-            string cachedVersion = string.Empty;
-            foreach (var letter in VersionStr)
-            {
-                if (letter == '.')
-                {
-                    break;
-                }
-                cachedVersion += letter;
-            }
-
-            Version = int.Parse(cachedVersion);
-        }
-    }
 
     /** Representation of the Windows SDK */
     [SupportedOSPlatform("windows")]
@@ -64,7 +31,7 @@ namespace IshakBuildTool.Platform
         /** Main Directories that include the SDK main headers.( Windows.h  for example) */
         List<DirectoryReference> MainSDKLibraryDirectories = new List<DirectoryReference>();   
         DirectoryReference Directory { get; set; }
-        WindowsVersion WindowsVersion = new WindowsVersion(); 
+        VersionData WindowsVersion = new VersionData(); 
         EWindowsArchitecture Architecture;        
 
         public WindowsSDK() 
@@ -152,7 +119,7 @@ namespace IshakBuildTool.Platform
                         if (FileUtils.FileExists(umDirRef))
                         {
                             Directory = windows10Dir;
-                            //WindowsVersion.SetVersion(foundIncludeSDKVersion);
+                            WindowsVersion.SetVersion(foundIncludeSDKVersion);
                             WindowsVersion.Version = 10;
                             return;
                         }
@@ -179,8 +146,8 @@ namespace IshakBuildTool.Platform
                 // We do not support a windows operative system less than the 10
                 throw new InvalidOperationException();
             }
-                     
-            DirectoryReference windowsIncludeDirRef = DirectoryUtils.Combine(Directory, "include");
+                                  
+            DirectoryReference windowsIncludeDirRef = DirectoryUtils.Combine(Directory, "include", WindowsVersion.VersionStr);
             IncludeDirectories.Add(DirectoryUtils.Combine(windowsIncludeDirRef, "ucrt"));
             IncludeDirectories.Add(DirectoryUtils.Combine(windowsIncludeDirRef, "shared"));
             IncludeDirectories.Add(DirectoryUtils.Combine(windowsIncludeDirRef, "um"));

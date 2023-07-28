@@ -26,6 +26,11 @@ namespace IshakBuildTool.ProjectFile
             return Path != string.Empty;
         }
 
+        public bool Exist()
+        {
+            return DirectoryUtils.DirectoryExists(Path);
+        }
+
         public string GetDirectoryName()
         {
             if (Path.Length == 0)

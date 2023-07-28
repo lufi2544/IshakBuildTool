@@ -109,6 +109,7 @@ namespace IshakBuildTool.Utils
                     return dirRef;
                 }
 
+                // If last element, we just add the value witout the separatorChar
                 if (idx == valuesToCombine.Length - 1)
                 {
                     combinedPath += value;

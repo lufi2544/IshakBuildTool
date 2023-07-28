@@ -10,7 +10,7 @@ namespace IshakBuildTool
         {
             string[] argss = {
             "-r", "C:\\IshakEngine",
-            "-pt", "Application"};             
+            "-pt", "Application" };//, "-bm", "1"};             
             IshakBuildToolFramework.Execute(argss);
         }
     }
