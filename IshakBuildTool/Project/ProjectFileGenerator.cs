@@ -98,7 +98,7 @@ namespace IshakBuildTool.Project
             ProjectFileSB.AppendLine("    <ProjectGuid>{0}</ProjectGuid>", ProjectToHandle.GetGUID());
             ProjectFileSB.AppendLine("    <Keyword>Win32Proj</Keyword>");
             ProjectFileSB.AppendLine("    <RootNamespace>{0}</RootNamespace>", ProjectToHandle.ProjectFile.ProjectName);
-            ProjectFileSB.AppendLine("    <PlatformToolset>{0}</PlatformToolset>", "v170");
+            ProjectFileSB.AppendLine("    <PlatformToolset>{0}</PlatformToolset>", "v143");
             ProjectFileSB.AppendLine("    <MinimumVisualStudioVersion>{0}</MinimumVisualStudioVersion>", "17.0");
             ProjectFileSB.AppendLine("    <VCProjectVersion>{0}</VCProjectVersion>", "17.0");
             ProjectFileSB.AppendLine("    <NMakeUseOemCodePage>true</NMakeUseOemCodePage>"); // Fixes mojibake with non-Latin character sets (UE-102825)
@@ -119,10 +119,14 @@ namespace IshakBuildTool.Project
 
                 ProjectFileSB.AppendLine("  <PropertyGroup {0} Label=\"Configuration\">", conditionString);                
                 ProjectFileSB.AppendLine("    <ConfigurationType>{0}</ConfigurationType>", GetAppType());
-                ProjectFileSB.AppendLine("    <PlatformToolset>{0}</PlatformToolset>", "v170");
+                ProjectFileSB.AppendLine("    <PlatformToolset>{0}</PlatformToolset>", "v143");
                 ProjectFileSB.AppendLine("  </PropertyGroup>");
             }
-            
+
+            ProjectFileSB.AppendLine("  <Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.props\" />");
+            ProjectFileSB.AppendLine("  <ImportGroup Label=\"ExtensionSettings\" />");
+            ProjectFileSB.AppendLine("  <PropertyGroup Label=\"UserMacros\" />");
+
         }
 
         string GetAppType()
@@ -164,15 +168,17 @@ namespace IshakBuildTool.Project
         {
             // TODO make a proper implementation for compiling.
 
+
             /*
-            engineSolutionFileString.AppendLine("    <NMakeBuildCommandLine>{0} {1}</NMakeBuildCommandLine>", EscapePath(NormalizeProjectPath(Builder.BuildScript)), BuildArguments);
-            engineSolutionFileString.AppendLine("    <NMakeReBuildCommandLine>{0} {1}</NMakeReBuildCommandLine>", EscapePath(NormalizeProjectPath(Builder.RebuildScript)), BuildArguments);
-            engineSolutionFileString.AppendLine("    <NMakeCleanCommandLine>{0} {1}</NMakeCleanCommandLine>", EscapePath(NormalizeProjectPath(Builder.CleanScript)), BuildArguments);
-            engineSolutionFileString.AppendLine("    <NMakeOutput>{0}</NMakeOutput>", NormalizeProjectPath(NMakePath.FullName));
+            ProjectFileSB.AppendLine("    <NMakeBuildCommandLine>{0} {1}</NMakeBuildCommandLine>", EscapePath(NormalizeProjectPath(Builder.BuildScript)), BuildArguments);
+            ProjectFileSB.AppendLine("    <NMakeReBuildCommandLine>{0} {1}</NMakeReBuildCommandLine>", EscapePath(NormalizeProjectPath(Builder.RebuildScript)), BuildArguments);
+            ProjectFileSB.AppendLine("    <NMakeCleanCommandLine>{0} {1}</NMakeCleanCommandLine>", EscapePath(NormalizeProjectPath(Builder.CleanScript)), BuildArguments);
+            ProjectFileSB.AppendLine("    <NMakeOutput>{0}</NMakeOutput>", NormalizeProjectPath(NMakePath.FullName));
             */
+            
 
             // TODO make language standard
-            ProjectFileSB.AppendLine("    <AdditionalOptions>{0}</AdditionalOptions>", "std:c++17");
+            ProjectFileSB.AppendLine("    <AdditionalOptions>{0}</AdditionalOptions>", "/std:c++17");
             ProjectFileSB.AppendLine("  </PropertyGroup>");
         }
 
