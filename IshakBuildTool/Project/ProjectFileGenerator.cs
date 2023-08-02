@@ -6,6 +6,7 @@ using IshakBuildTool.Utils;
 using System.Text;
 using IshakBuildTool.Build;
 using IshakBuildTool.Project.Modules;
+using IshakBuildTool.Platform;
 
 namespace IshakBuildTool.Project
 {
@@ -62,10 +63,7 @@ namespace IshakBuildTool.Project
             ProjectFileSB = new StringBuilder();
 
             ProjectFileSB.AppendLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
-            ProjectFileSB.AppendLine("<Project DefaultTargets=\"Build\" ToolsVersion=\"0.17\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">");
-            
-
-            
+            ProjectFileSB.AppendLine("<Project DefaultTargets=\"Build\" ToolsVersion=\"17.0\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">");                       
         }
 
         void WriteEngineProjectConfigurations()
@@ -100,7 +98,7 @@ namespace IshakBuildTool.Project
             ProjectFileSB.AppendLine("    <ProjectGuid>{0}</ProjectGuid>", ProjectToHandle.GetGUID());
             ProjectFileSB.AppendLine("    <Keyword>Win32Proj</Keyword>");
             ProjectFileSB.AppendLine("    <RootNamespace>{0}</RootNamespace>", ProjectToHandle.ProjectFile.ProjectName);
-            ProjectFileSB.AppendLine("    <PlatformToolset>{0}</PlatformToolset>", "v143");
+            ProjectFileSB.AppendLine("    <PlatformToolset>{0}</PlatformToolset>", "v170");
             ProjectFileSB.AppendLine("    <MinimumVisualStudioVersion>{0}</MinimumVisualStudioVersion>", "17.0");
             ProjectFileSB.AppendLine("    <VCProjectVersion>{0}</VCProjectVersion>", "17.0");
             ProjectFileSB.AppendLine("    <NMakeUseOemCodePage>true</NMakeUseOemCodePage>"); // Fixes mojibake with non-Latin character sets (UE-102825)
@@ -121,7 +119,7 @@ namespace IshakBuildTool.Project
 
                 ProjectFileSB.AppendLine("  <PropertyGroup {0} Label=\"Configuration\">", conditionString);                
                 ProjectFileSB.AppendLine("    <ConfigurationType>{0}</ConfigurationType>", GetAppType());
-                ProjectFileSB.AppendLine("    <PlatformToolset>{0}</PlatformToolset>", "v143");
+                ProjectFileSB.AppendLine("    <PlatformToolset>{0}</PlatformToolset>", "v170");
                 ProjectFileSB.AppendLine("  </PropertyGroup>");
             }
             
@@ -184,7 +182,7 @@ namespace IshakBuildTool.Project
             ProjectFileSB.AppendLine("  <PropertyGroup>");
 
 
-            string sharedIncludeDirectories = GetIncludePathSet();
+            string sharedIncludeDirectories = GetSharedIncludeFilesPaths();
             ProjectFileSB.AppendLine("    <IncludePath>$(IncludePath);{0}</IncludePath>", sharedIncludeDirectories);
             ProjectFileSB.AppendLine("    <NMakeForcedIncludes>$(NMakeForcedIncludes)</NMakeForcedIncludes>");
             ProjectFileSB.AppendLine("    <NMakeAssemblySearchPath>$(NMakeAssemblySearchPath)</NMakeAssemblySearchPath>");
@@ -209,12 +207,19 @@ namespace IshakBuildTool.Project
             return string.Empty;
         }
 
-        string GetIncludePathSet()
+        string GetSharedIncludeFilesPaths()
         {
             StringBuilder includePathsStrBuilder = new StringBuilder();
 
             // We should add the the engine source folder as a base include here.
-            includePathsStrBuilder.Append(DirectoryUtils.GetEngineSourceFolder());
+            includePathsStrBuilder.AppendFormat("{0};", DirectoryUtils.GetEngineSourceDir());     
+            
+            List<DirectoryReference> toolChainIncludeFiles = IshakBuildToolFramework.ToolChain.GetSharedDirectoriesFromToolChain();
+            foreach (DirectoryReference dir in toolChainIncludeFiles)
+            {
+                includePathsStrBuilder.AppendFormat("{0};", dir.Path);
+            }
+
             return includePathsStrBuilder.ToString();
         }
 
@@ -250,18 +255,25 @@ namespace IshakBuildTool.Project
                 }
                 else
                 {
-                    WriteStandardVCCompileTypeForFile(sourceFileRef, vcCompileType);
+                    WriteStandardVCCompileTypeForFile(sourceFileRef, vcCompileType, module);
                 }
 
                 FilterGenerator.AddFile(sourceFileRef);
             }
         }
 
-        void WriteStandardVCCompileTypeForFile(FileReference file, EVCFileType cvFileType)
+        void WriteStandardVCCompileTypeForFile(FileReference file, EVCFileType cvFileType, IshakModule module)
         {
             string fileRelativeToProjectFile = DirectoryUtils.MakeRelativeTo(file, ProjectToHandle.ProjectFile.GetProjectFileRef()).Path;
 
-            ProjectFileSB.AppendLine("    <{0} Include=\"{1}\"/>", cvFileType.ToString(), fileRelativeToProjectFile);
+            ProjectFileSB.AppendLine("    <{0} Include=\"{1}\">", cvFileType.ToString(), fileRelativeToProjectFile);
+
+            ProjectFileSB.AppendLine(
+                "      <AdditionalIncludeDirectories>$(NMakeIncludeSearchPath);{0};</AdditionalIncludeDirectories>",
+                module.ModulesDependencyDirsString + GetSharedIncludeFilesPaths());
+
+            ProjectFileSB.AppendLine("    </{0}>", cvFileType.ToString());
+
         }
 
         void WriteVCCompileTypeSourceFile(FileReference file, IshakModule fileParentModule)
@@ -279,7 +291,7 @@ namespace IshakBuildTool.Project
 
             ProjectFileSB.AppendLine(
                 "      <AdditionalIncludeDirectories>$(NMakeIncludeSearchPath);{0};</AdditionalIncludeDirectories>",
-                fileParentModule.ModulesDependencyDirsString + GetIncludePathSet());
+                fileParentModule.ModulesDependencyDirsString + GetSharedIncludeFilesPaths());
 
             ProjectFileSB.AppendLine("    </ClCompile>");
         }

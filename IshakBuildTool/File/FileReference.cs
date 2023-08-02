@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IshakBuildTool.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -30,6 +31,11 @@ namespace IshakBuildTool.ProjectFile
             Name = System.IO.Path.GetFileName(PathParm);
             Directory = GetDirectory();
             SetFileType();
+        }
+
+        public bool Exists()
+        {
+            return FileUtils.FileExists(this);
         }
 
         void SetFileType()
