@@ -59,11 +59,12 @@ namespace IshakBuildTool.ToolChain
 
         public List<DirectoryReference> GetSharedDirectoriesFromToolChain()
         {
-            List<DirectoryReference> sharedDirectories = new List<DirectoryReference>();
+            List<DirectoryReference> sharedDirectories = new List<DirectoryReference>();        
             
             sharedDirectories.Add(DirectoryUtils.Combine(Installation.ToolChainDir, "INCLUDE"));
-           
-            return sharedDirectories.Concat(WindowsPlatform.GetWindowsSDKIncludeDirs()).ToList();
+            sharedDirectories = sharedDirectories.Concat(WindowsPlatform.GetWindowsSDKIncludeDirs()).ToList();
+
+            return sharedDirectories;
         }
 
         public DirectoryReference GetDir()

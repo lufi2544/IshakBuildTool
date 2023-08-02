@@ -62,6 +62,11 @@ add engine files for now, when the moment comes and we have games, we are gonna 
 -> Find a way to access the engine intermediate directory form withint the managers, etc.
 -> Logger.
 
+
+-> Implement the shared include files for the header files in the project.
+
+	-> Review the tool chain, to see if it is possible to refactor. 
+
 //////////////
 
 

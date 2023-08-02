@@ -2,9 +2,6 @@
 
 // IBT
 using IshakBuildTool.Build;
-using IshakBuildTool.Platform;
-using IshakBuildTool.Project;
-using IshakBuildTool.Test;
 using IshakBuildTool.ToolChain;
 
 namespace IshakBuildTool

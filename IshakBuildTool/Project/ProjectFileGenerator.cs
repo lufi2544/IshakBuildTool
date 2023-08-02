@@ -63,10 +63,7 @@ namespace IshakBuildTool.Project
             ProjectFileSB = new StringBuilder();
 
             ProjectFileSB.AppendLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
-            ProjectFileSB.AppendLine("<Project DefaultTargets=\"Build\" ToolsVersion=\"0.17\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">");
-            
-
-            
+            ProjectFileSB.AppendLine("<Project DefaultTargets=\"Build\" ToolsVersion=\"17.0\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">");                       
         }
 
         void WriteEngineProjectConfigurations()
@@ -101,7 +98,7 @@ namespace IshakBuildTool.Project
             ProjectFileSB.AppendLine("    <ProjectGuid>{0}</ProjectGuid>", ProjectToHandle.GetGUID());
             ProjectFileSB.AppendLine("    <Keyword>Win32Proj</Keyword>");
             ProjectFileSB.AppendLine("    <RootNamespace>{0}</RootNamespace>", ProjectToHandle.ProjectFile.ProjectName);
-            ProjectFileSB.AppendLine("    <PlatformToolset>{0}</PlatformToolset>", "v143");
+            ProjectFileSB.AppendLine("    <PlatformToolset>{0}</PlatformToolset>", "v170");
             ProjectFileSB.AppendLine("    <MinimumVisualStudioVersion>{0}</MinimumVisualStudioVersion>", "17.0");
             ProjectFileSB.AppendLine("    <VCProjectVersion>{0}</VCProjectVersion>", "17.0");
             ProjectFileSB.AppendLine("    <NMakeUseOemCodePage>true</NMakeUseOemCodePage>"); // Fixes mojibake with non-Latin character sets (UE-102825)
@@ -122,7 +119,7 @@ namespace IshakBuildTool.Project
 
                 ProjectFileSB.AppendLine("  <PropertyGroup {0} Label=\"Configuration\">", conditionString);                
                 ProjectFileSB.AppendLine("    <ConfigurationType>{0}</ConfigurationType>", GetAppType());
-                ProjectFileSB.AppendLine("    <PlatformToolset>{0}</PlatformToolset>", "v143");
+                ProjectFileSB.AppendLine("    <PlatformToolset>{0}</PlatformToolset>", "v170");
                 ProjectFileSB.AppendLine("  </PropertyGroup>");
             }
             
