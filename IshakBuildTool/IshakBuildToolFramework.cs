@@ -2,6 +2,7 @@
 
 // IBT
 using IshakBuildTool.Build;
+using IshakBuildTool.Project.Modules;
 using IshakBuildTool.ToolChain;
 
 namespace IshakBuildTool
@@ -9,8 +10,8 @@ namespace IshakBuildTool
     /** Global Ishak Build Tool framework.  */
     internal class IshakBuildToolFramework
     {
-            
-        public static IshakToolChain ToolChain { get; set; }
+
+        public static IshakToolChain? ToolChain { get; set; } = null;
 
         public IshakBuildToolFramework() 
         {
@@ -24,13 +25,31 @@ namespace IshakBuildTool
             InitBuildProjectManager(cmdLineArgs);
             CreateToolChain();
 
+
+            // TODO Add an argument for compiling
+            
             string buildEnviromentRootDir = GetBuildEnviromentRootDir();
             var initMessage = String.Format(
                 "Starting IshakBuildTool for path: {0} ",
                 buildEnviromentRootDir);
 
             Console.WriteLine(initMessage);
-            GenerateProjectFilesHandler.GenerateProjectFiles();
+
+            // TODO change the return.
+            List<IshakModule> modules = GenerateProjectFilesHandler.GenerateProjectFiles();
+
+
+            Console.WriteLine();
+            Console.WriteLine("----  Compilation Started  -----");
+            Console.WriteLine();
+
+            // Change the architecture
+            ToolChain.CompileModules(modules).GetAwaiter().GetResult();
+
+            // For now
+            Console.WriteLine();
+            Console.WriteLine("----  Compilation Finished  ----");
+            Console.WriteLine();
         }
 
         static void CreateToolChain()

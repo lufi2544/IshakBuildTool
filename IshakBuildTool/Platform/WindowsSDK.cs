@@ -26,13 +26,13 @@ namespace IshakBuildTool.Platform
         });
 
         public List<DirectoryReference> IncludeDirectories = new List<DirectoryReference>();
-        public List<DirectoryReference> LibraryDirectories = new List<DirectoryReference>();
+        public List<FileReference> LibraryFiles = new List<FileReference>();
 
         /** Main Directories that include the SDK main headers.( Windows.h  for example) */
-        List<DirectoryReference> MainSDKLibraryDirectories = new List<DirectoryReference>();   
-        DirectoryReference Directory { get; set; }
+        List<DirectoryReference> MainSDKLibraryDirectories = new List<DirectoryReference>();
+        DirectoryReference? Directory { get; set; } = null;
         VersionData WindowsVersion = new VersionData(); 
-        EWindowsArchitecture Architecture;        
+        EWindowsArchitecture Architecture;               
 
         public WindowsSDK() 
         {             
@@ -41,7 +41,11 @@ namespace IshakBuildTool.Platform
 
             Init();
         }
-      
+
+        public EWindowsArchitecture GetArchitecture() 
+        { 
+            return Architecture; 
+        }
     
         void Init()
         {
@@ -161,10 +165,9 @@ namespace IshakBuildTool.Platform
                 IncludePaths.Add(DirectoryReference.Combine(IncludeRootDir, "cppwinrt"));
             }*/
 
-            DirectoryReference windowsLibraryRootDir  = DirectoryUtils.Combine(Directory, "lib", WindowsVersion.ToString());            
-            LibraryDirectories.Add(DirectoryUtils.Combine(windowsLibraryRootDir, "ucrt", Architecture.ToString()));
-            LibraryDirectories.Add(DirectoryUtils.Combine(windowsLibraryRootDir, "um", Architecture.ToString()));
-
+            DirectoryReference windowsLibraryRootDir  = DirectoryUtils.Combine(Directory, "lib", WindowsVersion.VersionStr);            
+            LibraryFiles.Add(FileUtils.Combine(windowsLibraryRootDir, "ucrt", Architecture.ToString(), "libucrt.lib"));
+            LibraryFiles.Add(FileUtils.Combine(windowsLibraryRootDir, "um", Architecture.ToString(), "kernel32.lib"));            
 
             // TODO Add Intel specific math library when using intel
 

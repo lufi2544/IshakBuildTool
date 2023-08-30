@@ -98,7 +98,6 @@ namespace IshakBuildTool.Utils
                 dirRef.Path += DirectoryReference.DirectorySeparatorChar;                                
             }
 
-
             string combinedPath = dirRef.Path;            
             for (int idx = 0; idx < valuesToCombine.Length; ++idx)
             {
@@ -124,15 +123,16 @@ namespace IshakBuildTool.Utils
             return new DirectoryReference(combinedPath);
         } 
 
-        public static void TryCreateDirectory(string dirPath)
+        public static void TryCreateDirectory(DirectoryReference dir)
         {
-            DirectoryInfo dirInfo = new DirectoryInfo(dirPath);
+            DirectoryInfo dirInfo = new DirectoryInfo(dir.Path);
 
             if (!dirInfo.Exists)
             {
                 dirInfo.Create();
             }
         }
+
 
         public static bool DirectoryExists(DirectoryReference dirRef)
         {

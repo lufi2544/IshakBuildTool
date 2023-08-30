@@ -1,4 +1,5 @@
 ﻿using IshakBuildTool.Platform;
+using IshakBuildTool.Project.Modules;
 using IshakBuildTool.ProjectFile;
 using IshakBuildTool.ToolChain.Windows;
 using IshakBuildTool.Utils;
@@ -11,7 +12,6 @@ namespace IshakBuildTool.ToolChain
     /** Different resources for the internal toolchain of the Tool( Compiler, Linker... ) */
     internal class IshakToolChain
     {
-
 
         struct ToolChainInstallation
         {
@@ -32,14 +32,15 @@ namespace IshakBuildTool.ToolChain
             public DirectoryReference? ToolChainDir = null; 
             DirectoryReference? RedistDir = null;
             EWindowsArchitecture Architecture;
-            VersionData? VersionData = null;
+            VersionData? VersionData = null;            
         }
 
         /** 
          *  Compiler for the IshakBuildTool Enviro.
          *  By default: we are gonna use the MVS compiler.
          */
-        Compiler Compiler = new Compiler();
+        Compiler? Compiler;
+        ECompilerType CompilerType = ECompilerType.MSVC;
 
         /** Wrapper for the Windows Platform. */
         public WindowsPlatform WindowsPlatform = new WindowsPlatform();
@@ -49,22 +50,32 @@ namespace IshakBuildTool.ToolChain
         ToolChainInstallation Installation { get; set; }
 
         public IshakToolChain()
-        {
-            // We could add some other compilers here like CLang or others.
-            if (Compiler.CompilerType == ECompilerType.MVSC)
-            { 
-                SetVisualStudioInstallation(); 
-            }          
+        {                        
+            SetVisualStudioInstallation();
+            CreateCompiler();       
         }
 
         public List<DirectoryReference> GetSharedDirectoriesFromToolChain()
         {
             List<DirectoryReference> sharedDirectories = new List<DirectoryReference>();        
             
-            sharedDirectories.Add(DirectoryUtils.Combine(Installation.ToolChainDir, "INCLUDE"));
-            sharedDirectories = sharedDirectories.Concat(WindowsPlatform.GetWindowsSDKIncludeDirs()).ToList();
+            sharedDirectories.Add(DirectoryUtils.Combine(Installation.ToolChainDir, "include"));
+            sharedDirectories = sharedDirectories.Concat(WindowsPlatform.GetWindowsSDKIncludeDirs()).ToList();                      
 
             return sharedDirectories;
+        }
+
+        public List<FileReference> GetSharedSystemLibs()
+        {
+            List<FileReference> systemLinkedLibs = new List<FileReference>();
+            //libPathArgs.Append("/LIBPATH:\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.36.32532\\lib\\x64\"");
+
+            // TODO PLATFORM get the actual platform here.
+            systemLinkedLibs.Add(FileUtils.Combine(Installation.ToolChainDir, "lib", WindowsPlatform.GetWindowsArchitecture().ToString(), "libcmt.lib"));
+            systemLinkedLibs.Add(FileUtils.Combine(Installation.ToolChainDir, "lib", WindowsPlatform.GetWindowsArchitecture().ToString(), "libcpmt.lib"));            
+            systemLinkedLibs.AddRange(WindowsPlatform.GetWindowsSystemLibs());
+
+            return systemLinkedLibs;
         }
 
         public DirectoryReference GetDir()
@@ -79,14 +90,29 @@ namespace IshakBuildTool.ToolChain
         }
 
 
+        public async Task CompileModules(List<IshakModule> modules)
+        {
+            await Compiler?.CompileModules(modules);
+        }
+
+        void CreateCompiler()
+        {
+            // We could add some other compilers here like CLang or others.
+            Compiler = new Compiler(
+                Installation.ToolChainDir,
+                CompilerType, 
+                GetSharedDirectoriesFromToolChain(), 
+                GetSharedSystemLibs());
+        }
+
         void SetVisualStudioInstallation()
         {
             if (VisualStudioInstallation != null)
             {
                 // never init 2 times
                 throw new SystemException { };
-            }
-           
+            }            
+
             VisualStudioInstallation = GetVisualStudioInstallationInTheSystem();
             // find the visual studio tool chains and set value, once the installation has been found.
             FindVisualStudioToolChainAndSetProperties();
@@ -155,6 +181,9 @@ namespace IshakBuildTool.ToolChain
         }
         void FindVisualStudioToolChainAndSetProperties()
         {
+
+            
+
             DirectoryReference baseVSToolChainDir = DirectoryUtils.Combine(VisualStudioInstallation.Directory, "VC", "Tools", "MSVC");
             DirectoryReference redistBaseDir = DirectoryUtils.Combine(VisualStudioInstallation.Directory, "VC", "Redist", "MSVC");
             Installation = CreateVisualStudioInstallation(baseVSToolChainDir, redistBaseDir);
@@ -212,7 +241,7 @@ namespace IshakBuildTool.ToolChain
             DirectoryReference toolChainDir,
             DirectoryReference? optionalRedistDirParam)
         {
-            DirectoryReference? redistDir;
+            DirectoryReference redistDir;
             if (optionalRedistDirParam == null)
             {
                 redistDir = DirectoryUtils.Combine(toolChainDir, "redist");
@@ -238,7 +267,7 @@ namespace IshakBuildTool.ToolChain
 
         ToolChainInstallation CreateCppVisualStudioInstallation(DirectoryReference toolChainDir, DirectoryReference redistDir, VersionData versionData)
         {
-            // TODO Platform, maybe checking the platform here for different ones: ARMx64...            
+            // TODO PLATFORM, maybe checking the platform here for different ones: ARMx64...            
             return new ToolChainInstallation(toolChainDir, redistDir, EWindowsArchitecture.x64, versionData); ;
         }
        

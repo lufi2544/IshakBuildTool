@@ -29,8 +29,7 @@ namespace IshakBuildTool.Utils
                 dirRefCopy.Path += DirectoryReference.DirectorySeparatorChar;
             }
 
-            string combinedPath = dirRefCopy.Path;
-            combinedPath += DirectoryReference.DirectorySeparatorChar;
+            string combinedPath = dirRefCopy.Path;            
             for (int idx = 0; idx < valuesToCombine.Length; ++idx)
             {
                 string value = valuesToCombine[idx];

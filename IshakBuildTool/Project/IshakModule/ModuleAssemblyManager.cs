@@ -75,7 +75,7 @@ namespace IshakBuildTool.Project.Modules
         Assembly? HandleModulesAssemblyCompilation(FileReference assemblyFileRef, List<FileReference> modulesCreationFiles)
         {
             // Create Directory For Assembly if not existed.
-            DirectoryUtils.TryCreateDirectory(assemblyFileRef.Directory.Path);
+            DirectoryUtils.TryCreateDirectory(assemblyFileRef.Directory);
 
             List<SyntaxTree> parsedModulesSyntaxTrees;
             List<MetadataReference> metadataReferences;            

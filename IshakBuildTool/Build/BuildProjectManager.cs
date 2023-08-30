@@ -21,6 +21,7 @@ namespace IshakBuildTool.Build
         public string SourceDir { get; set; } = string.Empty;
         public string IntermediateDir { get; set; } = string.Empty;
         public string ProjectFilesDir { get; set; } = string.Empty;
+        public string BinaryDir { get; set; } = string.Empty;  
 
         public string ProjectType { get; set; } = string.Empty;        
     }
@@ -29,7 +30,7 @@ namespace IshakBuildTool.Build
     {
         static BuildProjectManager? SingleTonProjectManager = null; 
 
-        public CommandLineArgs CommandLineArgs { get; set; }
+        public CommandLineArgs? CommandLineArgs { get; set; } = null;
       
         private EntireProjectDirectoryParams ThisEntireProjectDirectoryParams { get; set; }
 
@@ -79,6 +80,7 @@ namespace IshakBuildTool.Build
             string IntermediateDir = BaseDir + "Intermediate" + Path.DirectorySeparatorChar;
             string ProjectFilesDir = IntermediateDir + "ProjectFiles" + Path.DirectorySeparatorChar;
 
+            outParams.BinaryDir = BaseDir + "Binaries";
             outParams.SourceDir = SourceDir;
             outParams.IntermediateDir = IntermediateDir;
             outParams.ProjectFilesDir = ProjectFilesDir;

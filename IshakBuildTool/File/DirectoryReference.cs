@@ -7,7 +7,7 @@ namespace IshakBuildTool.ProjectFile
 {
     public class DirectoryReference
     {
-        public static char DirectorySeparatorChar = System.IO.Path.DirectorySeparatorChar;
+        public static char DirectorySeparatorChar = System.IO.Path.DirectorySeparatorChar;        
         public string Path { get; set; } = string.Empty;        
         
         public DirectoryReference() 

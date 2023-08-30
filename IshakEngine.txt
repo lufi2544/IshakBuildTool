@@ -1,6 +1,19 @@
 
 ----- HERE -----
 
+
+Compilation: 
+"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.36.32532\bin\Hostx64\x64\link.exe
+
+/LIBPATH:"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.36.32532\lib\x64"
+ /LIBPATH:"C:\Program Files (x86)\Windows Kits\10\Lib\10.0.19041.0\um\x64" 
+/LIBPATH:"C:\Program Files (x86)\Windows Kits\10\Lib\10.0.19041.0\ucrt\x64"
+libcmt.lib
+kernel32.lib
+liburct.lib
+
+
+
 Ishak Engine UBT 1176
 
 { 
@@ -59,13 +72,10 @@ add engine files for now, when the moment comes and we have games, we are gonna 
 
 //// TODO ////
 
--> Find a way to access the engine intermediate directory form withint the managers, etc.
--> Logger.
+-> Investigate how the dep.json are created.
+-> Investigate more about the compilers and the linkers.
 
-
--> Implement the shared include files for the header files in the project.
-
-	-> Review the tool chain, to see if it is possible to refactor. 
+	-> compile and link for a lib: "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.36.32532\bin\Hostx64\x64\link.exe" /DLL /OUT:MathFunctions.dll MathFunctions.obj /LIBPATH:"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.36.32532\lib\x64" /DEFAULTLIB:LIBCMT.lib /LIBPATH:"C:\Program Files (x86)\Windows Kits\10\Lib\10.0.19041.0\um\x64" /DEFAULTLIB:kernel32.lib /LIBPATH:"C:\Program Files (x86)\Windows Kits\10\Lib\10.0.19041.0\ucrt\x64" /DEFAULTLIB:libucrt.lib
 
 //////////////
 

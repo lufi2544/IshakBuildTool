@@ -21,6 +21,15 @@ namespace IshakBuildTool.Platform
             return WindowsSDK.IncludeDirectories;
         }
 
+        public EWindowsArchitecture GetWindowsArchitecture()
+        {
+            return WindowsSDK.GetArchitecture();
+        }
+
+        public List<FileReference> GetWindowsSystemLibs()
+        {
+            return WindowsSDK.LibraryFiles;
+        }
 
     }
 }

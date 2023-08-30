@@ -1,4 +1,5 @@
 ﻿using IshakBuildTool.Project.Modules;
+using IshakBuildTool.ToolChain;
 
 namespace IshakBuildTool.Build
 {
@@ -6,7 +7,7 @@ namespace IshakBuildTool.Build
     public class GenerateProjectFilesHandler
     {
         
-        public static void GenerateProjectFiles()
+        public static List<IshakModule> GenerateProjectFiles()
         {                       
             // First we have to create the modules.
             List<IshakModule> createdModules = CreateModules();
@@ -16,6 +17,8 @@ namespace IshakBuildTool.Build
 
             // Creates the .sln file for the Development Enviroment
             ishakBuildToolBuildContext.CreateSolutionFile();                                                        
+
+            return createdModules;
         }
 
         static List<IshakModule> CreateModules()
