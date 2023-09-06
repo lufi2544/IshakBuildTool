@@ -21,6 +21,7 @@ namespace IshakBuildTool.Project.Modules
         public DirectoryReference? PublicDirectoryRef { get; set; }
         public DirectoryReference? PrivateDirectoryRef { get; set; }
 
+        public FileReference? ModuleDllImportFile { get; set; }
         public FileReference? ModuleDllFile { get; set; }
 
         public DirectoryReference? Directory { get; set; }
@@ -42,7 +43,8 @@ namespace IshakBuildTool.Project.Modules
             Directory = moduleFileRef.Directory;
             Name = moduleFileRef.GetFileNameWithoutExtension();
             BinariesDirectory = DirectoryUtils.Combine(new DirectoryReference(BuildProjectManager.GetInstance().GetProjectDirectoryParams().BinaryDir), Name.ToString());
-            ModuleDllFile = new FileReference(FileUtils.Combine(BinariesDirectory, Name + BinaryTypesExtension.StaticLib).Path);
+            ModuleDllImportFile = new FileReference(FileUtils.Combine(new DirectoryReference(BuildProjectManager.GetInstance().GetProjectDirectoryParams().BinaryDir), Name + BinaryTypesExtension.StaticLib).Path);
+            ModuleDllFile = new FileReference(FileUtils.Combine(new DirectoryReference(BuildProjectManager.GetInstance().GetProjectDirectoryParams().BinaryDir), Name + BinaryTypesExtension.DynamicLib).Path);
             PublicDependentModules = moduleBuilder.PublicModuleDependencies;
             PrivateDependentModules = moduleBuilder.PrivateModuleDependencies;
             ModuleManager = moduleManager;

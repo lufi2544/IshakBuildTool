@@ -402,59 +402,6 @@ namespace IshakBuildTool.ToolChain
             return dependencyModules;
         }
 
-        Task CreateExecutable(FileReference entryPointFile, List<IshakModule> modules, IshakModule entryPointModule)
-        {
-            FileReference linkerFile = FileUtils.Combine(ToolChainDirectory, "bin", "Hostx64", "x64", "link.exe");
-
-            StringBuilder args = new StringBuilder();
-
-            StringBuilder ishakEngineExecutablePath = new StringBuilder();
-
-            // TODO Create the File?
-            ishakEngineExecutablePath.AppendFormat("{0}{1}", BuildProjectManager.GetInstance().GetProjectDirectoryParams().BinaryDir + DirectoryReference.DirectorySeparatorChar + Globals.IshakTypes.IshakEngineName, BinaryTypesExtension.Executable);
-            args.Append("/NOLOGO ");
-            args.AppendFormat("/OUT:{0} ", ishakEngineExecutablePath.ToString());
-            args.AppendFormat("{0} ", entryPointModule.BinariesDirectory.Path + DirectoryReference.DirectorySeparatorChar + entryPointFile.GetFileNameWithoutExtension() + BinaryTypesExtension.ObjFile);
-
-            foreach (IshakModule module in modules)
-            {
-                args.AppendFormat("/LIBPATH:\"{0}\" {1} ", module.ModuleDllFile.Directory.Path, module.ModuleDllFile.Name);
-            }
-
-            // Adding the system libraries like STL and other windows include files.
-            foreach (FileReference systemLibFile in SystemSharedLibs)
-            {
-                args.AppendFormat("/LIBPATH:\"{0}\" {1} ", systemLibFile.Directory.Path, systemLibFile.Name);
-            }
-
-            ProcessStartInfo exeFileProcessInfo = new ProcessStartInfo(linkerFile.Path, args.ToString());
-            exeFileProcessInfo.RedirectStandardOutput = true;
-            exeFileProcessInfo.RedirectStandardError = true;
-            exeFileProcessInfo.UseShellExecute = false;
-            exeFileProcessInfo.CreateNoWindow = true;
-            Task exeTask = Task.Run(() => {
-                using (var exeProcess = Process.Start(exeFileProcessInfo))
-                {
-
-                    exeProcess.OutputDataReceived += (sender, eventArgs) =>
-                    {
-                        StringBuilder compilingLog = new StringBuilder();
-                        if (eventArgs.Data != null)
-                        {
-                            compilingLog.AppendFormat("Creating EXE:{0}", eventArgs.Data);
-                            Console.WriteLine(compilingLog.ToString());
-                        }
-                    };
-
-
-                    exeProcess.BeginOutputReadLine();
-                    exeProcess.WaitForExit();
-                }
-            });
-
-            return exeTask;
-        }
-
 
         // TODO Here, Explore a new object of priority tasks.
         Task LinkModule(IshakModule module)
@@ -469,12 +416,8 @@ namespace IshakBuildTool.ToolChain
             StringBuilder linkingArgs = new StringBuilder();
             linkingArgs.Append("/NOLOGO ");
             linkingArgs.Append("/DLL ");
-            StringBuilder objFilesString = new StringBuilder();
-            FileReference moduleDllFile = new FileReference(FileUtils.Combine(module.BinariesDirectory, module.Name + BinaryTypesExtension.DynamicLib).Path);
-            linkingArgs.AppendFormat("/OUT:\"{0}\" ", moduleDllFile.Path);
-
-
-
+            StringBuilder objFilesString = new StringBuilder();            
+            linkingArgs.AppendFormat("/OUT:\"{0}\" ", module.ModuleDllFile.Path);
 
             // Set the System Shared Library Paths for the Linker
             StringBuilder libPathArgs = new StringBuilder();
@@ -486,7 +429,7 @@ namespace IshakBuildTool.ToolChain
             // they are actually constructed to avoid infinite loops.
             foreach (IshakModule dependentModule in GetModuleLinkDependencies(module))
             {                                
-                libPathArgs.AppendFormat("/LIBPATH:\"{0}\" {1} ", dependentModule.ModuleDllFile.Directory.Path, dependentModule.Name);
+                libPathArgs.AppendFormat("/LIBPATH:\"{0}\" {1} ", dependentModule.ModuleDllImportFile.Directory.Path, dependentModule.ModuleDllImportFile.Name);
             }
 
             // Adding the system libraries like STL and other windows include files.
@@ -536,6 +479,59 @@ namespace IshakBuildTool.ToolChain
             module.bDllSetToCompiled = true;
 
             return linkTask;
+        }
+
+        Task CreateExecutable(FileReference entryPointFile, List<IshakModule> modules, IshakModule entryPointModule)
+        {
+            FileReference linkerFile = FileUtils.Combine(ToolChainDirectory, "bin", "Hostx64", "x64", "link.exe");
+
+            StringBuilder args = new StringBuilder();
+
+            StringBuilder ishakEngineExecutablePath = new StringBuilder();
+
+            // TODO Create the File?
+            ishakEngineExecutablePath.AppendFormat("{0}{1}", BuildProjectManager.GetInstance().GetProjectDirectoryParams().BinaryDir + DirectoryReference.DirectorySeparatorChar + Globals.IshakTypes.IshakEngineName, BinaryTypesExtension.Executable);
+            args.Append("/NOLOGO ");
+            args.AppendFormat("/OUT:{0} ", ishakEngineExecutablePath.ToString());
+            args.AppendFormat("{0} ", entryPointModule.BinariesDirectory.Path + DirectoryReference.DirectorySeparatorChar + entryPointFile.GetFileNameWithoutExtension() + BinaryTypesExtension.ObjFile);
+
+            foreach (IshakModule module in modules)
+            {
+                args.AppendFormat("/LIBPATH:\"{0}\" {1} ", module.ModuleDllImportFile.Directory.Path, module.ModuleDllImportFile.Name);
+            }
+
+            // Adding the system libraries like STL and other windows include files.
+            foreach (FileReference systemLibFile in SystemSharedLibs)
+            {
+                args.AppendFormat("/LIBPATH:\"{0}\" {1} ", systemLibFile.Directory.Path, systemLibFile.Name);
+            }
+
+            ProcessStartInfo exeFileProcessInfo = new ProcessStartInfo(linkerFile.Path, args.ToString());
+            exeFileProcessInfo.RedirectStandardOutput = true;
+            exeFileProcessInfo.RedirectStandardError = true;
+            exeFileProcessInfo.UseShellExecute = false;
+            exeFileProcessInfo.CreateNoWindow = true;
+            Task exeTask = Task.Run(() => {
+                using (var exeProcess = Process.Start(exeFileProcessInfo))
+                {
+
+                    exeProcess.OutputDataReceived += (sender, eventArgs) =>
+                    {
+                        StringBuilder compilingLog = new StringBuilder();
+                        if (eventArgs.Data != null)
+                        {
+                            compilingLog.AppendFormat("Creating EXE:{0}", eventArgs.Data);
+                            Console.WriteLine(compilingLog.ToString());
+                        }
+                    };
+
+
+                    exeProcess.BeginOutputReadLine();
+                    exeProcess.WaitForExit();
+                }
+            });
+
+            return exeTask;
         }
 
     }
