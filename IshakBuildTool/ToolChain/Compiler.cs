@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Text;
 using IshakBuildTool.Platform;
 using IshakBuildTool.Build;
+using System.Reflection;
 
 namespace IshakBuildTool.ToolChain
 {
@@ -25,6 +26,8 @@ namespace IshakBuildTool.ToolChain
          * Class in charge of compiling the modules in a way that recursively the files will be generated for the module that we're compiling 
          * and the modules that this is dependant on. So for example:
          * 
+         * 
+         * TODO BUILD DOCU
          *  -> if we are compiling the Renderer and is dependant in Core and Window modules:
          *      - We compile Renderer source files.
          *      - We check if the Core.dll has been created, if not, then we compile its files and create it.
@@ -184,17 +187,39 @@ namespace IshakBuildTool.ToolChain
          *  
          */
         public async Task BuildModules(List<IshakModule> engineModules)
-        {
-            //------------------------
-            // TODO REFACTOR For now we are just gonna add all the .h files for compiling.
-            // In the future I am gonna build this recursively.
-
-            // MODULE DEPENDENCY HANDLER            
-
-            //-----------------------
-            
+        {                        
             DependencyCompilationHandler dependencyCompilationHandler = new DependencyCompilationHandler(this, engineModules);           
             await dependencyCompilationHandler.BuildModules();            
+        }
+
+        public async Task BuildExecutable(List<IshakModule> engineModules)
+        {
+
+            // Get the Entry Point File.
+            FileReference? windowsEntryPointFile = null;
+            IshakModule? entryPointModule = null;
+            foreach (var module in engineModules)
+            {
+                if (module.Name == "Core")
+                {
+                    foreach (FileReference file in module.SourceFiles)
+                    {
+                        if (file.Name == "LaunchEngine.cpp")
+                        {
+                            windowsEntryPointFile = file;
+                            entryPointModule = module;
+                            break;
+                        }
+                    }
+                }
+
+                if (windowsEntryPointFile != null)
+                {
+                    break;
+                }
+            }
+
+            await CreateExecutable(windowsEntryPointFile, engineModules, entryPointModule);
         }
 
 
@@ -377,6 +402,59 @@ namespace IshakBuildTool.ToolChain
             return dependencyModules;
         }
 
+        Task CreateExecutable(FileReference entryPointFile, List<IshakModule> modules, IshakModule entryPointModule)
+        {
+            FileReference linkerFile = FileUtils.Combine(ToolChainDirectory, "bin", "Hostx64", "x64", "link.exe");
+
+            StringBuilder args = new StringBuilder();
+
+            StringBuilder ishakEngineExecutablePath = new StringBuilder();
+
+            // TODO Create the File?
+            ishakEngineExecutablePath.AppendFormat("{0}{1}", BuildProjectManager.GetInstance().GetProjectDirectoryParams().BinaryDir + DirectoryReference.DirectorySeparatorChar + Globals.IshakTypes.IshakEngineName, BinaryTypesExtension.Executable);
+            args.Append("/NOLOGO ");
+            args.AppendFormat("/OUT:{0} ", ishakEngineExecutablePath.ToString());
+            args.AppendFormat("{0} ", entryPointModule.BinariesDirectory.Path + DirectoryReference.DirectorySeparatorChar + entryPointFile.GetFileNameWithoutExtension() + BinaryTypesExtension.ObjFile);
+
+            foreach (IshakModule module in modules)
+            {
+                args.AppendFormat("/LIBPATH:\"{0}\" {1} ", module.ModuleDllFile.Directory.Path, module.ModuleDllFile.Name);
+            }
+
+            // Adding the system libraries like STL and other windows include files.
+            foreach (FileReference systemLibFile in SystemSharedLibs)
+            {
+                args.AppendFormat("/LIBPATH:\"{0}\" {1} ", systemLibFile.Directory.Path, systemLibFile.Name);
+            }
+
+            ProcessStartInfo exeFileProcessInfo = new ProcessStartInfo(linkerFile.Path, args.ToString());
+            exeFileProcessInfo.RedirectStandardOutput = true;
+            exeFileProcessInfo.RedirectStandardError = true;
+            exeFileProcessInfo.UseShellExecute = false;
+            exeFileProcessInfo.CreateNoWindow = true;
+            Task exeTask = Task.Run(() => {
+                using (var exeProcess = Process.Start(exeFileProcessInfo))
+                {
+
+                    exeProcess.OutputDataReceived += (sender, eventArgs) =>
+                    {
+                        StringBuilder compilingLog = new StringBuilder();
+                        if (eventArgs.Data != null)
+                        {
+                            compilingLog.AppendFormat("Creating EXE:{0}", eventArgs.Data);
+                            Console.WriteLine(compilingLog.ToString());
+                        }
+                    };
+
+
+                    exeProcess.BeginOutputReadLine();
+                    exeProcess.WaitForExit();
+                }
+            });
+
+            return exeTask;
+        }
+
 
         // TODO Here, Explore a new object of priority tasks.
         Task LinkModule(IshakModule module)
@@ -442,7 +520,7 @@ namespace IshakBuildTool.ToolChain
                         StringBuilder compilingLog = new StringBuilder();
                         if (eventArgs.Data != null)
                         {
-                            compilingLog.AppendFormat("Link: {0}", eventArgs.Data);
+                            compilingLog.AppendFormat("Link:{0}", eventArgs.Data);
                             Console.WriteLine(compilingLog.ToString());
                         }
                     };

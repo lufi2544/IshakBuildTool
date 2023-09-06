@@ -3,6 +3,7 @@
 // IBT
 using IshakBuildTool.Build;
 using IshakBuildTool.Project.Modules;
+using IshakBuildTool.ProjectFile;
 using IshakBuildTool.ToolChain;
 
 namespace IshakBuildTool
@@ -39,17 +40,23 @@ namespace IshakBuildTool
             List<IshakModule> modules = GenerateProjectFilesHandler.GenerateProjectFiles();
 
 
+            // TODO FUNCTION
+
             Console.WriteLine();
             Console.WriteLine("----  Compilation Started  -----");
             Console.WriteLine();
 
-            // Change the architecture
+            // TODO Add to a single Function BuildMo
+            // Build all the modules => Compiling / Linking
             ToolChain.BuildModules(modules).GetAwaiter().GetResult();
 
             // For now
             Console.WriteLine();
             Console.WriteLine("----  Compilation Finished  ----");
             Console.WriteLine();
+
+            // Create the Exe
+            ToolChain.CreateExecutable(modules).GetAwaiter().GetResult();
         }
 
         static void CreateToolChain()

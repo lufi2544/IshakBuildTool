@@ -94,6 +94,11 @@ namespace IshakBuildTool.ToolChain
             await Compiler?.BuildModules(modules);
         }
 
+        public async Task CreateExecutable( List<IshakModule> modules)
+        {
+            await Compiler?.BuildExecutable(modules);
+        }
+
         void CreateCompiler()
         {
             // We could add some other compilers here like CLang or others.

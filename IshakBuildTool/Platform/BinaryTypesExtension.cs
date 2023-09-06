@@ -12,5 +12,6 @@ namespace IshakBuildTool.Platform
         public static string DynamicLib = ".dll";
         public static string StaticLib = ".lib";
         public static string ObjFile = ".obj";
+        public static string Executable = ".exe";
     }
 }
