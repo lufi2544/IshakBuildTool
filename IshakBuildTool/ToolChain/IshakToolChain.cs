@@ -87,9 +87,11 @@ namespace IshakBuildTool.ToolChain
         }
 
 
-        public async Task CompileModules(List<IshakModule> modules)
+        public async Task BuildModules(List<IshakModule> modules)
         {
-            await Compiler?.CompileModules(modules);
+            // TODO Separate between compiler and linker.
+            // TODO Exception for circular dependency on the modules dependencies.
+            await Compiler?.BuildModules(modules);
         }
 
         void CreateCompiler()

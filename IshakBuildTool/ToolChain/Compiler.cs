@@ -110,7 +110,7 @@ namespace IshakBuildTool.ToolChain
                 List<IshakModule> modulesReadyToBuild = ModuleDependencyTree.GetDependentSortedModules();
 
                 // TODO VARIABLE
-                SemaphoreSlim semaphore = new SemaphoreSlim(2);
+                SemaphoreSlim semaphore = new SemaphoreSlim(20);
 
                 await Parallel.ForEachAsync(modulesReadyToBuild, async (module, cancellatinToken) =>
                 {
@@ -183,7 +183,7 @@ namespace IshakBuildTool.ToolChain
          *  Recursively we are gonna compile and link the different modules.
          *  
          */
-        public async Task CompileModules(List<IshakModule> engineModules)
+        public async Task BuildModules(List<IshakModule> engineModules)
         {
             //------------------------
             // TODO REFACTOR For now we are just gonna add all the .h files for compiling.
@@ -389,6 +389,7 @@ namespace IshakBuildTool.ToolChain
             List<FileReference> moduleObjFiles = GetObjFilesForModule(module);            
 
             StringBuilder linkingArgs = new StringBuilder();
+            linkingArgs.Append("/NOLOGO ");
             linkingArgs.Append("/DLL ");
             StringBuilder objFilesString = new StringBuilder();
             FileReference moduleDllFile = new FileReference(FileUtils.Combine(module.BinariesDirectory, module.Name + BinaryTypesExtension.DynamicLib).Path);

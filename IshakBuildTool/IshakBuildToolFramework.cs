@@ -44,7 +44,7 @@ namespace IshakBuildTool
             Console.WriteLine();
 
             // Change the architecture
-            ToolChain.CompileModules(modules).GetAwaiter().GetResult();
+            ToolChain.BuildModules(modules).GetAwaiter().GetResult();
 
             // For now
             Console.WriteLine();
