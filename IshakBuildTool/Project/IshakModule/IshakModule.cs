@@ -1,4 +1,5 @@
 ﻿using IshakBuildTool.Build;
+using IshakBuildTool.Platform;
 using IshakBuildTool.ProjectFile;
 using IshakBuildTool.Utils;
 using System.Diagnostics;
@@ -8,13 +9,19 @@ namespace IshakBuildTool.Project.Modules
 {
     /** Engine Module */
     public class IshakModule
-    {
+    {        
+        public bool bCompiled { get; set; }
+
+        public bool bDllSetToCompiled { get; set; }
+
         public FileReference ModuleFile { get; set; }
         public string Name { get; set; }
 
         public string? APIMacroName { get; set; } = null;
         public DirectoryReference? PublicDirectoryRef { get; set; }
         public DirectoryReference? PrivateDirectoryRef { get; set; }
+
+        public FileReference? ModuleDllFile { get; set; }
 
         public DirectoryReference? Directory { get; set; }
 
@@ -26,15 +33,16 @@ namespace IshakBuildTool.Project.Modules
         public List<FileReference>? SourceFiles { get; set; }
 
         ModuleManager ModuleManager;
-        List<string>? PublicDependentModules;
-        List<string>? PrivateDependentModules;
+        public List<string>? PublicDependentModules;
+        public List<string>? PrivateDependentModules;
 
         public IshakModule(ModuleBuilder moduleBuilder,  FileReference moduleFileRef, ModuleManager moduleManager)
-        {
+        {            
             ModuleFile = moduleFileRef;  
             Directory = moduleFileRef.Directory;
             Name = moduleFileRef.GetFileNameWithoutExtension();
             BinariesDirectory = DirectoryUtils.Combine(new DirectoryReference(BuildProjectManager.GetInstance().GetProjectDirectoryParams().BinaryDir), Name.ToString());
+            ModuleDllFile = new FileReference(FileUtils.Combine(BinariesDirectory, Name + BinaryTypesExtension.StaticLib).Path);
             PublicDependentModules = moduleBuilder.PublicModuleDependencies;
             PrivateDependentModules = moduleBuilder.PrivateModuleDependencies;
             ModuleManager = moduleManager;
@@ -44,7 +52,43 @@ namespace IshakBuildTool.Project.Modules
             MakePrivateDir();
             BuildModuleDependentDirectoriesString(); 
             AddSourceFiles();
-        }              
+        }        
+        
+        // TODO BUILDREFACTOR MAKE DIRREF LIST WORK !!
+        public List<string> GetIncludeDirsForThisModuleWhenCompiling()
+        {
+            List<string> directoryReferences = new List<string>();
+
+            foreach (FileReference file in SourceFiles)
+            {
+                if (file.FileType != EFileType.Header)
+                {
+                    continue;
+                }
+                if (!directoryReferences.Contains(file.Directory.Path))
+                {
+                    directoryReferences.Add(file.Directory.Path);
+                }
+            }
+
+            return directoryReferences;
+        }
+
+
+        public List<FileReference> GetHeaderFiles()
+        {
+            List<FileReference> headerFiles = new List<FileReference>();
+            
+            foreach(var file in SourceFiles)
+            {
+                if (file.FileType == EFileType.Header)
+                {
+                    headerFiles.Add(file);
+                }
+            }
+
+            return headerFiles;
+        }
         
         void SetAPIMacroName()
         {

@@ -16,7 +16,7 @@ namespace IshakBuildTool.Project.Modules
     /** Class in charge of creating the Modules.  */
     public class ModuleManager
     {
-        private Dictionary<string, IshakModule> ModulesDictionary = new Dictionary<string, IshakModule>();
+        private Dictionary<string, IshakModule> ModulesDictionary = new Dictionary<string, IshakModule>();        
         private Dictionary<string, FileReference> ModulesFileRefsDictionary = new Dictionary<string, FileReference>();
         private ModuleAssemblyManager? ModulesAssemblyManager;        
 
@@ -135,7 +135,7 @@ namespace IshakBuildTool.Project.Modules
         }
 
         IshakModule CreateSpecificModule(string moduleName, ModuleBuilder builder, FileReference moduleFileRef)
-        {
+        {                        
             IshakModule createdModule = new IshakModule(builder, moduleFileRef, this);
             ModulesDictionary.Add(moduleName, createdModule);
 

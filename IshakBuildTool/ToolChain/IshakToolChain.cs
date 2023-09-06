@@ -5,7 +5,6 @@ using IshakBuildTool.ToolChain.Windows;
 using IshakBuildTool.Utils;
 using Microsoft.VisualStudio.Setup.Configuration;
 using System.Diagnostics;
-using System.Text;
 
 namespace IshakBuildTool.ToolChain
 {
@@ -67,10 +66,8 @@ namespace IshakBuildTool.ToolChain
 
         public List<FileReference> GetSharedSystemLibs()
         {
-            List<FileReference> systemLinkedLibs = new List<FileReference>();
-            //libPathArgs.Append("/LIBPATH:\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.36.32532\\lib\\x64\"");
-
-            // TODO PLATFORM get the actual platform here.
+            List<FileReference> systemLinkedLibs = new List<FileReference>();            
+            
             systemLinkedLibs.Add(FileUtils.Combine(Installation.ToolChainDir, "lib", WindowsPlatform.GetWindowsArchitecture().ToString(), "libcmt.lib"));
             systemLinkedLibs.Add(FileUtils.Combine(Installation.ToolChainDir, "lib", WindowsPlatform.GetWindowsArchitecture().ToString(), "libcpmt.lib"));            
             systemLinkedLibs.AddRange(WindowsPlatform.GetWindowsSystemLibs());

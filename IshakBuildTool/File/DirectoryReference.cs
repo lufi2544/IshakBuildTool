@@ -21,6 +21,32 @@ namespace IshakBuildTool.ProjectFile
             Path = pathParam;
         }     
 
+        public static bool operator ==(DirectoryReference dir1, DirectoryReference dir2)
+        {
+
+            if (ReferenceEquals(dir1, dir2))
+            {
+                return true;
+            }
+
+            if (ReferenceEquals(dir1, null)) 
+            {
+                return false;
+            }
+
+            if(ReferenceEquals(dir2, null)) 
+            {
+                return false;
+            }
+            
+            return dir1.Path == dir2.Path;
+        }
+
+        public static bool operator !=(DirectoryReference dir1, DirectoryReference dir2)
+        {
+            return !(dir1 == dir2);
+        }
+
         public bool IsValid()
         {
             return Path != string.Empty;
