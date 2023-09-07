@@ -22,12 +22,15 @@ namespace IshakBuildTool.Project.Modules
         private readonly string assemblyBinaryName = "ModulesBinary";        
 
         private Assembly? ModulesAssembly;
+        bool bCompilationMode = false;
 
 
-        public ModuleAssemblyManager(DirectoryReference engineIntermediateDirectory, List<FileReference> moduleFilesRefs)
+        public ModuleAssemblyManager(DirectoryReference engineIntermediateDirectory, List<FileReference> moduleFilesRefs, bool bCompilation)
         {
             FileReference completeAssemblyPath = 
                 new FileReference(engineIntermediateDirectory.Path + assemblyBinaryFilePath + assemblyBinaryName + assemblyBinaryExtension);
+
+            bCompilationMode = bCompilation;
             
             CreateAssemblyForModules(completeAssemblyPath, moduleFilesRefs);
         }
@@ -49,6 +52,10 @@ namespace IshakBuildTool.Project.Modules
             if (specifigModuleBuilder == null)
             {
                 // TODO Exception
+
+                // Maybe added a module and did not regenerate Project Files. If after regeneration this happens again, 
+                // check the Module.cs and take a look at the ModuleBuilder.
+                throw new InvalidOperationException();
             }
 
             // In this case the Modules do not take any parammeter, so we extract the default param from it.
@@ -198,39 +205,42 @@ namespace IshakBuildTool.Project.Modules
 
         Assembly? ExecuteCompilation(FileReference assemblyFileRef, CSharpCompilation modulesRunTimeCompilation)
         {
-            using (FileStream assemblyStream =
-                    FileReference.Open(assemblyFileRef, FileMode.Create))
-            {
-                FileReference assemblyPDBFile = assemblyFileRef.ChangeExtensionCopy(".pdb");
-
-                using (FileStream? pdbStream =
-                        RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                        ? FileReference.Open(assemblyPDBFile, FileMode.Create)
-                        : null)
+            if (!bCompilationMode)
+            {           
+                using (FileStream assemblyStream =
+                        FileReference.Open(assemblyFileRef, FileMode.Create))
                 {
-                    EmitResult compilationResult = EmitCompilation(modulesRunTimeCompilation, assemblyStream, pdbStream);
+                    FileReference assemblyPDBFile = assemblyFileRef.ChangeExtensionCopy(".pdb");
 
-                    // TODO Logger Print Error if the severity is error we should crash the program
-                    foreach (Diagnostic diagnostic in compilationResult.Diagnostics)
+                    using (FileStream? pdbStream =
+                            RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                            ? FileReference.Open(assemblyPDBFile, FileMode.Create)
+                            : null)
                     {
-                        StringBuilder diagnosticStrB = new StringBuilder();
-                        diagnosticStrB.AppendLine(
-                            "Diagnostic When Compiling Assembly Module Binary . Diagnostic :{0}",
-                            diagnostic.ToString()
-                            );
+                        EmitResult compilationResult = EmitCompilation(modulesRunTimeCompilation, assemblyStream, pdbStream);
 
-                        System.Console.WriteLine(diagnosticStrB.ToString());
+                        // TODO Logger Print Error if the severity is error we should crash the program
+                        foreach (Diagnostic diagnostic in compilationResult.Diagnostics)
+                        {
+                            StringBuilder diagnosticStrB = new StringBuilder();
+                            diagnosticStrB.AppendLine(
+                                "Diagnostic When Compiling Assembly Module Binary . Diagnostic :{0}",
+                                diagnostic.ToString()
+                                );
+
+                            System.Console.WriteLine(diagnosticStrB.ToString());
+
+                        }
+
+                        if (!compilationResult.Success)
+                        {
+                            // TODO Exception
+                            return null;
+                        }
+
+                        System.Console.WriteLine("Compiled Modules Assembly....Success");
 
                     }
-
-                    if (!compilationResult.Success)
-                    {
-                        // TODO Exception
-                        return null;
-                    }
-
-                    System.Console.WriteLine("Compiled Modules Assembly....Success");
-
                 }
             }
 

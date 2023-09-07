@@ -8,6 +8,12 @@ namespace IshakBuildTool.Globals
 {
     public class IshakTypes
     {
-        public static string IshakEngineName = "IshakEngine";
+        public static string IshakEngineName = "IshakEngine";        
+    }
+
+    public class IshakCommandArgrType
+    {
+        public static string GenerateProjectFiles = "generate";
+        public static string Compile = "compile";
     }
 }

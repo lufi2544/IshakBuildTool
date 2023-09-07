@@ -1,4 +1,5 @@
-﻿using IshakBuildTool.ProjectFile;
+﻿using IshakBuildTool.Globals;
+using IshakBuildTool.ProjectFile;
 using IshakBuildTool.Utils;
 using System;
 using System.Collections.Generic;
@@ -144,7 +145,12 @@ namespace IshakBuildTool.Project.Modules
 
         private void CreateAssemblyManager(DirectoryReference engineIntemediateDirectory, List<FileReference> modulesFilesRefs)
         {
-            ModulesAssemblyManager = new ModuleAssemblyManager(engineIntemediateDirectory, modulesFilesRefs);                      
+            bool bFoundCompilationArgument;
+            string compilationArg = IshakBuildToolFramework.GetCommandLineParam("-bm", out bFoundCompilationArgument);
+
+            bool bAreWeCompiling = compilationArg == IshakCommandArgrType.Compile;
+
+            ModulesAssemblyManager = new ModuleAssemblyManager(engineIntemediateDirectory, modulesFilesRefs, bAreWeCompiling);                      
         }
 
         private ModuleBuilder? GetModuleBuilderFromModuleName(string moduleName)

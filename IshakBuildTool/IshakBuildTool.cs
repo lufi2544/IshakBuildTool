@@ -1,5 +1,7 @@
 ﻿
 
+using IshakBuildTool.Globals;
+
 namespace IshakBuildTool
 {
     class Tool
@@ -8,7 +10,8 @@ namespace IshakBuildTool
         {
             string[] args_0 = {
             "-r", "C:\\IshakEngine",
-            "-pt", "Application" };
+            "-pt", "Application",
+            "-bm", IshakCommandArgrType.Compile};
 
             string[] args_1 = {
             "-r", "C:\\IshakEngine",
@@ -26,7 +29,7 @@ namespace IshakBuildTool
                 executeArgs = args_1;
             }
 
-            IshakBuildToolFramework.Execute(executeArgs);
+            IshakBuildToolFramework.Execute(args);
         }
     }
 }// IshakBuildTool

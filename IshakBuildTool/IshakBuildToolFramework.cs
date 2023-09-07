@@ -2,6 +2,7 @@
 
 // IBT
 using IshakBuildTool.Build;
+using IshakBuildTool.Globals;
 using IshakBuildTool.Project.Modules;
 using IshakBuildTool.ProjectFile;
 using IshakBuildTool.ToolChain;
@@ -37,26 +38,37 @@ namespace IshakBuildTool
             Console.WriteLine(initMessage);
 
             // TODO change the return.
-            List<IshakModule> modules = GenerateProjectFilesHandler.GenerateProjectFiles();
+
+            bool bFoundGenerationArgument;
+            string generationArg = IshakBuildToolFramework.GetCommandLineParam("-bm", out bFoundGenerationArgument);            
+            bool bAreWeGeneratingProjectFiles = generationArg == IshakCommandArgrType.GenerateProjectFiles;
+            List<IshakModule> modules = GenerateProjectFilesHandler.GenerateProjectFiles(bAreWeGeneratingProjectFiles);
 
 
             // TODO FUNCTION
 
-            Console.WriteLine();
-            Console.WriteLine("----  Compilation Started  -----");
-            Console.WriteLine();
+            bool bFoundCompilationArgument;
+            string compilationArg = GetCommandLineParam("-bm", out bFoundCompilationArgument);             
+            bool bAreWeCompiling = compilationArg == IshakCommandArgrType.Compile;
 
-            // TODO Add to a single Function BuildMo
-            // Build all the modules => Compiling / Linking
-            ToolChain.BuildModules(modules).GetAwaiter().GetResult();
+            if (bAreWeCompiling)
+            {
+                Console.WriteLine();
+                Console.WriteLine("----  Compilation Started  -----");
+                Console.WriteLine();
 
-            // For now
-            Console.WriteLine();
-            Console.WriteLine("----  Compilation Finished  ----");
-            Console.WriteLine();
+                // TODO Add to a single Function BuildMo
+                // Build all the modules => Compiling / Linking
+                ToolChain.CompileAndLinkModules(modules).GetAwaiter().GetResult();
 
-            // Create the Exe
-            ToolChain.CreateExecutable(modules).GetAwaiter().GetResult();
+                // For now
+                Console.WriteLine();
+                Console.WriteLine("----  Compilation Finished  ----");
+                Console.WriteLine();
+
+                // Create the Exe
+                ToolChain.CreateExecutable(modules).GetAwaiter().GetResult();
+            }
         }
 
         static void CreateToolChain()

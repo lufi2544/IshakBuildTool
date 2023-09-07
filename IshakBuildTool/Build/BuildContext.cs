@@ -44,6 +44,8 @@ namespace IshakBuildTool.Build
                 Projects,
                 BuildProjectManager.GetInstance().GetProjectDirectoryParams().RootDir,
                 Test.TestEnviroment.DefaultEngineName);
+
+            Console.WriteLine("---- GENERATION COMPLETED ---")
         }
     }
 }

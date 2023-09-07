@@ -7,16 +7,19 @@ namespace IshakBuildTool.Build
     public class GenerateProjectFilesHandler
     {
         
-        public static List<IshakModule> GenerateProjectFiles()
+        public static List<IshakModule> GenerateProjectFiles(bool bGeneratingProjectFilesMode)
         {                       
             // First we have to create the modules.
             List<IshakModule> createdModules = CreateModules();
             
-            // Create the build context( contains the info from all the projects that form the entire solution like Engine, Games...)                      
-            BuildContext ishakBuildToolBuildContext = CreateBuildContext(createdModules);
+            if (bGeneratingProjectFilesMode)
+            {
+                // Create the build context( contains the info from all the projects that form the entire solution like Engine, Games...)                      
+                BuildContext ishakBuildToolBuildContext = CreateBuildContext(createdModules);
 
-            // Creates the .sln file for the Development Enviroment
-            ishakBuildToolBuildContext.CreateSolutionFile();                                                        
+                // Creates the .sln file for the Development Enviroment
+                ishakBuildToolBuildContext.CreateSolutionFile();
+            }
 
             return createdModules;
         }
