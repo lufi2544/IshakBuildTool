@@ -145,6 +145,10 @@ namespace IshakBuildTool.Project.Modules
                 IshakModule? dependentModule = ModuleManager.GetModuleByName(dependentModuleName);
                 stringBuilder.Append("{0};", dependentModule.PublicDirectoryRef.Path);
             }
+
+            // We add this own module Public Directory since we want to include the files in a Relative way to the Private one
+            // this means that if we are in the Renderer module, we want to do just:  #include "Renderer.h" not "Modules/Public/Renderer/Renderer.h"
+            stringBuilder.Append("{0};", PublicDirectoryRef.Path);
         }
 
         void AddPrivateModuleDependencies(StringBuilder stringBuilder)
