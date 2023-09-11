@@ -9,6 +9,9 @@ namespace IshakBuildTool.Project.Modules
         /** Variables that have to be defined in the constructor of the Builder. */
         public List<string> PublicModuleDependencies = new List<string>();
         public List<string> PrivateModuleDependencies = new List<string>();
+
+        public string ThirdPartyDLLName = string.Empty;
+        public string ThirdPartyDLLImportName = string.Empty;
     }
 }
 

@@ -120,7 +120,11 @@ namespace IshakBuildTool.ToolChain
                     await semaphore.WaitAsync();
                     try
                     {
-                        await Compiler.CompileModule(module);
+                        // TODO Refactor?
+                        if (!module.bThirdParty)
+                        {
+                            await Compiler.CompileModule(module);
+                        }
                     }
                     finally
                     {
@@ -131,7 +135,10 @@ namespace IshakBuildTool.ToolChain
 
                 foreach (IshakModule module in modulesReadyToBuild)
                 {
-                    await Compiler.LinkModule(module);
+                    if (!module.bThirdParty)
+                    {
+                        await Compiler.LinkModule(module);
+                    }
                 }
             }
 
@@ -299,7 +306,7 @@ namespace IshakBuildTool.ToolChain
 
 
                 StringBuilder args = new StringBuilder();
-                args.Append("/EHsc /c ");
+                args.Append("/EHsc /Zi /FS /c ");
                 args.AppendFormat("/Fo\"{0}\"", fileDir.Path);
 
                 args.Append(' ');
@@ -414,8 +421,9 @@ namespace IshakBuildTool.ToolChain
             List<FileReference> moduleObjFiles = GetObjFilesForModule(module);            
 
             StringBuilder linkingArgs = new StringBuilder();
-            linkingArgs.Append("/NOLOGO ");
+            linkingArgs.Append("/NOLOGO ");            
             linkingArgs.Append("/DLL ");
+            linkingArgs.Append("/DEBUG ");
             StringBuilder objFilesString = new StringBuilder();            
             linkingArgs.AppendFormat("/OUT:\"{0}\" ", module.ModuleDllFile.Path);
 
@@ -492,6 +500,7 @@ namespace IshakBuildTool.ToolChain
             // TODO Create the File?
             ishakEngineExecutablePath.AppendFormat("{0}{1}", BuildProjectManager.GetInstance().GetProjectDirectoryParams().BinaryDir + DirectoryReference.DirectorySeparatorChar + Globals.IshakTypes.IshakEngineName, BinaryTypesExtension.Executable);
             args.Append("/NOLOGO ");
+            args.Append("/DEBUG ");
             args.AppendFormat("/OUT:{0} ", ishakEngineExecutablePath.ToString());
             args.AppendFormat("{0} ", entryPointModule.BinariesDirectory.Path + DirectoryReference.DirectorySeparatorChar + entryPointFile.GetFileNameWithoutExtension() + BinaryTypesExtension.ObjFile);
 

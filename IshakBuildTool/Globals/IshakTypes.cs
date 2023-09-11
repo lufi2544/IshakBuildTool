@@ -15,5 +15,5 @@ namespace IshakBuildTool.Globals
     {
         public static string GenerateProjectFiles = "generate";
         public static string Compile = "compile";
-    }
+    }   
 }

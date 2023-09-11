@@ -96,7 +96,7 @@ namespace IshakBuildTool.Project
             ProjectFileSB.AppendLine("  <PropertyGroup Label=\"Globals\">");
 
             ProjectFileSB.AppendLine("    <ProjectGuid>{0}</ProjectGuid>", ProjectToHandle.GetGUID());
-            ProjectFileSB.AppendLine("    <Keyword>Win32Proj</Keyword>");
+            ProjectFileSB.AppendLine("    <Keyword>MakeFileProj</Keyword>");
             ProjectFileSB.AppendLine("    <RootNamespace>{0}</RootNamespace>", ProjectToHandle.ProjectFile.ProjectName);
             ProjectFileSB.AppendLine("    <PlatformToolset>{0}</PlatformToolset>", "v143");
             ProjectFileSB.AppendLine("    <MinimumVisualStudioVersion>{0}</MinimumVisualStudioVersion>", "17.0");
@@ -154,9 +154,13 @@ namespace IshakBuildTool.Project
                 ProjectFileSB.AppendLine("    <SourcePath />");
                 ProjectFileSB.AppendLine("    <ExcludePath />");
 
-                string projectUnusedDirectory = "$(ProjectDir)..\\Build\\Unused";
-                ProjectFileSB.AppendLine("    <OutDir>{0}{1}</OutDir>", projectUnusedDirectory, Path.DirectorySeparatorChar);
-                ProjectFileSB.AppendLine("    <IntDir>{0}{1}</IntDir>", projectUnusedDirectory, Path.DirectorySeparatorChar);
+                EntireProjectDirectoryParams projectDirectoryParams = BuildProjectManager.GetInstance().GetProjectDirectoryParams();
+
+
+                // TODO REVIEW Uneal does this with an Unused directory, maybe I should handle this the same way? so I do not
+                // have to touch the engine .exe ? ... to study.
+                ProjectFileSB.AppendLine("    <OutDir>{0}</OutDir>", projectDirectoryParams.BinaryDir);
+                ProjectFileSB.AppendLine("    <IntDir>{0}</IntDir>", projectDirectoryParams.BinaryDir);
 
                 WriteNMakeBuildProps();
             }
@@ -166,15 +170,15 @@ namespace IshakBuildTool.Project
         // Writes the bat file to use when compiling the solution.
         void WriteNMakeBuildProps()
         {
-            // TODO make a proper implementation for compiling.
 
+            EntireProjectDirectoryParams projectDirectoryParams = BuildProjectManager.GetInstance().GetProjectDirectoryParams();
+            // For now I will just call the script without any additional args.
+            ProjectFileSB.AppendLine("    <NMakeBuildCommandLine>{0}</NMakeBuildCommandLine>", projectDirectoryParams.CompileEngineScriptPath);
+            ProjectFileSB.AppendLine("    <NMakeReBuildCommandLine>{0}</NMakeReBuildCommandLine>", projectDirectoryParams.CompileEngineScriptPath);
 
-            /*
-            ProjectFileSB.AppendLine("    <NMakeBuildCommandLine>{0} {1}</NMakeBuildCommandLine>", EscapePath(NormalizeProjectPath(Builder.BuildScript)), BuildArguments);
-            ProjectFileSB.AppendLine("    <NMakeReBuildCommandLine>{0} {1}</NMakeReBuildCommandLine>", EscapePath(NormalizeProjectPath(Builder.RebuildScript)), BuildArguments);
-            ProjectFileSB.AppendLine("    <NMakeCleanCommandLine>{0} {1}</NMakeCleanCommandLine>", EscapePath(NormalizeProjectPath(Builder.CleanScript)), BuildArguments);
-            ProjectFileSB.AppendLine("    <NMakeOutput>{0}</NMakeOutput>", NormalizeProjectPath(NMakePath.FullName));
-            */
+            // TODO Add Clean Script
+            //ProjectFileSB.AppendLine("    <NMakeCleanCommandLine>{0} {1}</NMakeCleanCommandLine>", EscapePath(NormalizeProjectPath(Builder.CleanScript)), BuildArguments);
+            ProjectFileSB.AppendLine("    <NMakeOutput>{0}</NMakeOutput>", projectDirectoryParams.EngineExecutablePath);            
             
 
             // TODO make language standard

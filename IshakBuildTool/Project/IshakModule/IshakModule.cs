@@ -32,6 +32,12 @@ namespace IshakBuildTool.Project.Modules
 
         public string? ModulesDependencyDirsString { get; set; }
         public List<FileReference>? SourceFiles { get; set; }
+        
+        public bool bThirdParty = false;
+
+        // TODO send to rules
+        public string ThirdPartyModuleDllName = string.Empty;
+        public string ThirdPartyModuleDllImportName = string.Empty;
 
         ModuleManager ModuleManager;
         public List<string>? PublicDependentModules;
@@ -43,8 +49,20 @@ namespace IshakBuildTool.Project.Modules
             Directory = moduleFileRef.Directory;
             Name = moduleFileRef.GetFileNameWithoutExtension();
             BinariesDirectory = DirectoryUtils.Combine(new DirectoryReference(BuildProjectManager.GetInstance().GetProjectDirectoryParams().BinaryDir), Name.ToString());
-            ModuleDllImportFile = new FileReference(FileUtils.Combine(new DirectoryReference(BuildProjectManager.GetInstance().GetProjectDirectoryParams().BinaryDir), Name + BinaryTypesExtension.StaticLib).Path);
-            ModuleDllFile = new FileReference(FileUtils.Combine(new DirectoryReference(BuildProjectManager.GetInstance().GetProjectDirectoryParams().BinaryDir), Name + BinaryTypesExtension.DynamicLib).Path);
+            bThirdParty = Directory.Path.Contains("ThirdParty");
+            ThirdPartyModuleDllName = moduleBuilder.ThirdPartyDLLName;
+            ThirdPartyModuleDllImportName= moduleBuilder.ThirdPartyDLLImportName;
+
+            if (bThirdParty)
+            {
+                ModuleDllImportFile = new FileReference(FileUtils.Combine(new DirectoryReference(BuildProjectManager.GetInstance().GetProjectDirectoryParams().BinaryDir), ThirdPartyModuleDllImportName).Path);
+                ModuleDllFile = new FileReference(FileUtils.Combine(new DirectoryReference(BuildProjectManager.GetInstance().GetProjectDirectoryParams().BinaryDir), ThirdPartyModuleDllName).Path);
+            }
+            else
+            {
+                ModuleDllImportFile = new FileReference(FileUtils.Combine(new DirectoryReference(BuildProjectManager.GetInstance().GetProjectDirectoryParams().BinaryDir), Name + BinaryTypesExtension.StaticLib).Path);
+                ModuleDllFile = new FileReference(FileUtils.Combine(new DirectoryReference(BuildProjectManager.GetInstance().GetProjectDirectoryParams().BinaryDir), Name + BinaryTypesExtension.DynamicLib).Path);            
+            }
             PublicDependentModules = moduleBuilder.PublicModuleDependencies;
             PrivateDependentModules = moduleBuilder.PrivateModuleDependencies;
             ModuleManager = moduleManager;
@@ -54,6 +72,7 @@ namespace IshakBuildTool.Project.Modules
             MakePrivateDir();
             BuildModuleDependentDirectoriesString(); 
             AddSourceFiles();
+
         }        
         
         // TODO BUILDREFACTOR MAKE DIRREF LIST WORK !!

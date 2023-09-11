@@ -53,14 +53,7 @@ namespace IshakBuildTool.Project
         }
 
         ProjectFileGenerator GetProjectFileGenerator()
-        {
-            bool bFound;
-            IshakBuildToolFramework.GetCommandLineParam("-bm", out bFound);
-            if (bFound)
-            {
-                return new ProjectFileGeneratorLegacy(this);
-            }
-
+        {                       
             return new ProjectFileGenerator(this);
         }
     }

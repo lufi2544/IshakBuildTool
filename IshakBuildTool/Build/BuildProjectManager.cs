@@ -24,6 +24,12 @@ namespace IshakBuildTool.Build
         public string BinaryDir { get; set; } = string.Empty;  
 
         public string ProjectType { get; set; } = string.Empty;        
+
+        public string BuildEngineScriptPath { get; set; } = string.Empty;
+        public string CompileEngineScriptPath { get; set; } = string.Empty;
+
+        public string EngineExecutablePath { get; set; } = string.Empty;
+        public string EngineExecutableDir { get; set; } = string.Empty;
     }
     /** Manager that will hold info when building the project like the Source Dir, Intermediate, etc.d */
     internal class BuildProjectManager
@@ -84,6 +90,15 @@ namespace IshakBuildTool.Build
             outParams.SourceDir = SourceDir;
             outParams.IntermediateDir = IntermediateDir;
             outParams.ProjectFilesDir = ProjectFilesDir;
+            StringBuilder b = new StringBuilder();
+
+            b.AppendFormat("{0}", BaseDir + "CompileIshakEngine.bat");
+            
+            outParams.CompileEngineScriptPath = b.ToString();
+
+            // TODO BUILD REFACTOR
+            outParams.EngineExecutablePath = BaseDir + "Binaries" + Path.DirectorySeparatorChar + "IshakEngine.exe";
+            
         }
 
 

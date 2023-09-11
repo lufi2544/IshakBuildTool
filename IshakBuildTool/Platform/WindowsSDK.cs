@@ -167,7 +167,10 @@ namespace IshakBuildTool.Platform
 
             DirectoryReference windowsLibraryRootDir  = DirectoryUtils.Combine(Directory, "lib", WindowsVersion.VersionStr);            
             LibraryFiles.Add(FileUtils.Combine(windowsLibraryRootDir, "ucrt", Architecture.ToString(), "libucrt.lib"));
-            LibraryFiles.Add(FileUtils.Combine(windowsLibraryRootDir, "um", Architecture.ToString(), "kernel32.lib"));            
+            LibraryFiles.Add(FileUtils.Combine(windowsLibraryRootDir, "um", Architecture.ToString(), "kernel32.lib"));
+
+            // TODO Add Additional System Link libraries from the Module Builder.
+            LibraryFiles.Add(FileUtils.Combine(windowsLibraryRootDir, "um", Architecture.ToString(), "opengl32.lib"));
 
             // TODO Add Intel specific math library when using intel
 
@@ -176,6 +179,6 @@ namespace IshakBuildTool.Platform
              *  LibraryPaths.Add(DirectoryReference.Combine(CompilerDir, "windows", "compiler", "lib", "intel64"));
              */
 
-}
+        }
 }
 }
