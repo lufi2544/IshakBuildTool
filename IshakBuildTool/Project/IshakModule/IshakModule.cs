@@ -34,6 +34,7 @@ namespace IshakBuildTool.Project.Modules
         public List<FileReference>? SourceFiles { get; set; }
         
         public bool bThirdParty = false;
+        public bool bOnlyHeaderfileLib = false;
 
         // TODO send to rules
         public string ThirdPartyModuleDllName = string.Empty;
@@ -50,6 +51,7 @@ namespace IshakBuildTool.Project.Modules
             Name = moduleFileRef.GetFileNameWithoutExtension();
             BinariesDirectory = DirectoryUtils.Combine(new DirectoryReference(BuildProjectManager.GetInstance().GetProjectDirectoryParams().BinaryDir), Name.ToString());
             bThirdParty = Directory.Path.Contains("ThirdParty");
+            bOnlyHeaderfileLib = moduleBuilder.OnlyHeaderLib;
             ThirdPartyModuleDllName = moduleBuilder.ThirdPartyDLLName;
             ThirdPartyModuleDllImportName= moduleBuilder.ThirdPartyDLLImportName;
 

@@ -40,7 +40,7 @@ namespace IshakBuildTool.ProjectFile
 
         void SetFileType()
         {
-            if (Name.Contains(".h"))
+            if (Name.Contains(".h") || Name.Contains(".hpp"))
             {
                 FileType= EFileType.Header;
 

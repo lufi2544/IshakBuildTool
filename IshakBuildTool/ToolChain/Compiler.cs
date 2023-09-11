@@ -120,10 +120,13 @@ namespace IshakBuildTool.ToolChain
                     await semaphore.WaitAsync();
                     try
                     {
-                        // TODO Refactor?
-                        if (!module.bThirdParty)
+                        if (!module.bOnlyHeaderfileLib)
                         {
-                            await Compiler.CompileModule(module);
+                            // TODO Refactor?
+                            if (!module.bThirdParty)
+                            {
+                                await Compiler.CompileModule(module);
+                            }
                         }
                     }
                     finally
@@ -135,9 +138,12 @@ namespace IshakBuildTool.ToolChain
 
                 foreach (IshakModule module in modulesReadyToBuild)
                 {
-                    if (!module.bThirdParty)
+                    if (!module.bOnlyHeaderfileLib)
                     {
-                        await Compiler.LinkModule(module);
+                        if (!module.bThirdParty)
+                        {
+                            await Compiler.LinkModule(module);
+                        }
                     }
                 }
             }
@@ -287,9 +293,20 @@ namespace IshakBuildTool.ToolChain
                     systemIncludesPathString.Append(" ");
                 }
 
+                // TODO BUILD REFACTOR
+
+                List<string> includeDirs = new List<string>();
+
                 foreach (FileReference dependentFile in GetIncludeFilesForModule(module))
                 {
+                    var dirPath = dependentFile.Directory.Path;
+                    if (includeDirs.Contains(dirPath))
+                    {
+                        continue;
+                    }
+
                     systemIncludesPathString.AppendFormat("/I\"{0}\"", dependentFile.Directory.Path);
+                    includeDirs.Add(dependentFile.Directory.Path.ToString());
                     systemIncludesPathString.Append(" ");
                 }
 
@@ -436,7 +453,14 @@ namespace IshakBuildTool.ToolChain
             // and therefore there is none of them created yet, so we would have to add a list or something to track their construction before 
             // they are actually constructed to avoid infinite loops.
             foreach (IshakModule dependentModule in GetModuleLinkDependencies(module))
-            {                                
+            {
+                // If it is a Module which only contains header files, like GLM for example, then we just need to 
+                // find the functions that are contained there.
+                if (dependentModule.bOnlyHeaderfileLib)
+                {
+                    continue;
+                }
+
                 libPathArgs.AppendFormat("/LIBPATH:\"{0}\" {1} ", dependentModule.ModuleDllImportFile.Directory.Path, dependentModule.ModuleDllImportFile.Name);
             }
 
@@ -506,6 +530,10 @@ namespace IshakBuildTool.ToolChain
 
             foreach (IshakModule module in modules)
             {
+                if (module.bOnlyHeaderfileLib)
+                {
+                    continue;
+                }
                 args.AppendFormat("/LIBPATH:\"{0}\" {1} ", module.ModuleDllImportFile.Directory.Path, module.ModuleDllImportFile.Name);
             }
 

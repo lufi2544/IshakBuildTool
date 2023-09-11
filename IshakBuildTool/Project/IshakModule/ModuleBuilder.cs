@@ -12,6 +12,8 @@ namespace IshakBuildTool.Project.Modules
 
         public string ThirdPartyDLLName = string.Empty;
         public string ThirdPartyDLLImportName = string.Empty;
+
+        public bool OnlyHeaderLib = false;
     }
 }
 
