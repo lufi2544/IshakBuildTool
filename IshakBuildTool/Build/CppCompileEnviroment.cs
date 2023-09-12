@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace IshakBuildTool.Build
 {
-    enum ECppVersion
+    public enum ECppVersion
     {
         Cpp17,
         Cpp20

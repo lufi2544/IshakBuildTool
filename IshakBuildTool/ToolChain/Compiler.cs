@@ -113,7 +113,7 @@ namespace IshakBuildTool.ToolChain
                 List<IshakModule> modulesReadyToBuild = ModuleDependencyTree.GetDependentSortedModules();
 
                 // TODO VARIABLE
-                SemaphoreSlim semaphore = new SemaphoreSlim(20);
+                SemaphoreSlim semaphore = new SemaphoreSlim(10);
 
                 await Parallel.ForEachAsync(modulesReadyToBuild, async (module, cancellatinToken) =>
                 {
@@ -157,6 +157,23 @@ namespace IshakBuildTool.ToolChain
         Dictionary<string, IshakModule> ModuleNameToModuleMap = new Dictionary<string, IshakModule>();
         public FileReference? CompilerFile { get; set; } = null;
         public ECompilerType CompilerType { get; set; } = ECompilerType.MSVC;
+
+        public ECppVersion cppVersion { get; set; } = ECppVersion.Cpp17;
+
+        string GetCppVersion()
+        {
+            switch (cppVersion)
+            {
+                case ECppVersion.Cpp17:
+                    return "/std:c++17";
+
+                case ECppVersion.Cpp20:
+                    return "/std:c++20";
+            }
+
+            return string.Empty;
+        }
+
 
         string GenericIncludePathSet { get; set; } = string.Empty;
 
@@ -236,10 +253,10 @@ namespace IshakBuildTool.ToolChain
         }
 
 
-        List<FileReference> GetIncludeFilesForModule(IshakModule module)
-        {
-            // Check the module dependant modules and get their files.
-            List<FileReference> moduleIncludeFiles = new List<FileReference>();
+        //TODO here try new include system
+        Dictionary<IshakModule, List<FileReference>> GetIncludeFilesForModule(IshakModule module)
+        {                      
+            Dictionary<IshakModule, List<FileReference>> moduleToFilesMap = new Dictionary<IshakModule, List<FileReference>>();
 
             foreach (string moduleDependentFile in module.PublicDependentModules)
             {
@@ -253,7 +270,10 @@ namespace IshakBuildTool.ToolChain
                     throw new InvalidOperationException();
                 }
 
-                moduleIncludeFiles.AddRange(dependantModule.GetHeaderFiles());
+                if (!moduleToFilesMap.ContainsKey(dependantModule))
+                {
+                    moduleToFilesMap.Add(dependantModule, dependantModule.GetHeaderFiles());
+                }               
             }
             
             foreach (string moduleDependentFile in module.PrivateDependentModules)
@@ -268,10 +288,14 @@ namespace IshakBuildTool.ToolChain
                     throw new InvalidOperationException();
                 }
 
-                moduleIncludeFiles.AddRange(dependantModule.GetHeaderFiles());
+                if (!moduleToFilesMap.ContainsKey(dependantModule))
+                {
+                    moduleToFilesMap.Add(dependantModule, dependantModule.GetHeaderFiles());
+                }
+
             }
 
-            return moduleIncludeFiles;
+            return moduleToFilesMap;
         }
 
         private Task CompileModule(IshakModule module)
@@ -297,25 +321,20 @@ namespace IshakBuildTool.ToolChain
 
                 List<string> includeDirs = new List<string>();
 
-                foreach (FileReference dependentFile in GetIncludeFilesForModule(module))
+                foreach (KeyValuePair<IshakModule, List<FileReference>> dependentFile in GetIncludeFilesForModule(module))
                 {
-                    var dirPath = dependentFile.Directory.Path;
-                    if (includeDirs.Contains(dirPath))
-                    {
-                        continue;
-                    }
-
-                    systemIncludesPathString.AppendFormat("/I\"{0}\"", dependentFile.Directory.Path);
-                    includeDirs.Add(dependentFile.Directory.Path.ToString());
-                    systemIncludesPathString.Append(" ");
+                    IshakModule dependantModule = dependentFile.Key;
+                    List<FileReference> headerFiles = dependentFile.Value;
+                      
+                    systemIncludesPathString.AppendFormat("/I\"{0}\"", dependantModule.PublicDirectoryRef.Path);                        
+                    systemIncludesPathString.Append(" ");                                        
                 }
 
-                foreach ( string dirRef in module.GetIncludeDirsForThisModuleWhenCompiling())
+                foreach (FileReference headerFile in module.GetIncludeDirsForThisModuleWhenCompiling())
                 {
-                    systemIncludesPathString.AppendFormat("/I\"{0}\"", dirRef);
+                    systemIncludesPathString.AppendFormat("/I\"{0}\"", module.PublicDirectoryRef.Path);
                     systemIncludesPathString.Append(" ");
                 }
-
 
                 DirectoryUtils.TryCreateDirectory(module.BinariesDirectory);
 
@@ -323,7 +342,7 @@ namespace IshakBuildTool.ToolChain
 
 
                 StringBuilder args = new StringBuilder();
-                args.Append("/EHsc /Zi /FS /c ");
+                args.Append("/EHsc /Zi /FS "+ GetCppVersion() + " /c ");
                 args.AppendFormat("/Fo\"{0}\"", fileDir.Path);
 
                 args.Append(' ');

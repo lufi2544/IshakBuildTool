@@ -78,9 +78,9 @@ namespace IshakBuildTool.Project.Modules
         }        
         
         // TODO BUILDREFACTOR MAKE DIRREF LIST WORK !!
-        public List<string> GetIncludeDirsForThisModuleWhenCompiling()
+        public List<FileReference> GetIncludeDirsForThisModuleWhenCompiling()
         {
-            List<string> directoryReferences = new List<string>();
+            List<FileReference> headerFiles = new List<FileReference>();
 
             foreach (FileReference file in SourceFiles)
             {
@@ -88,13 +88,11 @@ namespace IshakBuildTool.Project.Modules
                 {
                     continue;
                 }
-                if (!directoryReferences.Contains(file.Directory.Path))
-                {
-                    directoryReferences.Add(file.Directory.Path);
-                }
+
+                headerFiles.Add(file);
             }
 
-            return directoryReferences;
+            return headerFiles;
         }
 
 

@@ -59,7 +59,6 @@ namespace IshakBuildTool.Project.Modules
             CreateModules(foundModulesFiles);         
         }
         
-
         List<FileReference> ScanModules(string engineRootDirPath)
         {
             List<string> moduleFilter = new List<string>();
