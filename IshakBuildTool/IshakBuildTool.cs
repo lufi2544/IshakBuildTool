@@ -11,7 +11,7 @@ namespace IshakBuildTool
             string[] args_0 = {
             "-r", "C:\\IshakEngine",
             "-pt", "Application",
-            "-bm", IshakCommandArgrType. Compile};
+            "-bm", IshakCommandArgrType.GenerateProjectFiles};
 
             string[] args_1 = {
             "-r", "C:\\IshakEngine",
@@ -33,6 +33,7 @@ namespace IshakBuildTool
             {
                 return;
             }
+
 
             IshakBuildToolFramework.Execute(args);
         }

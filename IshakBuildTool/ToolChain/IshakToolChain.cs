@@ -3,7 +3,9 @@ using IshakBuildTool.Project.Modules;
 using IshakBuildTool.ProjectFile;
 using IshakBuildTool.ToolChain.Windows;
 using IshakBuildTool.Utils;
+using System.Configuration;
 using Microsoft.VisualStudio.Setup.Configuration;
+
 using System.Diagnostics;
 
 namespace IshakBuildTool.ToolChain
@@ -127,7 +129,7 @@ namespace IshakBuildTool.ToolChain
         VisualStudioInstallation? GetVisualStudioInstallationInTheSystem()
         {            
             try
-            {
+            {               
                 SetupConfiguration setup = new SetupConfiguration();
                 IEnumSetupInstances enumerator = setup.EnumInstances();
 

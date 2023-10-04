@@ -17,7 +17,7 @@ namespace IshakBuildTool.Project.Modules
     internal class ModuleAssemblyManager
     {
 
-        private readonly string assemblyBinaryFilePath = "\\Build\\Modules\\";
+        private readonly string assemblyBinaryFilePath = "Build\\Modules\\";
         private readonly string assemblyBinaryExtension = ".dll";
         private readonly string assemblyBinaryName = "ModulesBinary";        
 
@@ -27,8 +27,8 @@ namespace IshakBuildTool.Project.Modules
 
         public ModuleAssemblyManager(DirectoryReference engineIntermediateDirectory, List<FileReference> moduleFilesRefs, bool bCompilation)
         {
-            FileReference completeAssemblyPath = 
-                new FileReference(engineIntermediateDirectory.Path + assemblyBinaryFilePath + assemblyBinaryName + assemblyBinaryExtension);
+            FileReference completeAssemblyPath =
+                FileUtils.Combine(engineIntermediateDirectory, assemblyBinaryFilePath + assemblyBinaryName + assemblyBinaryExtension);            
 
             bCompilationMode = bCompilation;
             
