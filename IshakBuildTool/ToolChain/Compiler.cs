@@ -113,7 +113,7 @@ namespace IshakBuildTool.ToolChain
                 List<IshakModule> modulesReadyToBuild = ModuleDependencyTree.GetDependentSortedModules();
 
                 // TODO VARIABLE
-                SemaphoreSlim semaphore = new SemaphoreSlim(10);
+                SemaphoreSlim semaphore = new SemaphoreSlim(1);
 
                 await Parallel.ForEachAsync(modulesReadyToBuild, async (module, cancellatinToken) =>
                 {
@@ -230,8 +230,8 @@ namespace IshakBuildTool.ToolChain
             IshakModule? entryPointModule = null;
             foreach (var module in engineModules)
             {
-                if (module.Name == "Core")
-                {
+
+                // TODO REFACTOR Take a look at this, it should find this file this way?
                     foreach (FileReference file in module.SourceFiles)
                     {
                         if (file.Name == "LaunchEngine.cpp")
@@ -241,7 +241,7 @@ namespace IshakBuildTool.ToolChain
                             break;
                         }
                     }
-                }
+                
 
                 if (windowsEntryPointFile != null)
                 {
@@ -329,12 +329,12 @@ namespace IshakBuildTool.ToolChain
                     systemIncludesPathString.AppendFormat("/I\"{0}\"", dependantModule.PublicDirectoryRef.Path);                        
                     systemIncludesPathString.Append(" ");                                        
                 }
+                               
 
-                foreach (FileReference headerFile in module.GetIncludeDirsForThisModuleWhenCompiling())
-                {
-                    systemIncludesPathString.AppendFormat("/I\"{0}\"", module.PublicDirectoryRef.Path);
-                    systemIncludesPathString.Append(" ");
-                }
+                // Include this module Public Dir.
+                systemIncludesPathString.AppendFormat("/I\"{0}\"", module.PublicDirectoryRef.Path);
+                systemIncludesPathString.Append(" ");                    
+                
 
                 DirectoryUtils.TryCreateDirectory(module.BinariesDirectory);
 

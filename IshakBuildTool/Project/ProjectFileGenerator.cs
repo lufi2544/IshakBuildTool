@@ -279,7 +279,7 @@ namespace IshakBuildTool.Project
             ProjectFileSB.AppendLine("    <{0} Include=\"{1}\">", cvFileType.ToString(), fileRelativeToProjectFile);
 
             ProjectFileSB.AppendLine(
-                "      <AdditionalIncludeDirectories>$(NMakeIncludeSearchPath);{0};</AdditionalIncludeDirectories>",
+                "      <AdditionalIncludeDirectories>$(NMakeIncludeSearchPath);{0}</AdditionalIncludeDirectories>",
                 module.ModulesDependencyDirsString + GetSharedIncludeFilesPaths());
 
             ProjectFileSB.AppendLine("    </{0}>", cvFileType.ToString());
@@ -300,7 +300,7 @@ namespace IshakBuildTool.Project
                 EVCFileType.ClCompile.ToString(), fileRelativeToProjectFile);
 
             ProjectFileSB.AppendLine(
-                "      <AdditionalIncludeDirectories>$(NMakeIncludeSearchPath);{0};</AdditionalIncludeDirectories>",
+                "      <AdditionalIncludeDirectories>$(NMakeIncludeSearchPath);{0}</AdditionalIncludeDirectories>",
                 fileParentModule.ModulesDependencyDirsString + GetSharedIncludeFilesPaths());
 
             ProjectFileSB.AppendLine("    </ClCompile>");
