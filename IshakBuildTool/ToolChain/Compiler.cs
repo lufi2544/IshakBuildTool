@@ -113,7 +113,7 @@ namespace IshakBuildTool.ToolChain
                 List<IshakModule> modulesReadyToBuild = ModuleDependencyTree.GetDependentSortedModules();
 
                 // TODO VARIABLE
-                SemaphoreSlim semaphore = new SemaphoreSlim(1);
+                SemaphoreSlim semaphore = new SemaphoreSlim(10);
 
                 await Parallel.ForEachAsync(modulesReadyToBuild, async (module, cancellatinToken) =>
                 {
