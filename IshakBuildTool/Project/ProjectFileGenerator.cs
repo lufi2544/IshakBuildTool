@@ -276,14 +276,7 @@ namespace IshakBuildTool.Project
         {
             string fileRelativeToProjectFile = DirectoryUtils.MakeRelativeTo(file, ProjectToHandle.ProjectFile.GetProjectFileRef()).Path;
 
-            ProjectFileSB.AppendLine("    <{0} Include=\"{1}\">", cvFileType.ToString(), fileRelativeToProjectFile);
-
-            ProjectFileSB.AppendLine(
-                "      <AdditionalIncludeDirectories>$(NMakeIncludeSearchPath);{0}</AdditionalIncludeDirectories>",
-                module.ModulesDependencyDirsString + GetSharedIncludeFilesPaths());
-
-            ProjectFileSB.AppendLine("    </{0}>", cvFileType.ToString());
-
+            ProjectFileSB.AppendLine("    <{0} Include=\"{1}\"/>", cvFileType.ToString(), fileRelativeToProjectFile);
         }
 
         void WriteVCCompileTypeSourceFile(FileReference file, IshakModule fileParentModule)
