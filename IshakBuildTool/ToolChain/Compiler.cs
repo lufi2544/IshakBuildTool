@@ -253,6 +253,52 @@ namespace IshakBuildTool.ToolChain
         }
 
 
+        void GetIncludeFilesForModuleRecursive(IshakModule module, Dictionary<IshakModule, List<FileReference>> moduleToFilesMap)
+        {
+
+            foreach (string moduleDependentFile in module.PublicDependentModules)
+            {
+                IshakModule? dependantModule;
+                ModuleNameToModuleMap.TryGetValue(moduleDependentFile, out dependantModule);
+
+                if (dependantModule == null)
+                {
+                    // TODO EXPECTION
+                    // dependant module does not exist
+                    throw new InvalidOperationException();
+                }
+
+
+                GetIncludeFilesForModuleRecursive(dependantModule, moduleToFilesMap);
+
+                if (!moduleToFilesMap.ContainsKey(dependantModule))
+                {
+                    moduleToFilesMap.Add(dependantModule, dependantModule.GetHeaderFiles());
+                }
+            }
+
+            foreach (string moduleDependentFile in module.PrivateDependentModules)
+            {
+                IshakModule? dependantModule;
+                ModuleNameToModuleMap.TryGetValue(moduleDependentFile, out dependantModule);
+
+                if (dependantModule == null)
+                {
+                    // TODO EXPECTION
+                    // dependant module does not exist
+                    throw new InvalidOperationException();
+                }
+
+                GetIncludeFilesForModuleRecursive(dependantModule, moduleToFilesMap);
+
+                if (!moduleToFilesMap.ContainsKey(dependantModule))
+                {
+                    moduleToFilesMap.Add(dependantModule, dependantModule.GetHeaderFiles());
+                }
+
+            }            
+        }
+
         //TODO here try new include system
         Dictionary<IshakModule, List<FileReference>> GetIncludeFilesForModule(IshakModule module)
         {                      
@@ -269,6 +315,7 @@ namespace IshakBuildTool.ToolChain
                     // dependant module does not exist
                     throw new InvalidOperationException();
                 }
+                              
 
                 if (!moduleToFilesMap.ContainsKey(dependantModule))
                 {
@@ -287,6 +334,7 @@ namespace IshakBuildTool.ToolChain
                     // dependant module does not exist
                     throw new InvalidOperationException();
                 }
+              
 
                 if (!moduleToFilesMap.ContainsKey(dependantModule))
                 {
@@ -302,6 +350,10 @@ namespace IshakBuildTool.ToolChain
         {
          
             List<Task> compileTasks = new List<Task>();
+
+            Dictionary<IshakModule, List<FileReference>> includeFilesForModule = new Dictionary<IshakModule, List<FileReference>>();
+            GetIncludeFilesForModuleRecursive(module, includeFilesForModule);
+
             // Compile the Source files for the Module
             foreach (FileReference sourceFile in module.SourceFiles)
             {
@@ -317,11 +369,8 @@ namespace IshakBuildTool.ToolChain
                     systemIncludesPathString.Append(" ");
                 }
 
-                // TODO BUILD REFACTOR
-
-                List<string> includeDirs = new List<string>();
-
-                foreach (KeyValuePair<IshakModule, List<FileReference>> dependentFile in GetIncludeFilesForModule(module))
+                // TODO BUILD REFACTOR                           
+                foreach (KeyValuePair<IshakModule, List<FileReference>> dependentFile in includeFilesForModule)
                 {
                     IshakModule dependantModule = dependentFile.Key;
                     List<FileReference> headerFiles = dependentFile.Value;
