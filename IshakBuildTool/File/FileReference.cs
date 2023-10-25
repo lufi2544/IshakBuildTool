@@ -44,7 +44,7 @@ namespace IshakBuildTool.ProjectFile
             {
                 FileType= EFileType.Header;
 
-            }else if (Name.Contains(".cpp"))
+            }else if (Name.Contains(".cpp") || Name.Contains(".cc"))
             {
                 FileType= EFileType.Source;
 
