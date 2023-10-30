@@ -12,6 +12,7 @@ namespace IshakBuildTool.Project
         public IshakProjectFile ProjectFile { get; set; }
 
         public List<IshakModule>? Modules { get; set; }
+        public List<IshakModule>? DependencyModules { get; set; }
 
         Guid GUID { get; set; }
 
@@ -19,13 +20,14 @@ namespace IshakBuildTool.Project
         public string ProjectTypeId { get; set; }
 
 
-        public IshakProject(string name, IshakProjectFile projectFile, List<IshakModule>? modules)
+        public IshakProject(string name, IshakProjectFile projectFile, List<IshakModule>? modules, List<IshakModule>? dependencyModules)
         {
             ProjectFile = projectFile;
             ProjectFile.SetOwnerProject(this);
 
             Name = name;
             Modules = modules;
+            DependencyModules = dependencyModules;
             ProjectTypeId = GetProjectId();
         }
 

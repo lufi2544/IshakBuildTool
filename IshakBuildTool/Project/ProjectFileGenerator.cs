@@ -27,6 +27,11 @@ namespace IshakBuildTool.Project
             FilterGenerator = new ProjectFileFilterGenerator(projectToHandle.ProjectFile);
         }
 
+        bool IsGeneratingEngine()
+        {
+            return ProjectToHandle.Name != "IshakEngine";
+        }
+
         public void HandleProjectFileGeneration()
         {
             CreateEngineSolutionFile();
@@ -55,7 +60,7 @@ namespace IshakBuildTool.Project
             WriteIntellisenseInfo();
             WriteSourcePathProperty();
             ImportFinalProjectFileArguments();
-            CreateProjectFile();
+            CreateProjectFile();            
         }
 
         void WriteEngineHeaderFile()
@@ -73,8 +78,16 @@ namespace IshakBuildTool.Project
             EngineConfigurations = new List<Tuple<string, Platform.EPlatformArchitecture>>();
 
             // For now we are just gonna add a default configuration.
-            AddConfiguration(IshakEngineConfiguration.Debug, Platform.EPlatformArchitecture.x64);
-            AddConfiguration(IshakEngineConfiguration.Development, Platform.EPlatformArchitecture.x64);
+            if (IsGeneratingEngine())
+            {
+                AddConfiguration(IshakEngineConfiguration.BuildWithIhshakBuildTool, Platform.EPlatformArchitecture.x64);
+                AddConfiguration(IshakEngineConfiguration.Invalid, Platform.EPlatformArchitecture.x64);
+            }
+            else
+            {
+                AddConfiguration(IshakEngineConfiguration.Debug, Platform.EPlatformArchitecture.x64);
+                AddConfiguration(IshakEngineConfiguration.Development, Platform.EPlatformArchitecture.x64);
+            }
 
             ProjectFileSB.AppendLine("  </ItemGroup>");
         }
@@ -170,34 +183,52 @@ namespace IshakBuildTool.Project
         // Writes the bat file to use when compiling the solution.
         void WriteNMakeBuildProps()
         {
+            if (IsGeneratingEngine())
+            {
+                EntireProjectDirectoryParams projectDirectoryParams = BuildProjectManager.GetInstance().GetProjectDirectoryParams();
+                // For now I will just call the script without any additional args.
+                ProjectFileSB.AppendLine("    <NMakeBuildCommandLine>@rem Nothing to do.</NMakeBuildCommandLine>");
+                ProjectFileSB.AppendLine("    <NMakeReBuildCommandLine>@rem Nothing to do.</NMakeReBuildCommandLine>");
 
-            EntireProjectDirectoryParams projectDirectoryParams = BuildProjectManager.GetInstance().GetProjectDirectoryParams();
-            // For now I will just call the script without any additional args.
-            ProjectFileSB.AppendLine("    <NMakeBuildCommandLine>{0}</NMakeBuildCommandLine>", projectDirectoryParams.CompileEngineScriptPath);
-            ProjectFileSB.AppendLine("    <NMakeReBuildCommandLine>{0}</NMakeReBuildCommandLine>", projectDirectoryParams.CompileEngineScriptPath);
+                // TODO Add Clean Script
+                //ProjectFileSB.AppendLine("    <NMakeCleanCommandLine>{0} {1}</NMakeCleanCommandLine>", EscapePath(NormalizeProjectPath(Builder.CleanScript)), BuildArguments);
+                ProjectFileSB.AppendLine("    <NMakeOutput>@rem Nothing to do.</NMakeOutput>");
+            }
+            else
+            {
 
-            // TODO Add Clean Script
-            //ProjectFileSB.AppendLine("    <NMakeCleanCommandLine>{0} {1}</NMakeCleanCommandLine>", EscapePath(NormalizeProjectPath(Builder.CleanScript)), BuildArguments);
-            ProjectFileSB.AppendLine("    <NMakeOutput>{0}</NMakeOutput>", projectDirectoryParams.EngineExecutablePath);            
-            
+                EntireProjectDirectoryParams projectDirectoryParams = BuildProjectManager.GetInstance().GetProjectDirectoryParams();
+                // For now I will just call the script without any additional args.
+                ProjectFileSB.AppendLine("    <NMakeBuildCommandLine>{0}</NMakeBuildCommandLine>", projectDirectoryParams.CompileEngineScriptPath);
+                ProjectFileSB.AppendLine("    <NMakeReBuildCommandLine>{0}</NMakeReBuildCommandLine>", projectDirectoryParams.CompileEngineScriptPath);
 
-            // TODO make language standard
-            ProjectFileSB.AppendLine("    <AdditionalOptions>{0}</AdditionalOptions>", "/std:c++17");
+                // TODO Add Clean Script
+                //ProjectFileSB.AppendLine("    <NMakeCleanCommandLine>{0} {1}</NMakeCleanCommandLine>", EscapePath(NormalizeProjectPath(Builder.CleanScript)), BuildArguments);
+                ProjectFileSB.AppendLine("    <NMakeOutput>{0}</NMakeOutput>", projectDirectoryParams.EngineExecutablePath);
+
+
+                // TODO make language standard
+                ProjectFileSB.AppendLine("    <AdditionalOptions>{0}</AdditionalOptions>", "/std:c++17");
+            }
             ProjectFileSB.AppendLine("  </PropertyGroup>");
         }
 
         // In the case of a game, this would be the shared files from the engine.
         void WriteIntellisenseInfo()
         {
-            ProjectFileSB.AppendLine("  <PropertyGroup>");
+
+            if (!IsGeneratingEngine())
+            {
+                ProjectFileSB.AppendLine("  <PropertyGroup>");
 
 
-            string sharedIncludeDirectories = GetSharedIncludeFilesPaths();
-            ProjectFileSB.AppendLine("    <IncludePath>$(IncludePath);{0}</IncludePath>", sharedIncludeDirectories);
-            ProjectFileSB.AppendLine("    <NMakeForcedIncludes>$(NMakeForcedIncludes)</NMakeForcedIncludes>");
-            ProjectFileSB.AppendLine("    <NMakeAssemblySearchPath>$(NMakeAssemblySearchPath)</NMakeAssemblySearchPath>");
-            ProjectFileSB.AppendLine("    <AdditionalOptions>{0}</AdditionalOptions>", GetCppVersion(ECppVersion.Cpp17));
-            ProjectFileSB.AppendLine("  </PropertyGroup>");
+                string sharedIncludeDirectories = GetSharedIncludeFilesPaths();
+                ProjectFileSB.AppendLine("    <IncludePath>$(IncludePath);{0}</IncludePath>", sharedIncludeDirectories);
+                ProjectFileSB.AppendLine("    <NMakeForcedIncludes>$(NMakeForcedIncludes)</NMakeForcedIncludes>");
+                ProjectFileSB.AppendLine("    <NMakeAssemblySearchPath>$(NMakeAssemblySearchPath)</NMakeAssemblySearchPath>");
+                ProjectFileSB.AppendLine("    <AdditionalOptions>{0}</AdditionalOptions>", GetCppVersion(ECppVersion.Cpp17));
+                ProjectFileSB.AppendLine("  </PropertyGroup>");
+            }
 
 
             WriteIntellisenseInfoForEngineFiles();
@@ -304,7 +335,7 @@ namespace IshakBuildTool.Project
             ProjectFileSB.AppendLine("  <PropertyGroup>");
             ProjectFileSB.Append("    <SourcePath>");
 
-            foreach (IshakModule module in ProjectToHandle.Modules)
+            foreach (IshakModule module in ProjectToHandle.DependencyModules)
             {
                 ProjectFileSB.Append("{0};", module.PrivateDirectoryRef.Path);
             }
@@ -317,6 +348,8 @@ namespace IshakBuildTool.Project
         {
             ProjectToHandle.ProjectFile.SetProjectFileContent(ProjectFileSB.ToString());
             ProjectToHandle.ProjectFile.Create();
+
+            ProjectFileSB.Clear();
         }
 
         protected void ImportFinalProjectFileArguments()

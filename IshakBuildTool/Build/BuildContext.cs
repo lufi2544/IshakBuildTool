@@ -21,7 +21,7 @@ namespace IshakBuildTool.Build
 
         }
 
-        public void AddProject(string projectName, string projectPath, List<IshakModule> modules)
+        public void AddProject(string projectName, string projectPath, List<IshakModule> modules, List<IshakModule> dependencyModules)
         {
             IshakProject? foundProject = Projects.Find(projectParam => projectParam.Name == projectName);
             if (foundProject == null)
@@ -29,7 +29,8 @@ namespace IshakBuildTool.Build
                 IshakProject createdProject = new IshakProject(
                     projectName,
                     new IshakProjectFile(projectName, projectPath),
-                    modules);
+                    modules, 
+                    dependencyModules);
 
                 createdProject.WriteProjectFile();
                 Projects.Add(createdProject);

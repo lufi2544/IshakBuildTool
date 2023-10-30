@@ -10,7 +10,9 @@ namespace IshakBuildTool.Configuration
         {
             None,
             Debug,
-            Development,            
+            Development,
+            BuildWithIhshakBuildTool,
+            Invalid
         }
             
 }
