@@ -244,7 +244,8 @@ namespace IshakBuildTool.Project.Modules
                 }
             }
 
-            return Assembly.LoadFile(assemblyFileRef.Path);
+            string path = Path.GetFullPath(assemblyFileRef.Path);
+            return Assembly.LoadFile(Path.GetFullPath(assemblyFileRef.Path));
         }
         
     }

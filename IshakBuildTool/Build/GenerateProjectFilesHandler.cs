@@ -29,7 +29,7 @@ namespace IshakBuildTool.Build
             EntireProjectDirectoryParams dirParams = BuildProjectManager.GetInstance().GetProjectDirectoryParams();           
 
             ModuleManager moduleManager = new ModuleManager();
-            moduleManager.DiscoverAndCreateModules(dirParams.RootDir, new ProjectFile.DirectoryReference(dirParams.IntermediateDir));
+            moduleManager.DiscoverAndCreateModules(dirParams.RootDir.Path, new ProjectFile.DirectoryReference(dirParams.IntermediateDir.Path));
 
             return moduleManager.GetModules();
         }
@@ -56,10 +56,10 @@ namespace IshakBuildTool.Build
             // NOTE: In visual studio the first project in the .sln will be the default project in the IDE.
 
             // Add Game Project
-            buildContext.AddProject("Game", dirParams.ProjectFilesDir, gameModule, engineModules);
+            buildContext.AddProject("Game", dirParams.ProjectFilesDir.Path, gameModule, engineModules);
 
             // Add the Engine Project
-            buildContext.AddProject("IshakEngine", dirParams.ProjectFilesDir, engineModules, engineModules);
+            buildContext.AddProject("IshakEngine", dirParams.ProjectFilesDir.Path, engineModules, engineModules);
 
             return buildContext;
         }

@@ -36,6 +36,7 @@ namespace IshakBuildTool.Utils
             string engineSourceFolder = GetEngineSourceDir();
             return dirRef.Path.Contains(engineSourceFolder);
         }
+        
 
         public static string GetEngineSourceDir()
         {            

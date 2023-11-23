@@ -43,7 +43,7 @@ namespace IshakBuildTool.Build
             SolutionFileGenerator = new SolutionFileGenerator();
             SolutionFileGenerator.GenerateSolutionFile(
                 Projects,
-                BuildProjectManager.GetInstance().GetProjectDirectoryParams().RootDir,
+                BuildProjectManager.GetInstance().GetProjectDirectoryParams().RootDir.Path,
                 Test.TestEnviroment.DefaultEngineName);
 
             Console.WriteLine("---- GENERATION COMPLETED ---");

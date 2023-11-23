@@ -49,7 +49,7 @@ namespace IshakBuildTool.Project.Modules
             ModuleFile = moduleFileRef;  
             Directory = moduleFileRef.Directory;
             Name = moduleFileRef.GetFileNameWithoutExtension();
-            BinariesDirectory = DirectoryUtils.Combine(new DirectoryReference(BuildProjectManager.GetInstance().GetProjectDirectoryParams().BinaryDir), Name.ToString());
+            BinariesDirectory = DirectoryUtils.Combine(new DirectoryReference(BuildProjectManager.GetInstance().GetProjectDirectoryParams().BinaryDir.Path), Name.ToString());
             bThirdParty = Directory.Path.Contains("ThirdParty");
             bOnlyHeaderfileLib = moduleBuilder.OnlyHeaderLib;
             ThirdPartyModuleDllName = moduleBuilder.ThirdPartyDLLName;
@@ -57,13 +57,13 @@ namespace IshakBuildTool.Project.Modules
 
             if (bThirdParty)
             {
-                ModuleDllImportFile = new FileReference(FileUtils.Combine(new DirectoryReference(BuildProjectManager.GetInstance().GetProjectDirectoryParams().BinaryDir), ThirdPartyModuleDllImportName).Path);
-                ModuleDllFile = new FileReference(FileUtils.Combine(new DirectoryReference(BuildProjectManager.GetInstance().GetProjectDirectoryParams().BinaryDir), ThirdPartyModuleDllName).Path);
+                ModuleDllImportFile = new FileReference(FileUtils.Combine(new DirectoryReference(BuildProjectManager.GetInstance().GetProjectDirectoryParams().BinaryDir.Path), ThirdPartyModuleDllImportName).Path);
+                ModuleDllFile = new FileReference(FileUtils.Combine(new DirectoryReference(BuildProjectManager.GetInstance().GetProjectDirectoryParams().BinaryDir.Path), ThirdPartyModuleDllName).Path);
             }
             else
             {
-                ModuleDllImportFile = new FileReference(FileUtils.Combine(new DirectoryReference(BuildProjectManager.GetInstance().GetProjectDirectoryParams().BinaryDir), Name + BinaryTypesExtension.StaticLib).Path);
-                ModuleDllFile = new FileReference(FileUtils.Combine(new DirectoryReference(BuildProjectManager.GetInstance().GetProjectDirectoryParams().BinaryDir), Name + BinaryTypesExtension.DynamicLib).Path);            
+                ModuleDllImportFile = new FileReference(FileUtils.Combine(new DirectoryReference(BuildProjectManager.GetInstance().GetProjectDirectoryParams().BinaryDir.Path), Name + BinaryTypesExtension.StaticLib).Path);
+                ModuleDllFile = new FileReference(FileUtils.Combine(new DirectoryReference(BuildProjectManager.GetInstance().GetProjectDirectoryParams().BinaryDir.Path), Name + BinaryTypesExtension.DynamicLib).Path);            
             }
             PublicDependentModules = moduleBuilder.PublicModuleDependencies;
             PrivateDependentModules = moduleBuilder.PrivateModuleDependencies;

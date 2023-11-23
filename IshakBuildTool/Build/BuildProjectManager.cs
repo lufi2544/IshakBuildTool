@@ -1,4 +1,5 @@
-﻿using IshakBuildTool.Utils;
+﻿using IshakBuildTool.ProjectFile;
+using IshakBuildTool.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,11 +18,11 @@ namespace IshakBuildTool.Build
             
         }
         
-        public string RootDir { get; set;} = string.Empty;
-        public string SourceDir { get; set; } = string.Empty;
-        public string IntermediateDir { get; set; } = string.Empty;
-        public string ProjectFilesDir { get; set; } = string.Empty;
-        public string BinaryDir { get; set; } = string.Empty;  
+        public DirectoryReference RootDir { get; set;} = new DirectoryReference();
+        public DirectoryReference SourceDir { get; set; }  = new DirectoryReference();
+        public DirectoryReference IntermediateDir { get; set; } = new DirectoryReference();
+        public DirectoryReference ProjectFilesDir { get; set; } = new DirectoryReference();
+        public DirectoryReference BinaryDir { get; set; } = new DirectoryReference();
 
         public string ProjectType { get; set; } = string.Empty;        
 
@@ -57,6 +58,8 @@ namespace IshakBuildTool.Build
             EntireProjectDirectoryParams localProjectDirectoryParams = new EntireProjectDirectoryParams();
 
             bool bFoundRootDirArgumentCategory;
+
+            // We are gonna find the directory for the engine
             string foundArg = args.GetArgumentFromCategory("-r", out bFoundRootDirArgumentCategory);
             if (bFoundRootDirArgumentCategory == false)
             {
@@ -71,7 +74,35 @@ namespace IshakBuildTool.Build
                 throw new Exception(); 
             }
 
-            localProjectDirectoryParams.RootDir = foundArg;
+
+            bool bFromScrpit = false;
+            DirectoryReference thisDir = new DirectoryReference(Directory.GetCurrentDirectory().ToString());
+            if (!thisDir.IsUnder("net"))
+            {
+                bFromScrpit = true;
+            }
+
+
+            DirectoryReference? rootDir = null;
+            if (bFromScrpit)
+            {
+                rootDir = new DirectoryReference("../../../../IshakEngine");
+            }
+            else
+            {
+                rootDir = new DirectoryReference("../../../../../../../IshakEngine");
+            }
+
+            
+            if (rootDir.Exist() == false)
+            {
+                throw new ExecutionEngineException() { };
+            }
+            else
+            {
+                localProjectDirectoryParams.RootDir = rootDir;
+            }
+            
             localProjectDirectoryParams.ProjectType = foundProjectTypeArg;
 
             SetUpFolders(ref localProjectDirectoryParams);
@@ -80,24 +111,25 @@ namespace IshakBuildTool.Build
 
         void SetUpFolders(ref EntireProjectDirectoryParams outParams)
         {
-            string BaseDir = outParams.RootDir + Path.DirectorySeparatorChar;
+            DirectoryReference BaseDir = outParams.RootDir;
 
-            string SourceDir = BaseDir + "Source" + Path.DirectorySeparatorChar;
-            string IntermediateDir = BaseDir + "Intermediate" + Path.DirectorySeparatorChar;
-            string ProjectFilesDir = IntermediateDir + "ProjectFiles" + Path.DirectorySeparatorChar;
+            string SourceDir = BaseDir.Path + DirectoryReference.DirectorySeparatorChar + "Source" + DirectoryReference.DirectorySeparatorChar;
+            string IntermediateDir = BaseDir.Path + DirectoryReference.DirectorySeparatorChar  + "Intermediate" + DirectoryReference.DirectorySeparatorChar;
+            string ProjectFilesDir = IntermediateDir + "ProjectFiles" + DirectoryReference.DirectorySeparatorChar;
 
-            outParams.BinaryDir = BaseDir + "Binaries";
-            outParams.SourceDir = SourceDir;
-            outParams.IntermediateDir = IntermediateDir;
-            outParams.ProjectFilesDir = ProjectFilesDir;
-            StringBuilder b = new StringBuilder();
+            outParams.BinaryDir = new DirectoryReference(BaseDir.Path + DirectoryReference.DirectorySeparatorChar + "Binaries");
+            outParams.SourceDir = new DirectoryReference(SourceDir);
+            outParams.IntermediateDir = new DirectoryReference(IntermediateDir);
+            outParams.ProjectFilesDir = new DirectoryReference(ProjectFilesDir);
 
-            b.AppendFormat("{0}", BaseDir + "CompileIshakEngine.bat");
+            StringBuilder compileEngineScrpitPath = new StringBuilder();
+
+            compileEngineScrpitPath.AppendFormat("{0}", BaseDir.Path + DirectoryReference.DirectorySeparatorChar + "CompileIshakEngine.bat");
             
-            outParams.CompileEngineScriptPath = b.ToString();
+            outParams.CompileEngineScriptPath = compileEngineScrpitPath.ToString();
 
             // TODO BUILD REFACTOR
-            outParams.EngineExecutablePath = BaseDir + "Binaries" + Path.DirectorySeparatorChar + "IshakEngine.exe";
+            outParams.EngineExecutablePath = BaseDir.Path + DirectoryReference.DirectorySeparatorChar + "Binaries" + DirectoryReference.DirectorySeparatorChar + "IshakEngine.exe";
             
         }
 

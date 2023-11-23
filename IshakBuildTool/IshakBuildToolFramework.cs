@@ -18,7 +18,7 @@ namespace IshakBuildTool
         public IshakBuildToolFramework() 
         {
 
-        }        
+        }
 
         public static void Execute(string[] args)
         {
@@ -83,7 +83,7 @@ namespace IshakBuildTool
 
         static string GetBuildEnviromentRootDir()
         {
-            return BuildProjectManager.GetInstance().GetProjectDirectoryParams().RootDir;
+            return BuildProjectManager.GetInstance().GetProjectDirectoryParams().RootDir.Path;
         }
 
         public static string GetCommandLineParam(string commandLineCategory, out bool bFound)

@@ -52,6 +52,11 @@ namespace IshakBuildTool.ProjectFile
             return Path != string.Empty;
         }
 
+        public bool IsUnder(string folderToCheck)
+        {
+            return Path.Contains(folderToCheck);
+        }
+
         public bool Exist()
         {
             return DirectoryUtils.DirectoryExists(Path);

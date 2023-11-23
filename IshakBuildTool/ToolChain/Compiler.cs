@@ -590,7 +590,7 @@ namespace IshakBuildTool.ToolChain
             StringBuilder ishakEngineExecutablePath = new StringBuilder();
 
             // TODO Create the File?
-            ishakEngineExecutablePath.AppendFormat("{0}{1}", BuildProjectManager.GetInstance().GetProjectDirectoryParams().BinaryDir + DirectoryReference.DirectorySeparatorChar + Globals.IshakTypes.IshakEngineName, BinaryTypesExtension.Executable);
+            ishakEngineExecutablePath.AppendFormat("{0}{1}", BuildProjectManager.GetInstance().GetProjectDirectoryParams().BinaryDir.Path + DirectoryReference.DirectorySeparatorChar + Globals.IshakTypes.IshakEngineName, BinaryTypesExtension.Executable);
             args.Append("/NOLOGO ");
             args.Append("/DEBUG ");
             args.AppendFormat("/OUT:{0} ", ishakEngineExecutablePath.ToString());
